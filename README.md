@@ -1,2 +1,1393 @@
-# Omni-X
-Omni x eğlenceli bir sosyal medya platformudur burada arkadaşlarınızla yazışabilirsiniz ve eğlenceli içerikler paylaşabilir ve izleybilirsiniz
+```html
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OMNI - Social Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        omni: {
+                            black: '#000000',
+                            card: '#0a0a0a',
+                            border: 'rgba(16, 185, 129, 0.25)',
+                            green: '#10b981',
+                            neon: '#00ff87'
+                        }
+                    },
+                    boxShadow: {
+                        'neon': '0 0 15px rgba(0, 255, 135, 0.3)',
+                        'neon-lg': '0 0 25px rgba(16, 185, 129, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        body {
+            background-color: #000000;
+            color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .story-ring {
+            background: linear-gradient(45deg, #10b981, #00ff87, #047857);
+            padding: 2px;
+        }
+        .glass-header {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-loader {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-black text-white h-full min-h-screen pb-20">
+
+    <!-- SIGNUP / ACCOUNT CREATION & LOGIN SCREEN -->
+    <div id="signup-screen" class="hidden fixed inset-0 z-50 bg-black flex items-center justify-center p-4 max-w-md mx-auto">
+        <div class="w-full bg-zinc-950 border border-emerald-500/40 rounded-3xl p-6 space-y-5 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-3">
+                <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-300 tracking-wider">OMNI</h1>
+                <!-- MULTI-LANGUAGE SELECTOR DROPDOWN -->
+                <div class="flex items-center bg-zinc-900 border border-zinc-800 rounded-xl px-2 py-1 gap-1 text-xs text-emerald-400">
+                    <i class="fas fa-globe text-xs"></i>
+                    <select id="language-select" onchange="setLanguage(this.value)" class="bg-transparent text-xs text-white focus:outline-none cursor-pointer">
+                        <option value="tr" class="bg-zinc-950 text-white">Türkçe 🇹🇷</option>
+                        <option value="en" class="bg-zinc-950 text-white">English 🇺🇸</option>
+                        <option value="es" class="bg-zinc-950 text-white">Español 🇪🇸</option>
+                        <option value="de" class="bg-zinc-950 text-white">Deutsch 🇩🇪</option>
+                        <option value="fr" class="bg-zinc-950 text-white">Français 🇫🇷</option>
+                        <option value="it" class="bg-zinc-950 text-white">Italiano 🇮🇹</option>
+                        <option value="pt" class="bg-zinc-950 text-white">Português 🇧🇷</option>
+                        <option value="ru" class="bg-zinc-950 text-white">Русский 🇷🇺</option>
+                        <option value="ar" class="bg-zinc-950 text-white">العربية 🇸🇦</option>
+                        <option value="ja" class="bg-zinc-950 text-white">日本語 🇯🇵</option>
+                        <option value="ko" class="bg-zinc-950 text-white">한국어 🇰🇷</option>
+                        <option value="zh" class="bg-zinc-950 text-white">中文 🇨🇳</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="text-center space-y-1">
+                <p id="txt-welcome-subtitle" class="text-xs text-zinc-400">Tek tıkla kayıt ol veya var olan hesabınla giriş yap</p>
+            </div>
+
+            <div class="space-y-3.5">
+                <div>
+                    <label id="lbl-fullname" class="text-[11px] text-zinc-400 font-semibold mb-1 block">İsim Soyisim</label>
+                    <input type="text" id="signup-fullname" placeholder="Örn: Ahmet Yılmaz" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label id="lbl-email" class="text-[11px] text-zinc-400 font-semibold mb-1 block">Gmail / E-posta Adresi (Benzersiz)</label>
+                    <input type="email" id="signup-email" placeholder="ornek@gmail.com" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label id="lbl-avatar" class="text-[11px] text-zinc-400 font-semibold mb-1 block">Profil Fotoğrafı Seç (Opsiyonel)</label>
+                    <input type="file" id="signup-avatar-file" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer">
+                </div>
+
+                <div class="pt-1 space-y-2">
+                    <button onclick="directRegisterOrLogin()" class="w-full bg-gradient-to-r from-emerald-400 to-green-500 text-black font-extrabold py-3 rounded-xl text-xs hover:opacity-95 transition shadow-neon flex items-center justify-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span id="btn-login-text">Hesap Aç / Giriş Yap</span>
+                    </button>
+                    <p id="txt-login-hint" class="text-[10px] text-zinc-500 text-center">Girdiğin Gmail ile daha önce kayıt olduysan doğrudan hesabına bağlanırsın.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="main-app" class="hidden">
+        <!-- TOP HEADER -->
+        <header id="main-header" class="sticky top-0 z-40 glass-header border-b border-emerald-950/60 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('feed')">
+                <span class="font-black text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-300 to-green-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.5)]">OMNI</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="openModal('create-post-modal')" class="text-xl text-zinc-300 hover:text-emerald-400 transition" title="Yeni Gönderi">
+                    <i class="far fa-plus-square"></i>
+                </button>
+                <button onclick="switchTab('dms')" class="relative text-xl text-zinc-300 hover:text-emerald-400 transition" title="Mesajlar">
+                    <i class="far fa-paper-plane"></i>
+                    <span id="unread-dm-badge" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- APP CONTAINER -->
+        <div class="max-w-md mx-auto min-h-[calc(100vh-110px)] relative">
+
+            <!-- TAB 1: MAIN FEED -->
+            <section id="tab-feed" class="tab-content">
+                <!-- Stories Bar -->
+                <div class="py-3 px-2 border-b border-zinc-900 overflow-x-auto hide-scrollbar flex gap-4 items-center bg-black">
+                    <!-- Add Story -->
+                    <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer" onclick="openModal('create-story-modal')">
+                        <div class="relative w-16 h-16 rounded-full p-0.5 border-2 border-dashed border-emerald-500/60 flex items-center justify-center">
+                            <img id="my-story-avatar" src="" class="w-full h-full object-cover rounded-full">
+                            <div class="absolute bottom-0 right-0 bg-emerald-500 text-black w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border-2 border-black">
+                                <i class="fas fa-plus text-[10px]"></i>
+                            </div>
+                        </div>
+                        <span class="text-[11px] text-zinc-400 truncate w-16 text-center">Hikayen</span>
+                    </div>
+
+                    <!-- Story Items -->
+                    <div id="stories-container" class="flex gap-4">
+                        <!-- Dynamic Stories -->
+                    </div>
+                </div>
+
+                <!-- Feed Posts -->
+                <div id="posts-container" class="space-y-4 pt-2">
+                    <!-- Dynamic Posts -->
+                </div>
+            </section>
+
+            <!-- TAB 2: EXPLORE / SEARCH -->
+            <section id="tab-explore" class="tab-content hidden p-3 space-y-3">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3.5 top-3 text-zinc-500 text-sm"></i>
+                    <input type="text" id="search-input" onkeyup="filterExploreUsers()" placeholder="Ara (Kullanıcılar, etiketler...)" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <!-- Suggested Users to Follow -->
+                <div id="suggested-users-section" class="space-y-2 pt-1">
+                    <h3 class="text-xs font-bold text-emerald-400">Takip Edebileceğin Kişiler</h3>
+                    <div id="suggested-users-list" class="space-y-2">
+                        <!-- Dynamic User Cards -->
+                    </div>
+                </div>
+
+                <div id="explore-grid" class="grid grid-cols-3 gap-1 rounded-xl overflow-hidden pt-2">
+                    <!-- Dynamic Explore Grid -->
+                </div>
+            </section>
+
+            <!-- TAB 3: REELS / VIDEOS -->
+            <section id="tab-reels" class="tab-content hidden h-[80vh] relative bg-black rounded-2xl overflow-hidden border border-zinc-900">
+                <div id="reels-container" class="h-full overflow-y-scroll snap-y snap-mandatory hide-scrollbar">
+                    <!-- Dynamic Video Feed with Interactions -->
+                </div>
+            </section>
+
+            <!-- TAB 4: DIRECT MESSAGES (DM) -->
+            <section id="tab-dms" class="tab-content hidden p-3 space-y-3">
+                <div id="dm-list-view" class="space-y-3">
+                    <div class="flex justify-between items-center px-1">
+                        <h2 class="font-bold text-lg text-emerald-400">Mesajlar</h2>
+                        <span class="text-xs text-zinc-500">3 Sohbet</span>
+                    </div>
+                    <div id="chat-threads" class="space-y-1">
+                        <!-- Dynamic DM Threads -->
+                    </div>
+                </div>
+
+                <!-- Active Chat View -->
+                <div id="dm-chat-view" class="hidden fixed inset-0 z-50 bg-black flex flex-col max-w-md mx-auto">
+                    <div class="p-3 border-b border-zinc-800 flex items-center justify-between glass-header">
+                        <div class="flex items-center gap-3">
+                            <button onclick="closeChatView()" class="text-emerald-400 text-lg">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <img id="chat-user-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-emerald-500/40">
+                            <div>
+                                <h3 id="chat-user-name" class="font-bold text-sm text-white"></h3>
+                                <span class="text-[10px] text-emerald-400">Çevrimiçi</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
+                        <!-- Dynamic Messages -->
+                    </div>
+
+                    <div class="p-3 border-t border-zinc-900 flex items-center gap-2 bg-black">
+                        <input type="text" id="chat-input" placeholder="Mesaj yaz..." onkeypress="if(event.key==='Enter') sendDirectMessage()" class="flex-1 bg-zinc-900 border border-zinc-800 rounded-full px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        <button onclick="sendDirectMessage()" class="w-10 h-10 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold">
+                            <i class="fas fa-paper-plane text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: PROFILE & SAVED/LIKED -->
+            <section id="tab-profile" class="tab-content hidden p-4 space-y-4">
+                <div class="flex items-center justify-between gap-4">
+                    <div class="relative">
+                        <img id="profile-img-display" src="" class="w-20 h-20 rounded-full object-cover border-2 border-emerald-400 shadow-neon">
+                        <button onclick="openModal('edit-profile-modal')" class="absolute bottom-0 right-0 bg-emerald-500 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-md">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 flex justify-around text-center">
+                        <div>
+                            <p id="profile-post-count" class="font-extrabold text-base text-white">0</p>
+                            <p class="text-[11px] text-zinc-400">Gönderi</p>
+                        </div>
+                        <div class="cursor-pointer" onclick="openModal('followers-modal')">
+                            <p id="profile-follower-count" class="font-extrabold text-base text-emerald-400">3</p>
+                            <p class="text-[11px] text-zinc-400">Takipçi</p>
+                        </div>
+                        <div class="cursor-pointer" onclick="openModal('following-modal')">
+                            <p id="profile-following-count" class="font-extrabold text-base text-emerald-400">0</p>
+                            <p class="text-[11px] text-zinc-400">Takip</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <div class="flex items-center gap-1.5">
+                        <h3 id="profile-name-display" class="font-bold text-sm text-white"></h3>
+                        <i class="fas fa-check-circle text-emerald-400 text-xs" title="Doğrulanmış Hesap"></i>
+                    </div>
+                    <p id="profile-bio-display" class="text-xs text-zinc-300 leading-relaxed whitespace-pre-line"></p>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="openModal('edit-profile-modal')" class="flex-1 bg-zinc-900 border border-zinc-800 hover:border-emerald-500 py-2 rounded-xl text-xs font-semibold text-zinc-200 transition">Profili Düzenle</button>
+                    <button onclick="openModal('followers-modal')" class="bg-gradient-to-r from-emerald-500 to-green-400 text-black px-3 py-2 rounded-xl text-xs font-bold shadow-neon hover:opacity-90 transition">Takipçiler (3)</button>
+                    <button onclick="openModal('settings-modal')" class="bg-zinc-900 border border-zinc-800 text-emerald-400 px-3.5 py-2 rounded-xl text-xs font-bold hover:bg-zinc-800 transition" title="Ayarlar">
+                        <i class="fas fa-cog text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- PROFILE MEDIA TABS: GÖNDERİLER | BEĞENİLENLER | KAYDEDİLENLER -->
+                <div class="border-t border-zinc-900 pt-3">
+                    <div class="flex justify-around border-b border-zinc-900 pb-2 text-xs font-bold text-zinc-500">
+                        <button id="profile-tab-posts" onclick="switchProfileMediaTab('posts')" class="text-emerald-400 border-b-2 border-emerald-400 pb-1 flex items-center gap-1">
+                            <i class="fas fa-th"></i> Gönderiler
+                        </button>
+                        <button id="profile-tab-liked" onclick="switchProfileMediaTab('liked')" class="hover:text-emerald-400 pb-1 flex items-center gap-1">
+                            <i class="fas fa-heart"></i> Beğenilenler
+                        </button>
+                        <button id="profile-tab-saved" onclick="switchProfileMediaTab('saved')" class="hover:text-emerald-400 pb-1 flex items-center gap-1">
+                            <i class="fas fa-bookmark"></i> Kaydedilenler
+                        </button>
+                    </div>
+
+                    <div id="profile-grid" class="grid grid-cols-3 gap-1 pt-2">
+                        <!-- Dynamic Grid based on active profile tab -->
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- BOTTOM NAVIGATION BAR -->
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-md border-t border-zinc-900 max-w-md mx-auto px-6 py-3 flex justify-between items-center">
+            <button onclick="switchTab('feed')" id="nav-feed" class="nav-btn text-emerald-400 text-xl transition">
+                <i class="fas fa-home"></i>
+            </button>
+            <button onclick="switchTab('explore')" id="nav-explore" class="nav-btn text-zinc-500 hover:text-emerald-400 text-xl transition">
+                <i class="fas fa-search"></i>
+            </button>
+            <button onclick="openModal('create-post-modal')" class="w-10 h-10 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 text-black flex items-center justify-center font-bold text-lg shadow-neon transform active:scale-95 transition">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button onclick="switchTab('reels')" id="nav-reels" class="nav-btn text-zinc-500 hover:text-emerald-400 text-xl transition">
+                <i class="fas fa-film"></i>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn text-zinc-500 hover:text-emerald-400 text-xl transition">
+                <i class="fas fa-user"></i>
+            </button>
+        </nav>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- MODAL 1: CREATE POST -->
+    <div id="create-post-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400">Yeni Gönderi</h3>
+                <button onclick="closeModal('create-post-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] text-zinc-400 mb-1 block">Fotoğraf veya Video Seç</label>
+                    <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
+                </div>
+                <textarea id="post-caption-input" rows="3" placeholder="Açıklama yaz..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+            </div>
+            <button id="post-submit-btn" onclick="submitNewPost()" class="w-full bg-emerald-500 text-black font-bold py-2.5 rounded-xl text-xs shadow-neon flex items-center justify-center gap-2">
+                <span>Paylaş</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CREATE STORY -->
+    <div id="create-story-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400">Hikaye Ekle</h3>
+                <button onclick="closeModal('create-story-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div>
+                <label class="text-[10px] text-zinc-400 mb-1 block">Fotoğraf / Video Seç</label>
+                <input type="file" id="story-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
+            </div>
+            <button id="story-submit-btn" onclick="submitNewStory()" class="w-full bg-emerald-500 text-black font-bold py-2.5 rounded-xl text-xs shadow-neon flex items-center justify-center gap-2">
+                <span>Hikayelere Ekle</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: VIEW STORY -->
+    <div id="view-story-modal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4 max-w-md mx-auto">
+        <div class="w-full bg-zinc-800 h-1 rounded-full overflow-hidden">
+            <div id="story-progress-bar" class="bg-emerald-400 h-full w-0 transition-all duration-100"></div>
+        </div>
+        <div class="flex items-center justify-between py-2">
+            <div class="flex items-center gap-2">
+                <img id="story-user-avatar" src="" class="w-8 h-8 rounded-full border border-emerald-400 object-cover">
+                <span id="story-user-name" class="font-bold text-xs text-white"></span>
+            </div>
+            <button onclick="closeStoryView()" class="text-white text-base"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="story-media-container" class="flex-1 flex items-center justify-center my-2 overflow-hidden">
+            <!-- Dynamic Story Media -->
+        </div>
+    </div>
+
+    <!-- MODAL 4: EDIT PROFILE -->
+    <div id="edit-profile-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400">Profili Düzenle</h3>
+                <button onclick="closeModal('edit-profile-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] text-zinc-400 mb-1 block">Profil Fotoğrafı Seç</label>
+                    <input type="file" id="edit-profile-file-input" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-400">İsim Soyisim</label>
+                    <input type="text" id="edit-name-input" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="text-[10px] text-zinc-400">Biyografi</label>
+                    <textarea id="edit-bio-input" rows="2" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+            </div>
+            <button onclick="saveProfileEdit()" class="w-full bg-emerald-500 text-black font-bold py-2.5 rounded-xl text-xs shadow-neon">Kaydet</button>
+        </div>
+    </div>
+
+    <!-- MODAL 5: FOLLOWERS LIST -->
+    <div id="followers-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400">Takipçilerin (3 Bot)</h3>
+                <button onclick="closeModal('followers-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="followers-list" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                <!-- Dynamic Bot Followers List -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5B: FOLLOWING LIST -->
+    <div id="following-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400">Takip Ettiklerin</h3>
+                <button onclick="closeModal('following-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="following-list" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                <!-- Dynamic Following List -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 6: COMMENTS MODAL (FOR POSTS & VIDEOS) -->
+    <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-3 shadow-neon-lg flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400"><i class="far fa-comment text-xs mr-1"></i> Yorumlar</h3>
+                <button onclick="closeModal('comments-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="comments-list" class="flex-1 overflow-y-auto space-y-2 pr-1 my-2">
+                <!-- Dynamic Comments -->
+            </div>
+            <div class="flex gap-2 pt-2 border-t border-zinc-800">
+                <input type="text" id="comment-input" placeholder="Yorum ekle..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <button onclick="addCommentToPost()" class="bg-emerald-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-neon">Gönder</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 7: SETTINGS MODAL & ACCOUNT DELETION -->
+    <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400"><i class="fas fa-cog mr-1"></i> Uygulama Ayarları</h3>
+                <button onclick="closeModal('settings-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
+                    <span class="text-zinc-300">Bildirimler</span>
+                    <input type="checkbox" checked class="accent-emerald-500 cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-zinc-900 border border-zinc-800">
+                    <span class="text-zinc-300">Gizli Profil Modu</span>
+                    <input type="checkbox" class="accent-emerald-500 cursor-pointer">
+                </div>
+                <button onclick="clearAllData()" class="w-full text-left p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-amber-400 hover:border-amber-500/40 transition">
+                    <i class="fas fa-eraser mr-1"></i> Önbelleği Temizle
+                </button>
+            </div>
+
+            <div class="border-t border-zinc-800 pt-3 space-y-2">
+                <!-- LOGOUT BUTTON -->
+                <button onclick="logoutAccount()" class="w-full bg-zinc-900 border border-zinc-800 text-emerald-400 hover:bg-emerald-500/10 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Çıkış Yap</span>
+                </button>
+                <button onclick="deleteAccountPermanent()" class="w-full bg-red-500/20 border border-red-500/40 text-red-400 py-2.5 rounded-xl text-xs font-bold hover:bg-red-500/30 transition shadow-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Hesabı Sil (Kalıcı)</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APPLICATION LOGIC -->
+    <script>
+        const botFollowers = [
+            { id: "bot1", username: "can_tech", name: "Can Yılmaz", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" },
+            { id: "bot2", username: "ebru.art", name: "Ebru Kaya", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" },
+            { id: "bot3", username: "cyber_guru", name: "Kaan Demir", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150" }
+        ];
+
+        let state = {
+            currentUser: null,
+            users: [], // Registered users database
+            followingList: [], // Users/bots currently followed by logged in user
+            activeProfileTab: 'posts', // 'posts', 'liked', 'saved'
+            activeCommentPostId: null,
+            language: 'tr', // Default language
+            stories: [
+                { id: 1, user: "can_tech", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false },
+                { id: 2, user: "ebru.art", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500", isVideo: false }
+            ],
+            posts: [],
+            chats: [
+                { id: 1, user: "can_tech", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", lastMsg: "Selam! OMNI'ye hoş geldin.", msgs: ["Selam!", "OMNI'ye hoş geldin!"] }
+            ],
+            activeChatId: null
+        };
+
+        const translations = {
+            tr: {
+                subtitle: "Tek tıkla kayıt ol veya var olan hesabınla giriş yap",
+                fullname: "İsim Soyisim",
+                email: "Gmail / E-posta Adresi (Benzersiz)",
+                avatar: "Profil Fotoğrafı Seç (Opsiyonel)",
+                loginBtn: "Hesap Aç / Giriş Yap",
+                loginHint: "Girdiğin Gmail ile daha önce kayıt olduysan doğrudan hesabına bağlanırsın.",
+                fullnamePlaceholder: "Örn: Ahmet Yılmaz"
+            },
+            en: {
+                subtitle: "Sign up or log in with your existing account in one click",
+                fullname: "Full Name",
+                email: "Gmail / Email Address (Unique)",
+                avatar: "Select Profile Picture (Optional)",
+                loginBtn: "Create Account / Log In",
+                loginHint: "If you registered with this Gmail before, you will log in directly.",
+                fullnamePlaceholder: "Ex: John Doe"
+            },
+            es: {
+                subtitle: "Regístrate o inicia sesión con tu cuenta en un solo clic",
+                fullname: "Nombre y Apellidos",
+                email: "Gmail / Correo Electrónico (Único)",
+                avatar: "Foto de Perfil (Opcional)",
+                loginBtn: "Crear Cuenta / Iniciar Sesión",
+                loginHint: "Si ya te has registrado con este Gmail, accederás directamente.",
+                fullnamePlaceholder: "Ej: Carlos García"
+            },
+            de: {
+                subtitle: "Registrieren oder anmelden mit einem Klick",
+                fullname: "Vollständiger Name",
+                email: "Gmail / E-Mail-Adresse (Eindeutig)",
+                avatar: "Profilbild auswählen (Optional)",
+                loginBtn: "Konto erstellen / Anmelden",
+                loginHint: "Wenn Sie sich bereits mit dieser Gmail registriert haben, werden Sie direkt angemeldet.",
+                fullnamePlaceholder: "Z.B. Max Mustermann"
+            },
+            fr: {
+                subtitle: "Inscrivez-vous ou connectez-vous en un clic",
+                fullname: "Nom et Prénom",
+                email: "Gmail / Adresse E-mail (Unique)",
+                avatar: "Photo de Profil (Optionnel)",
+                loginBtn: "Créer un Compte / Se Connecter",
+                loginHint: "Si vous vous êtes déjà inscrit avec cet e-mail, vous serez connecté directement.",
+                fullnamePlaceholder: "Ex: Jean Dupont"
+            },
+            it: {
+                subtitle: "Registrati o accedi con il tuo account in un solo clic",
+                fullname: "Nome e Cognome",
+                email: "Gmail / Indirizzo Email (Unico)",
+                avatar: "Foto Profilo (Opzionale)",
+                loginBtn: "Crea Account / Accedi",
+                loginHint: "Se ti sei già registrato con questa Gmail, accederai direttamente.",
+                fullnamePlaceholder: "Es: Marco Rossi"
+            },
+            pt: {
+                subtitle: "Cadastre-se ou entre na sua conta com apenas um clique",
+                fullname: "Nome Completo",
+                email: "Gmail / Endereço de E-mail (Único)",
+                avatar: "Foto de Perfil (Opcional)",
+                loginBtn: "Criar Conta / Entrar",
+                loginHint: "Se você já se cadastrou com este Gmail, entrará diretamente.",
+                fullnamePlaceholder: "Ex: João Silva"
+            },
+            ru: {
+                subtitle: "Зарегистрируйтесь или войдите в один клик",
+                fullname: "Имя и Фамилия",
+                email: "Gmail / Электронная почта (Уникальный)",
+                avatar: "Фото профиля (Необязательно)",
+                loginBtn: "Создать аккаунт / Войти",
+                loginHint: "Если вы уже регистрировались с этим Gmail, вы войдете автоматически.",
+                fullnamePlaceholder: "Например: Иван Иванов"
+            },
+            ar: {
+                subtitle: "سجل أو قم بالتسجيل بنقرة واحدة",
+                fullname: "الاسم الكامل",
+                email: "البريد الإلكتروني / Gmail (فريد)",
+                avatar: "صورة الملف الشخصي (اختياري)",
+                loginBtn: "إنشاء حساب / تسجيل الدخول",
+                loginHint: "إذا كنت قد سجلت بهذا البريد الإلكتروني من قبل، فستسجل الدخول مباشرة.",
+                fullnamePlaceholder: "مثال: أحمد محمد"
+            },
+            ja: {
+                subtitle: "ワンタップで新規登録またはログイン",
+                fullname: "氏名",
+                email: "Gmail / メールアドレス（固有）",
+                avatar: "プロフィール写真の選択（任意）",
+                loginBtn: "アカウント作成 / ログイン",
+                loginHint: "過去にこのGmailで登録されている場合は、直接ログインします。",
+                fullnamePlaceholder: "例：山田太郎"
+            },
+            ko: {
+                subtitle: "원클릭으로 가입하거나 로그인하세요",
+                fullname: "이름",
+                email: "Gmail / 이메일 주소 (고유)",
+                avatar: "프로필 사진 선택 (선택)",
+                loginBtn: "계정 생성 / 로그인",
+                loginHint: "이 이전 Gmail로 가입한 경우 즉시 로그인됩니다.",
+                fullnamePlaceholder: "예: 홍길동"
+            },
+            zh: {
+                subtitle: "一键注册或登录现有账号",
+                fullname: "姓名",
+                email: "Gmail / 电子邮件地址（唯一）",
+                avatar: "选择头像（可选）",
+                loginBtn: "创建账号 / 登录",
+                loginHint: "如果您之前已使用此 Gmail 注册，将直接登录。",
+                fullnamePlaceholder: "例如：张伟"
+            }
+        };
+
+        function setLanguage(lang) {
+            state.language = lang;
+            const t = translations[lang] || translations['tr'];
+
+            document.getElementById('txt-welcome-subtitle').innerText = t.subtitle;
+            document.getElementById('lbl-fullname').innerText = t.fullname;
+            document.getElementById('lbl-email').innerText = t.email;
+            document.getElementById('lbl-avatar').innerText = t.avatar;
+            document.getElementById('btn-login-text').innerText = t.loginBtn;
+            document.getElementById('txt-login-hint').innerText = t.loginHint;
+            document.getElementById('signup-fullname').placeholder = t.fullnamePlaceholder;
+
+            const select = document.getElementById('language-select');
+            if (select) select.value = lang;
+        }
+
+        window.onload = function() {
+            loadSavedDatabase();
+            if (!state.currentUser) {
+                document.getElementById('signup-screen').classList.remove('hidden');
+                document.getElementById('main-app').classList.add('hidden');
+            } else {
+                document.getElementById('signup-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                initMainApp();
+            }
+        };
+
+        function loadSavedDatabase() {
+            // Load users list
+            const savedUsers = localStorage.getItem('omni_registered_users');
+            if (savedUsers) {
+                try { state.users = JSON.parse(savedUsers); } catch(e) { state.users = []; }
+            }
+
+            // Load logged in active user session
+            const savedActiveUser = localStorage.getItem('omni_active_user_email');
+            if (savedActiveUser) {
+                const userObj = state.users.find(u => u.email.toLowerCase() === savedActiveUser.toLowerCase());
+                if (userObj) {
+                    state.currentUser = userObj;
+                }
+            }
+
+            // Fallback: check legacy user storage
+            if (!state.currentUser) {
+                const legacyUser = localStorage.getItem('omni_user_data');
+                if (legacyUser) {
+                    try {
+                        const parsed = JSON.parse(legacyUser);
+                        state.currentUser = parsed;
+                        if (!state.users.some(u => u.email === parsed.email)) {
+                            state.users.push(parsed);
+                            localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
+                        }
+                        localStorage.setItem('omni_active_user_email', parsed.email);
+                    } catch(e){}
+                }
+            }
+
+            // Load saved following list for current user
+            if (state.currentUser) {
+                const savedFollowing = localStorage.getItem(`omni_following_${state.currentUser.email}`);
+                if (savedFollowing) {
+                    try { state.followingList = JSON.parse(savedFollowing); } catch(e){ state.followingList = []; }
+                } else {
+                    state.followingList = [];
+                }
+            }
+
+            // Load posts
+            const savedPosts = localStorage.getItem('omni_posts_data');
+            if (savedPosts) {
+                try { state.posts = JSON.parse(savedPosts); } catch(e){}
+            }
+        }
+
+        // UNIQUE EMAIL CONSTRAINT REGISTER OR AUTO-LOGIN
+        function directRegisterOrLogin() {
+            const fullname = document.getElementById('signup-fullname').value.trim();
+            const email = document.getElementById('signup-email').value.trim().toLowerCase();
+            const avatarFile = document.getElementById('signup-avatar-file');
+
+            if (!email) {
+                alert("Lütfen geçerli bir Gmail / E-posta adresi girin!");
+                return;
+            }
+
+            // Check if user with this email already exists
+            const existingUser = state.users.find(u => u.email.toLowerCase() === email);
+
+            if (existingUser) {
+                // AUTO LOGIN EXISTING USER
+                state.currentUser = existingUser;
+                localStorage.setItem('omni_active_user_email', existingUser.email);
+                
+                const savedFollowing = localStorage.getItem(`omni_following_${existingUser.email}`);
+                state.followingList = savedFollowing ? JSON.parse(savedFollowing) : [];
+
+                document.getElementById('signup-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                initMainApp();
+                return;
+            }
+
+            // NEW ACCOUNT CREATION (Requires Name)
+            if (!fullname) {
+                alert("Yeni hesap oluşturmak için lütfen Ad Soyad giriniz!");
+                return;
+            }
+
+            const username = email.split('@')[0].replace(/[^a-z0-9]/g, '');
+
+            const finalizeLogin = (avatarUrl) => {
+                const newUser = {
+                    username: username || "kullanici",
+                    name: fullname,
+                    email: email,
+                    avatar: avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+                    bio: "✨ OMNI Sosyal Ağ Üyesi\n🚀 Aramıza katıldım!",
+                    followers: 3,
+                    following: 0,
+                    verified: true
+                };
+
+                state.users.push(newUser);
+                state.currentUser = newUser;
+                state.followingList = [];
+
+                localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
+                localStorage.setItem('omni_active_user_email', newUser.email);
+                localStorage.setItem('omni_user_data', JSON.stringify(newUser));
+                localStorage.setItem(`omni_following_${newUser.email}`, JSON.stringify([]));
+
+                document.getElementById('signup-screen').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                initMainApp();
+            };
+
+            if (avatarFile.files && avatarFile.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) { finalizeLogin(e.target.result); };
+                reader.readAsDataURL(avatarFile.files[0]);
+            } else {
+                finalizeLogin(null);
+            }
+        }
+
+        // LOGOUT ACCOUNT (PRESERVES DATA, CLEAR ACTIVE SESSION ONLY)
+        function logoutAccount() {
+            if (confirm("Hesabınızdan çıkış yapmak istediğinizden emin misiniz? (Tekrar e-postanız ile giriş yapabilirsiniz)")) {
+                localStorage.removeItem('omni_active_user_email');
+                localStorage.removeItem('omni_user_data');
+                state.currentUser = null;
+                location.reload();
+            }
+        }
+
+        // DELETE ACCOUNT PERMANENTLY
+        function deleteAccountPermanent() {
+            if (confirm("DİKKAT: Hesabınızı silmek üzeresiniz. Bu e-posta adresine ait kullanıcı verileri tamamen kaldırılacaktır. Onaylıyor musunuz?")) {
+                if (state.currentUser) {
+                    state.users = state.users.filter(u => u.email.toLowerCase() !== state.currentUser.email.toLowerCase());
+                    localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
+                    localStorage.removeItem(`omni_following_${state.currentUser.email}`);
+                }
+                localStorage.removeItem('omni_active_user_email');
+                localStorage.removeItem('omni_user_data');
+                location.reload();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm("Tüm önbellek ve veriler temizlensin mi?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function initMainApp() {
+            renderStories();
+            renderPosts();
+            renderExplore();
+            renderReels();
+            renderChats();
+            renderProfile();
+            renderFollowersList();
+            renderFollowingList();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-emerald-400');
+                btn.classList.add('text-zinc-500');
+            });
+            const activeNav = document.getElementById('nav-' + tabName);
+            if(activeNav) {
+                activeNav.classList.remove('text-zinc-500');
+                activeNav.classList.add('text-emerald-400');
+            }
+
+            if (tabName === 'reels') {
+                renderReels();
+            } else if (tabName === 'explore') {
+                renderExplore();
+            }
+        }
+
+        function renderStories() {
+            const container = document.getElementById('stories-container');
+            container.innerHTML = state.stories.map(s => `
+                <div onclick="openStoryView('${s.user}', '${s.avatar}', '${s.url}', ${s.isVideo})" class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
+                    <div class="story-ring w-16 h-16 rounded-full flex items-center justify-center">
+                        <img src="${s.avatar}" class="w-full h-full object-cover rounded-full border-2 border-black">
+                    </div>
+                    <span class="text-[11px] text-zinc-300 truncate w-16 text-center">${s.user}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderPosts() {
+            const container = document.getElementById('posts-container');
+            if (state.posts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 px-4 space-y-3">
+                        <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto text-xl">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-zinc-200">Henüz Gönderi Yok</h3>
+                        <p class="text-xs text-zinc-500 max-w-xs mx-auto">İlk fotoğraf veya videonuzu yükleyerek OMNI topluluğuna katılın.</p>
+                        <button onclick="openModal('create-post-modal')" class="bg-emerald-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-neon">
+                            Gönderi Paylaş
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = state.posts.map(p => `
+                <article class="bg-black border-b border-zinc-900 pb-4">
+                    <div class="flex items-center justify-between p-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="story-ring w-9 h-9 rounded-full flex items-center justify-center">
+                                <img src="${p.avatar}" class="w-full h-full object-cover rounded-full border border-black">
+                            </div>
+                            <span class="font-bold text-xs text-white">${p.user}</span>
+                        </div>
+                        <i class="fas fa-ellipsis-h text-zinc-500 text-xs cursor-pointer"></i>
+                    </div>
+
+                    <div class="relative overflow-hidden cursor-pointer" ondblclick="toggleLike(${p.id})">
+                        ${p.isVideo ? 
+                            `<video src="${p.url}" controls playsinline preload="metadata" class="w-full max-h-[450px] object-cover bg-zinc-950"></video>` : 
+                            `<img src="${p.url}" class="w-full max-h-[450px] object-cover">`
+                        }
+                    </div>
+
+                    <div class="p-3 space-y-2">
+                        <div class="flex justify-between items-center text-lg">
+                            <div class="flex gap-4">
+                                <button onclick="toggleLike(${p.id})" class="${p.liked ? 'text-emerald-400' : 'text-zinc-300'} transition">
+                                    <i class="${p.liked ? 'fas' : 'far'} fa-heart"></i>
+                                </button>
+                                <button onclick="openCommentsModal(${p.id})" class="text-zinc-300 hover:text-emerald-400">
+                                    <i class="far fa-comment"></i>
+                                </button>
+                                <button class="text-zinc-300 hover:text-emerald-400"><i class="far fa-paper-plane"></i></button>
+                            </div>
+                            <button onclick="toggleSave(${p.id})" class="${p.saved ? 'text-emerald-400' : 'text-zinc-300'} transition">
+                                <i class="${p.saved ? 'fas' : 'far'} fa-bookmark"></i>
+                            </button>
+                        </div>
+
+                        <p class="font-bold text-xs text-emerald-400">${p.likes || 0} beğenme</p>
+                        <p class="text-xs text-zinc-200"><span class="font-bold mr-1 text-white">${p.user}</span>${p.caption}</p>
+                        ${(p.comments && p.comments.length > 0) ? 
+                            `<p onclick="openCommentsModal(${p.id})" class="text-[11px] text-zinc-500 cursor-pointer">${p.comments.length} yorumun tümünü gör</p>` : 
+                            `<p onclick="openCommentsModal(${p.id})" class="text-[11px] text-zinc-600 cursor-pointer">İlk yorumu sen yaz...</p>`
+                        }
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function toggleLike(postId) {
+            const post = state.posts.find(p => p.id === postId);
+            if(post) {
+                post.liked = !post.liked;
+                post.likes = (post.likes || 0) + (post.liked ? 1 : -1);
+                savePostsState();
+                renderPosts();
+                if(state.activeProfileTab === 'liked') renderProfileGrid();
+            }
+        }
+
+        function toggleSave(postId) {
+            const post = state.posts.find(p => p.id === postId);
+            if(post) {
+                post.saved = !post.saved;
+                savePostsState();
+                renderPosts();
+                if(state.activeProfileTab === 'saved') renderProfileGrid();
+            }
+        }
+
+        function savePostsState() {
+            try {
+                localStorage.setItem('omni_posts_data', JSON.stringify(state.posts));
+            } catch(e){}
+        }
+
+        // COMMENTS SYSTEM
+        function openCommentsModal(postId) {
+            state.activeCommentPostId = postId;
+            renderComments();
+            openModal('comments-modal');
+        }
+
+        function renderComments() {
+            const post = state.posts.find(p => p.id === state.activeCommentPostId);
+            const list = document.getElementById('comments-list');
+            if (!post || !post.comments || post.comments.length === 0) {
+                list.innerHTML = `<p class="text-center text-xs text-zinc-500 py-6">Henüz yorum yapılmamış.</p>`;
+                return;
+            }
+            list.innerHTML = post.comments.map(c => `
+                <div class="bg-zinc-900/80 p-2 rounded-xl text-xs border border-zinc-800">
+                    <span class="font-bold text-emerald-400 mr-1.5">${c.user}:</span>
+                    <span class="text-zinc-200">${c.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function addCommentToPost() {
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if(!text || !state.activeCommentPostId) return;
+
+            const post = state.posts.find(p => p.id === state.activeCommentPostId);
+            if(post) {
+                if(!post.comments) post.comments = [];
+                post.comments.push({
+                    user: state.currentUser ? state.currentUser.username : "kullanici",
+                    text: text
+                });
+                savePostsState();
+                input.value = '';
+                renderComments();
+                renderPosts();
+            }
+        }
+
+        // REAL FOLLOW / UNFOLLOW SYSTEM FOR OTHER USERS & BOTS
+        function toggleFollowUser(username, userObj = null) {
+            if (!state.currentUser) return;
+
+            const isFollowing = state.followingList.some(u => u.username === username);
+
+            if (isFollowing) {
+                state.followingList = state.followingList.filter(u => u.username !== username);
+            } else {
+                let targetUser = userObj;
+                if (!targetUser) {
+                    targetUser = botFollowers.find(b => b.username === username) || state.users.find(u => u.username === username);
+                }
+                if (targetUser) {
+                    state.followingList.push({
+                        username: targetUser.username,
+                        name: targetUser.name,
+                        avatar: targetUser.avatar
+                    });
+                }
+            }
+
+            // Save following list
+            localStorage.setItem(`omni_following_${state.currentUser.email}`, JSON.stringify(state.followingList));
+
+            // Update UI
+            renderProfile();
+            renderExplore();
+            renderFollowingList();
+        }
+
+        function filterExploreUsers() {
+            renderExplore();
+        }
+
+        function renderExplore() {
+            const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+            const suggestedList = document.getElementById('suggested-users-list');
+
+            // Combine bot accounts and registered users (excluding current logged in user)
+            let allPeople = [
+                ...botFollowers,
+                ...state.users.filter(u => u.email.toLowerCase() !== (state.currentUser ? state.currentUser.email.toLowerCase() : ''))
+            ];
+
+            if (query) {
+                allPeople = allPeople.filter(p => p.username.toLowerCase().includes(query) || p.name.toLowerCase().includes(query));
+            }
+
+            if (allPeople.length === 0) {
+                suggestedList.innerHTML = `<p class="text-xs text-zinc-500 text-center py-2">Aranan kriterde kimse bulunamadı.</p>`;
+            } else {
+                suggestedList.innerHTML = allPeople.map(u => {
+                    const isFollowing = state.followingList.some(f => f.username === u.username);
+                    return `
+                        <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800/80 p-2.5 rounded-xl">
+                            <div class="flex items-center gap-2.5">
+                                <img src="${u.avatar}" class="w-9 h-9 rounded-full object-cover border border-emerald-500/30">
+                                <div>
+                                    <p class="font-bold text-xs text-white">${u.username}</p>
+                                    <p class="text-[10px] text-zinc-400">${u.name}</p>
+                                </div>
+                            </div>
+                            <button onclick="toggleFollowUser('${u.username}')" class="${isFollowing ? 'bg-zinc-800 text-zinc-300 border border-zinc-700' : 'bg-emerald-500 text-black shadow-neon font-extrabold'} px-3 py-1.5 rounded-lg text-[11px] transition">
+                                ${isFollowing ? 'Takiptesin' : 'Takip Et'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const grid = document.getElementById('explore-grid');
+            if (state.posts.length === 0) {
+                grid.innerHTML = `<p class="col-span-3 text-center text-xs text-zinc-500 py-6">Keşfete düşen gönderi bulunmuyor.</p>`;
+                return;
+            }
+            grid.innerHTML = state.posts.map(item => `
+                <div class="aspect-square bg-zinc-900 overflow-hidden">
+                    ${item.isVideo ? `<video src="${item.url}" class="w-full h-full object-cover"></video>` : `<img src="${item.url}" class="w-full h-full object-cover">`}
+                </div>
+            `).join('');
+        }
+
+        // REELS SECTION WITH INTERACTION
+        function renderReels() {
+            const container = document.getElementById('reels-container');
+            const videoPosts = state.posts.filter(p => p.isVideo);
+
+            if (videoPosts.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center p-6 text-center space-y-3">
+                        <div class="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-2xl">
+                            <i class="fas fa-film"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-zinc-200">Video Bulunamadı</h3>
+                        <p class="text-xs text-zinc-500 max-w-xs">Videolarınız bu alanda akıcı reels formatında gösterilir.</p>
+                        <button onclick="openModal('create-post-modal')" class="bg-gradient-to-r from-emerald-400 to-green-500 text-black px-5 py-2.5 rounded-xl text-xs font-bold shadow-neon">
+                            <i class="fas fa-video mr-1"></i> Video Yükle
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = videoPosts.map(r => `
+                <div class="snap-start h-full w-full relative flex items-center justify-center bg-black">
+                    <video src="${r.url}" controls loop playsinline class="w-full h-full object-cover"></video>
+                    
+                    <div class="absolute right-3 bottom-12 flex flex-col gap-4 items-center z-20">
+                        <button onclick="toggleLike(${r.id})" class="flex flex-col items-center text-white">
+                            <div class="w-10 h-10 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center ${r.liked ? 'text-emerald-400' : 'text-zinc-300'} text-lg">
+                                <i class="${r.liked ? 'fas' : 'far'} fa-heart"></i>
+                            </div>
+                            <span class="text-[10px] text-zinc-300 mt-0.5">${r.likes || 0}</span>
+                        </button>
+                        <button onclick="openCommentsModal(${r.id})" class="flex flex-col items-center text-white">
+                            <div class="w-10 h-10 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center text-zinc-300 text-lg">
+                                <i class="far fa-comment"></i>
+                            </div>
+                            <span class="text-[10px] text-zinc-300 mt-0.5">${r.comments ? r.comments.length : 0}</span>
+                        </button>
+                        <button onclick="toggleSave(${r.id})" class="flex flex-col items-center text-white">
+                            <div class="w-10 h-10 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center ${r.saved ? 'text-emerald-400' : 'text-zinc-300'} text-lg">
+                                <i class="${r.saved ? 'fas' : 'far'} fa-bookmark"></i>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="absolute bottom-6 left-4 right-16 space-y-1.5 z-10 text-white pointer-events-none">
+                        <span class="font-bold text-xs bg-black/60 px-2 py-1 rounded-lg border border-zinc-800">@${r.user}</span>
+                        <p class="text-xs text-zinc-200 drop-shadow line-clamp-2">${r.caption}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderChats() {
+            const threads = document.getElementById('chat-threads');
+            threads.innerHTML = state.chats.map(c => `
+                <div onclick="openChatView(${c.id})" class="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-950 hover:bg-zinc-900 border border-zinc-900 cursor-pointer">
+                    <img src="${c.avatar}" class="w-10 h-10 rounded-full object-cover border border-emerald-500/40">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-xs text-white">${c.user}</h4>
+                        <p class="text-[11px] text-zinc-400 truncate">${c.lastMsg}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openChatView(chatId) {
+            state.activeChatId = chatId;
+            const chat = state.chats.find(c => c.id === chatId);
+            if(!chat) return;
+            document.getElementById('chat-user-avatar').src = chat.avatar;
+            document.getElementById('chat-user-name').innerText = chat.user;
+            renderChatMessages();
+            document.getElementById('dm-chat-view').classList.remove('hidden');
+        }
+
+        function closeChatView() {
+            document.getElementById('dm-chat-view').classList.add('hidden');
+        }
+
+        function renderChatMessages() {
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            if(!chat) return;
+            const box = document.getElementById('chat-messages');
+            box.innerHTML = chat.msgs.map(m => `
+                <div class="bg-zinc-900 border border-zinc-800 p-2.5 rounded-xl max-w-[80%] text-xs text-zinc-200">
+                    ${m}
+                </div>
+            `).join('');
+        }
+
+        function sendDirectMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg || !state.activeChatId) return;
+
+            const chat = state.chats.find(c => c.id === state.activeChatId);
+            chat.msgs.push(msg);
+            chat.lastMsg = msg;
+            input.value = '';
+            renderChatMessages();
+            renderChats();
+        }
+
+        // PROFILE & MEDIA TABS SWITCHER
+        function switchProfileMediaTab(tab) {
+            state.activeProfileTab = tab;
+            ['posts', 'liked', 'saved'].forEach(t => {
+                const btn = document.getElementById(`profile-tab-${t}`);
+                if (btn) {
+                    btn.classList.remove('text-emerald-400', 'border-b-2', 'border-emerald-400');
+                    btn.classList.add('hover:text-emerald-400');
+                }
+            });
+            const activeBtn = document.getElementById(`profile-tab-${tab}`);
+            if(activeBtn) {
+                activeBtn.classList.add('text-emerald-400', 'border-b-2', 'border-emerald-400');
+            }
+            renderProfileGrid();
+        }
+
+        function renderProfile() {
+            if(!state.currentUser) return;
+            document.getElementById('profile-img-display').src = state.currentUser.avatar;
+            document.getElementById('my-story-avatar').src = state.currentUser.avatar;
+            document.getElementById('profile-name-display').innerText = state.currentUser.name;
+            document.getElementById('profile-bio-display').innerText = state.currentUser.bio;
+            document.getElementById('edit-name-input').value = state.currentUser.name;
+            document.getElementById('edit-bio-input').value = state.currentUser.bio;
+
+            const userPosts = state.posts.filter(p => p.user === state.currentUser.username);
+            document.getElementById('profile-post-count').innerText = userPosts.length;
+
+            // REAL DYNAMIC FOLLOWING COUNT (REMOVED FIXED 340)
+            document.getElementById('profile-following-count').innerText = state.followingList ? state.followingList.length : 0;
+
+            renderProfileGrid();
+        }
+
+        function renderProfileGrid() {
+            const grid = document.getElementById('profile-grid');
+            let list = [];
+
+            if (state.activeProfileTab === 'posts') {
+                list = state.posts.filter(p => p.user === (state.currentUser ? state.currentUser.username : ''));
+            } else if (state.activeProfileTab === 'liked') {
+                list = state.posts.filter(p => p.liked);
+            } else if (state.activeProfileTab === 'saved') {
+                list = state.posts.filter(p => p.saved);
+            }
+
+            if (list.length === 0) {
+                grid.innerHTML = `<p class="col-span-3 text-center text-xs text-zinc-500 py-6">İçerik bulunmuyor.</p>`;
+                return;
+            }
+
+            grid.innerHTML = list.map(p => `
+                <div class="aspect-square overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 relative">
+                    ${p.isVideo ? `<video src="${p.url}" class="w-full h-full object-cover"></video>` : `<img src="${p.url}" class="w-full h-full object-cover">`}
+                    <div class="absolute bottom-1 right-1 text-[10px] text-emerald-400 bg-black/70 px-1 rounded">
+                        ${p.isVideo ? '<i class="fas fa-video"></i>' : '<i class="fas fa-image"></i>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderFollowersList() {
+            const list = document.getElementById('followers-list');
+            list.innerHTML = botFollowers.map(b => `
+                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-900 border border-zinc-800">
+                    <div class="flex items-center gap-2.5">
+                        <img src="${b.avatar}" class="w-8 h-8 rounded-full object-cover">
+                        <div>
+                            <p class="font-bold text-xs text-white">${b.username}</p>
+                            <p class="text-[10px] text-zinc-400">${b.name}</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-lg font-bold">Takipçin</span>
+                </div>
+            `).join('');
+        }
+
+        function renderFollowingList() {
+            const list = document.getElementById('following-list');
+            if (!state.followingList || state.followingList.length === 0) {
+                list.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Henüz kimseyi takip etmiyorsun. Keşfet sekmesinden yeni kişileri takip edebilirsin!</p>`;
+                return;
+            }
+
+            list.innerHTML = state.followingList.map(f => `
+                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-900 border border-zinc-800">
+                    <div class="flex items-center gap-2.5">
+                        <img src="${f.avatar}" class="w-8 h-8 rounded-full object-cover">
+                        <div>
+                            <p class="font-bold text-xs text-white">${f.username}</p>
+                            <p class="text-[10px] text-zinc-400">${f.name}</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleFollowUser('${f.username}')" class="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-1 rounded-lg font-bold hover:bg-red-500/20 hover:text-red-400 transition">
+                        Takipten Çık
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function submitNewPost() {
+            const fileInput = document.getElementById('post-file-input');
+            const caption = document.getElementById('post-caption-input').value.trim() || "OMNI'de harika bir an! 💚";
+            const btn = document.getElementById('post-submit-btn');
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert("Lütfen cihazınızdan bir fotoğraf veya video seçin!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const isVid = file.type.startsWith('video');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner animate-loader"></i> <span>Yükleniyor...</span>`;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                state.posts.unshift({
+                    id: Date.now(),
+                    user: state.currentUser ? state.currentUser.username : "kullanici",
+                    avatar: state.currentUser ? state.currentUser.avatar : "",
+                    url: e.target.result,
+                    isVideo: isVid,
+                    caption: caption,
+                    likes: 1,
+                    liked: true,
+                    saved: false,
+                    comments: []
+                });
+
+                savePostsState();
+
+                btn.disabled = false;
+                btn.innerHTML = `<span>Paylaş</span>`;
+                fileInput.value = '';
+                document.getElementById('post-caption-input').value = '';
+                closeModal('create-post-modal');
+
+                renderPosts();
+                renderExplore();
+                renderReels();
+                renderProfile();
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function submitNewStory() {
+            const fileInput = document.getElementById('story-file-input');
+            const btn = document.getElementById('story-submit-btn');
+
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert("Lütfen bir hikaye medyası seçin!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const isVid = file.type.startsWith('video');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner animate-loader"></i> <span>Yükleniyor...</span>`;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                state.stories.unshift({
+                    id: Date.now(),
+                    user: state.currentUser ? state.currentUser.username : "kullanici",
+                    avatar: state.currentUser ? state.currentUser.avatar : "",
+                    url: e.target.result,
+                    isVideo: isVid
+                });
+
+                btn.disabled = false;
+                btn.innerHTML = `<span>Hikayelere Ekle</span>`;
+                fileInput.value = '';
+                closeModal('create-story-modal');
+                renderStories();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openStoryView(user, avatar, url, isVideo) {
+            document.getElementById('story-user-name').innerText = user;
+            document.getElementById('story-user-avatar').src = avatar;
+            const container = document.getElementById('story-media-container');
+            container.innerHTML = isVideo ? `<video src="${url}" autoplay playsinline controls class="max-h-full max-w-full rounded-xl"></video>` : `<img src="${url}" class="max-h-full max-w-full rounded-xl object-contain">`;
+            document.getElementById('view-story-modal').classList.remove('hidden');
+        }
+
+        function closeStoryView() {
+            document.getElementById('view-story-modal').classList.add('hidden');
+        }
+
+        function saveProfileEdit() {
+            const name = document.getElementById('edit-name-input').value.trim();
+            const bio = document.getElementById('edit-bio-input').value.trim();
+            const fileInput = document.getElementById('edit-profile-file-input');
+
+            if(name) state.currentUser.name = name;
+            if(bio) state.currentUser.bio = bio;
+
+            const updatePersistentState = () => {
+                const uIdx = state.users.findIndex(u => u.email.toLowerCase() === state.currentUser.email.toLowerCase());
+                if (uIdx !== -1) state.users[uIdx] = state.currentUser;
+                localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
+                localStorage.setItem('omni_user_data', JSON.stringify(state.currentUser));
+                closeModal('edit-profile-modal');
+                renderProfile();
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    state.currentUser.avatar = e.target.result;
+                    fileInput.value = '';
+                    updatePersistentState();
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                updatePersistentState();
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    </script>
+</body>
+</html>
+```
