@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="tr" class="dark">
 <head>
@@ -108,7 +107,7 @@
                 </div>
                 <div>
                     <label id="lbl-avatar" class="text-[11px] text-zinc-400 font-semibold mb-1 block">Profil Fotoğrafı Seç (Opsiyonel)</label>
-                    <input type="file" id="signup-avatar-file" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer">
+                    <input type="file" id="signup-avatar-file" accept="image/*" onchange="handleImageSelectForCrop(event, 'signup')" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer">
                 </div>
 
                 <div class="pt-1 space-y-2">
@@ -191,7 +190,7 @@
             </section>
 
             <!-- TAB 3: REELS / VIDEOS -->
-            <section id="tab-reels" class="tab-content hidden h-[80vh] relative bg-black rounded-2xl overflow-hidden border border-zinc-900">
+            <section id="tab-reels" class="tab-content hidden h-[calc(100vh-120px)] relative bg-black overflow-hidden">
                 <div id="reels-container" class="h-full overflow-y-scroll snap-y snap-mandatory hide-scrollbar">
                     <!-- Dynamic Video Feed with Interactions -->
                 </div>
@@ -242,9 +241,10 @@
                 <div class="flex items-center justify-between gap-4">
                     <div class="relative">
                         <img id="profile-img-display" src="" class="w-20 h-20 rounded-full object-cover border-2 border-emerald-400 shadow-neon">
-                        <button onclick="openModal('edit-profile-modal')" class="absolute bottom-0 right-0 bg-emerald-500 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-md">
+                        <button onclick="document.getElementById('edit-profile-file-input').click()" class="absolute bottom-0 right-0 bg-emerald-500 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-md">
                             <i class="fas fa-camera"></i>
                         </button>
+                        <input type="file" id="edit-profile-file-input" accept="image/*" onchange="handleImageSelectForCrop(event, 'profile')" class="hidden">
                     </div>
 
                     <div class="flex-1 flex justify-around text-center">
@@ -279,7 +279,7 @@
                     </button>
                 </div>
 
-                <!-- PROFILE MEDIA TABS: GÖNDERİLER | BEĞENİLENLER | KAYDEDİLENLER -->
+                <!-- PROFILE MEDIA TABS -->
                 <div class="border-t border-zinc-900 pt-3">
                     <div class="flex justify-around border-b border-zinc-900 pb-2 text-xs font-bold text-zinc-500">
                         <button id="profile-tab-posts" onclick="switchProfileMediaTab('posts')" class="text-emerald-400 border-b-2 border-emerald-400 pb-1 flex items-center gap-1">
@@ -294,7 +294,7 @@
                     </div>
 
                     <div id="profile-grid" class="grid grid-cols-3 gap-1 pt-2">
-                        <!-- Dynamic Grid based on active profile tab -->
+                        <!-- Dynamic Grid -->
                     </div>
                 </div>
             </section>
@@ -322,6 +322,46 @@
     </div>
 
     <!-- MODALS -->
+
+    <!-- AVATAR CROP & ROTATE EDITOR MODAL -->
+    <div id="avatar-editor-modal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/40 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-neon-lg flex flex-col items-center">
+            <div class="w-full flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400"><i class="fas fa-crop mr-1"></i> Profil Fotoğrafı Düzenle</h3>
+                <button onclick="closeModal('avatar-editor-modal')" class="text-zinc-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Rotation Controls -->
+            <div class="flex items-center gap-6 py-1">
+                <button onclick="rotateAvatar(-90)" class="bg-zinc-900 border border-zinc-800 text-emerald-400 hover:bg-emerald-500/10 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fas fa-undo"></i> -90°
+                </button>
+                <button onclick="rotateAvatar(90)" class="bg-zinc-900 border border-zinc-800 text-emerald-400 hover:bg-emerald-500/10 px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fas fa-redo"></i> +90°
+                </button>
+            </div>
+
+            <!-- Canvas Viewport for Crop & Position -->
+            <div class="relative w-56 h-56 rounded-full overflow-hidden border-2 border-emerald-400 shadow-neon bg-black flex items-center justify-center cursor-grab active:cursor-grabbing">
+                <canvas id="crop-canvas" width="224" height="224" class="w-full h-full object-cover"></canvas>
+                <div class="absolute inset-0 rounded-full border-2 border-emerald-400/40 pointer-events-none"></div>
+            </div>
+
+            <!-- Zoom / Scale Slider -->
+            <div class="w-full space-y-1 px-4">
+                <div class="flex justify-between text-[10px] text-zinc-400">
+                    <span>Uzaklaştır</span>
+                    <span>Yakınlaştır</span>
+                </div>
+                <input type="range" id="zoom-range" min="0.5" max="3" step="0.05" value="1" oninput="updateCropCanvas()" class="w-full accent-emerald-500 cursor-pointer">
+            </div>
+
+            <div class="flex gap-2 w-full pt-2">
+                <button onclick="closeModal('avatar-editor-modal')" class="flex-1 bg-zinc-900 border border-zinc-800 text-zinc-300 py-2.5 rounded-xl text-xs font-bold transition">İptal</button>
+                <button onclick="applyAvatarCrop()" class="flex-1 bg-emerald-500 text-black py-2.5 rounded-xl text-xs font-extrabold shadow-neon hover:opacity-90 transition">Uygula ve Kaydet</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL 1: CREATE POST -->
     <div id="create-post-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
@@ -386,8 +426,10 @@
             </div>
             <div class="space-y-3">
                 <div>
-                    <label class="text-[10px] text-zinc-400 mb-1 block">Profil Fotoğrafı Seç</label>
-                    <input type="file" id="edit-profile-file-input" accept="image/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
+                    <label class="text-[10px] text-zinc-400 mb-1 block">Profil Fotoğrafını Değiştir</label>
+                    <button onclick="document.getElementById('edit-profile-file-input').click()" class="w-full bg-zinc-900 border border-zinc-800 hover:border-emerald-500 py-2.5 rounded-xl text-xs font-bold text-emerald-400 transition">
+                        <i class="fas fa-camera mr-1"></i> Yeni Fotoğraf Seç & Kırp
+                    </button>
                 </div>
                 <div>
                     <label class="text-[10px] text-zinc-400">İsim Soyisim</label>
@@ -428,7 +470,7 @@
         </div>
     </div>
 
-    <!-- MODAL 6: COMMENTS MODAL (FOR POSTS & VIDEOS) -->
+    <!-- MODAL 6: COMMENTS MODAL -->
     <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-3 shadow-neon-lg flex flex-col max-h-[80vh]">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
@@ -445,7 +487,7 @@
         </div>
     </div>
 
-    <!-- MODAL 7: SETTINGS MODAL & ACCOUNT DELETION -->
+    <!-- MODAL 7: SETTINGS MODAL -->
     <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-neon-lg">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
@@ -468,7 +510,6 @@
             </div>
 
             <div class="border-t border-zinc-800 pt-3 space-y-2">
-                <!-- LOGOUT BUTTON -->
                 <button onclick="logoutAccount()" class="w-full bg-zinc-900 border border-zinc-800 text-emerald-400 hover:bg-emerald-500/10 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Çıkış Yap</span>
@@ -491,11 +532,11 @@
 
         let state = {
             currentUser: null,
-            users: [], // Registered users database
-            followingList: [], // Users/bots currently followed by logged in user
-            activeProfileTab: 'posts', // 'posts', 'liked', 'saved'
+            users: [],
+            followingList: [],
+            activeProfileTab: 'posts',
             activeCommentPostId: null,
-            language: 'tr', // Default language
+            language: 'tr',
             stories: [
                 { id: 1, user: "can_tech", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false },
                 { id: 2, user: "ebru.art", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500", isVideo: false }
@@ -507,6 +548,18 @@
             activeChatId: null
         };
 
+        let cropState = {
+            imageObj: null,
+            angle: 0,
+            zoom: 1,
+            offsetX: 0,
+            offsetY: 0,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            targetMode: 'signup'
+        };
+
         const translations = {
             tr: {
                 subtitle: "Tek tıkla kayıt ol veya var olan hesabınla giriş yap",
@@ -516,112 +569,12 @@
                 loginBtn: "Hesap Aç / Giriş Yap",
                 loginHint: "Girdiğin Gmail ile daha önce kayıt olduysan doğrudan hesabına bağlanırsın.",
                 fullnamePlaceholder: "Örn: Ahmet Yılmaz"
-            },
-            en: {
-                subtitle: "Sign up or log in with your existing account in one click",
-                fullname: "Full Name",
-                email: "Gmail / Email Address (Unique)",
-                avatar: "Select Profile Picture (Optional)",
-                loginBtn: "Create Account / Log In",
-                loginHint: "If you registered with this Gmail before, you will log in directly.",
-                fullnamePlaceholder: "Ex: John Doe"
-            },
-            es: {
-                subtitle: "Regístrate o inicia sesión con tu cuenta en un solo clic",
-                fullname: "Nombre y Apellidos",
-                email: "Gmail / Correo Electrónico (Único)",
-                avatar: "Foto de Perfil (Opcional)",
-                loginBtn: "Crear Cuenta / Iniciar Sesión",
-                loginHint: "Si ya te has registrado con este Gmail, accederás directamente.",
-                fullnamePlaceholder: "Ej: Carlos García"
-            },
-            de: {
-                subtitle: "Registrieren oder anmelden mit einem Klick",
-                fullname: "Vollständiger Name",
-                email: "Gmail / E-Mail-Adresse (Eindeutig)",
-                avatar: "Profilbild auswählen (Optional)",
-                loginBtn: "Konto erstellen / Anmelden",
-                loginHint: "Wenn Sie sich bereits mit dieser Gmail registriert haben, werden Sie direkt angemeldet.",
-                fullnamePlaceholder: "Z.B. Max Mustermann"
-            },
-            fr: {
-                subtitle: "Inscrivez-vous ou connectez-vous en un clic",
-                fullname: "Nom et Prénom",
-                email: "Gmail / Adresse E-mail (Unique)",
-                avatar: "Photo de Profil (Optionnel)",
-                loginBtn: "Créer un Compte / Se Connecter",
-                loginHint: "Si vous vous êtes déjà inscrit avec cet e-mail, vous serez connecté directement.",
-                fullnamePlaceholder: "Ex: Jean Dupont"
-            },
-            it: {
-                subtitle: "Registrati o accedi con il tuo account in un solo clic",
-                fullname: "Nome e Cognome",
-                email: "Gmail / Indirizzo Email (Unico)",
-                avatar: "Foto Profilo (Opzionale)",
-                loginBtn: "Crea Account / Accedi",
-                loginHint: "Se ti sei già registrato con questa Gmail, accederai direttamente.",
-                fullnamePlaceholder: "Es: Marco Rossi"
-            },
-            pt: {
-                subtitle: "Cadastre-se ou entre na sua conta com apenas um clique",
-                fullname: "Nome Completo",
-                email: "Gmail / Endereço de E-mail (Único)",
-                avatar: "Foto de Perfil (Opcional)",
-                loginBtn: "Criar Conta / Entrar",
-                loginHint: "Se você já se cadastrou com este Gmail, entrará diretamente.",
-                fullnamePlaceholder: "Ex: João Silva"
-            },
-            ru: {
-                subtitle: "Зарегистрируйтесь или войдите в один клик",
-                fullname: "Имя и Фамилия",
-                email: "Gmail / Электронная почта (Уникальный)",
-                avatar: "Фото профиля (Необязательно)",
-                loginBtn: "Создать аккаунт / Войти",
-                loginHint: "Если вы уже регистрировались с этим Gmail, вы войдете автоматически.",
-                fullnamePlaceholder: "Например: Иван Иванов"
-            },
-            ar: {
-                subtitle: "سجل أو قم بالتسجيل بنقرة واحدة",
-                fullname: "الاسم الكامل",
-                email: "البريد الإلكتروني / Gmail (فريد)",
-                avatar: "صورة الملف الشخصي (اختياري)",
-                loginBtn: "إنشاء حساب / تسجيل الدخول",
-                loginHint: "إذا كنت قد سجلت بهذا البريد الإلكتروني من قبل، فستسجل الدخول مباشرة.",
-                fullnamePlaceholder: "مثال: أحمد محمد"
-            },
-            ja: {
-                subtitle: "ワンタップで新規登録またはログイン",
-                fullname: "氏名",
-                email: "Gmail / メールアドレス（固有）",
-                avatar: "プロフィール写真の選択（任意）",
-                loginBtn: "アカウント作成 / ログイン",
-                loginHint: "過去にこのGmailで登録されている場合は、直接ログインします。",
-                fullnamePlaceholder: "例：山田太郎"
-            },
-            ko: {
-                subtitle: "원클릭으로 가입하거나 로그인하세요",
-                fullname: "이름",
-                email: "Gmail / 이메일 주소 (고유)",
-                avatar: "프로필 사진 선택 (선택)",
-                loginBtn: "계정 생성 / 로그인",
-                loginHint: "이 이전 Gmail로 가입한 경우 즉시 로그인됩니다.",
-                fullnamePlaceholder: "예: 홍길동"
-            },
-            zh: {
-                subtitle: "一键注册或登录现有账号",
-                fullname: "姓名",
-                email: "Gmail / 电子邮件地址（唯一）",
-                avatar: "选择头像（可选）",
-                loginBtn: "创建账号 / 登录",
-                loginHint: "如果您之前已使用此 Gmail 注册，将直接登录。",
-                fullnamePlaceholder: "例如：张伟"
             }
         };
 
         function setLanguage(lang) {
             state.language = lang;
             const t = translations[lang] || translations['tr'];
-
             document.getElementById('txt-welcome-subtitle').innerText = t.subtitle;
             document.getElementById('lbl-fullname').innerText = t.fullname;
             document.getElementById('lbl-email').innerText = t.email;
@@ -629,13 +582,11 @@
             document.getElementById('btn-login-text').innerText = t.loginBtn;
             document.getElementById('txt-login-hint').innerText = t.loginHint;
             document.getElementById('signup-fullname').placeholder = t.fullnamePlaceholder;
-
-            const select = document.getElementById('language-select');
-            if (select) select.value = lang;
         }
 
         window.onload = function() {
             loadSavedDatabase();
+            setupCropCanvasEvents();
             if (!state.currentUser) {
                 document.getElementById('signup-screen').classList.remove('hidden');
                 document.getElementById('main-app').classList.add('hidden');
@@ -647,22 +598,15 @@
         };
 
         function loadSavedDatabase() {
-            // Load users list
             const savedUsers = localStorage.getItem('omni_registered_users');
-            if (savedUsers) {
-                try { state.users = JSON.parse(savedUsers); } catch(e) { state.users = []; }
-            }
+            if (savedUsers) { try { state.users = JSON.parse(savedUsers); } catch(e) { state.users = []; } }
 
-            // Load logged in active user session
             const savedActiveUser = localStorage.getItem('omni_active_user_email');
             if (savedActiveUser) {
                 const userObj = state.users.find(u => u.email.toLowerCase() === savedActiveUser.toLowerCase());
-                if (userObj) {
-                    state.currentUser = userObj;
-                }
+                if (userObj) state.currentUser = userObj;
             }
 
-            // Fallback: check legacy user storage
             if (!state.currentUser) {
                 const legacyUser = localStorage.getItem('omni_user_data');
                 if (legacyUser) {
@@ -678,123 +622,177 @@
                 }
             }
 
-            // Load saved following list for current user
             if (state.currentUser) {
                 const savedFollowing = localStorage.getItem(`omni_following_${state.currentUser.email}`);
-                if (savedFollowing) {
-                    try { state.followingList = JSON.parse(savedFollowing); } catch(e){ state.followingList = []; }
-                } else {
-                    state.followingList = [];
-                }
+                state.followingList = savedFollowing ? JSON.parse(savedFollowing) : [];
             }
 
-            // Load posts
             const savedPosts = localStorage.getItem('omni_posts_data');
-            if (savedPosts) {
-                try { state.posts = JSON.parse(savedPosts); } catch(e){}
+            if (savedPosts) { try { state.posts = JSON.parse(savedPosts); } catch(e){} }
+        }
+
+        function handleImageSelectForCrop(event, mode) {
+            const file = event.target.files[0];
+            if (!file) return;
+            cropState.targetMode = mode;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    cropState.imageObj = img;
+                    cropState.angle = 0;
+                    cropState.zoom = 1;
+                    cropState.offsetX = 0;
+                    cropState.offsetY = 0;
+                    document.getElementById('zoom-range').value = 1;
+                    openModal('avatar-editor-modal');
+                    updateCropCanvas();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function rotateAvatar(deg) {
+            cropState.angle = (cropState.angle + deg) % 360;
+            updateCropCanvas();
+        }
+
+        function updateCropCanvas() {
+            const canvas = document.getElementById('crop-canvas');
+            const ctx = canvas.getContext('2d');
+            const zoomInput = document.getElementById('zoom-range');
+            cropState.zoom = parseFloat(zoomInput.value);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(canvas.width / 2 + cropState.offsetX, canvas.height / 2 + cropState.offsetY);
+            ctx.rotate((cropState.angle * Math.PI) / 180);
+            ctx.scale(cropState.zoom, cropState.zoom);
+
+            if (cropState.imageObj) {
+                const img = cropState.imageObj;
+                ctx.drawImage(img, -img.width / 2, -img.height / 2);
+            }
+            ctx.restore();
+        }
+
+        function setupCropCanvasEvents() {
+            const canvas = document.getElementById('crop-canvas');
+            canvas.addEventListener('mousedown', startDrag);
+            canvas.addEventListener('touchstart', startDrag, {passive: true});
+            window.addEventListener('mousemove', onDrag);
+            window.addEventListener('touchmove', onDrag, {passive: true});
+            window.addEventListener('mouseup', stopDrag);
+            window.addEventListener('touchend', stopDrag);
+
+            function startDrag(e) {
+                cropState.isDragging = true;
+                cropState.startX = e.clientX || (e.touches && e.touches[0].clientX);
+                cropState.startY = e.clientY || (e.touches && e.touches[0].clientY);
+            }
+            function onDrag(e) {
+                if (!cropState.isDragging) return;
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                cropState.offsetX += (clientX - cropState.startX);
+                cropState.offsetY += (clientY - cropState.startY);
+                cropState.startX = clientX;
+                cropState.startY = clientY;
+                updateCropCanvas();
+            }
+            function stopDrag() { cropState.isDragging = false; }
+        }
+
+        function applyAvatarCrop() {
+            const canvas = document.getElementById('crop-canvas');
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            closeModal('avatar-editor-modal');
+
+            if (cropState.targetMode === 'signup') {
+                window.tempAvatarResult = dataUrl;
+                alert("Profil fotoğrafı başarıyla hazırlandı! Şimdi 'Hesap Aç / Giriş Yap' butonuna basabilirsiniz.");
+            } else if (cropState.targetMode === 'profile' && state.currentUser) {
+                state.currentUser.avatar = dataUrl;
+                const uIdx = state.users.findIndex(u => u.email.toLowerCase() === state.currentUser.email.toLowerCase());
+                if (uIdx !== -1) state.users[uIdx] = state.currentUser;
+                localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
+                localStorage.setItem('omni_user_data', JSON.stringify(state.currentUser));
+                renderProfile();
+                renderPosts();
             }
         }
 
-        // UNIQUE EMAIL CONSTRAINT REGISTER OR AUTO-LOGIN
         function directRegisterOrLogin() {
             const fullname = document.getElementById('signup-fullname').value.trim();
             const email = document.getElementById('signup-email').value.trim().toLowerCase();
-            const avatarFile = document.getElementById('signup-avatar-file');
 
-            if (!email) {
-                alert("Lütfen geçerli bir Gmail / E-posta adresi girin!");
-                return;
-            }
+            if (!email) { alert("Lütfen geçerli bir Gmail / E-posta adresi girin!"); return; }
 
-            // Check if user with this email already exists
             const existingUser = state.users.find(u => u.email.toLowerCase() === email);
-
             if (existingUser) {
-                // AUTO LOGIN EXISTING USER
                 state.currentUser = existingUser;
                 localStorage.setItem('omni_active_user_email', existingUser.email);
-                
-                const savedFollowing = localStorage.getItem(`omni_following_${existingUser.email}`);
-                state.followingList = savedFollowing ? JSON.parse(savedFollowing) : [];
-
+                state.followingList = JSON.parse(localStorage.getItem(`omni_following_${existingUser.email}`) || '[]');
                 document.getElementById('signup-screen').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 initMainApp();
                 return;
             }
 
-            // NEW ACCOUNT CREATION (Requires Name)
-            if (!fullname) {
-                alert("Yeni hesap oluşturmak için lütfen Ad Soyad giriniz!");
-                return;
-            }
+            if (!fullname) { alert("Yeni hesap oluşturmak için lütfen Ad Soyad giriniz!"); return; }
 
             const username = email.split('@')[0].replace(/[^a-z0-9]/g, '');
+            const avatarUrl = window.tempAvatarResult || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
 
-            const finalizeLogin = (avatarUrl) => {
-                const newUser = {
-                    username: username || "kullanici",
-                    name: fullname,
-                    email: email,
-                    avatar: avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
-                    bio: "✨ OMNI Sosyal Ağ Üyesi\n🚀 Aramıza katıldım!",
-                    followers: 3,
-                    following: 0,
-                    verified: true
-                };
-
-                state.users.push(newUser);
-                state.currentUser = newUser;
-                state.followingList = [];
-
-                localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
-                localStorage.setItem('omni_active_user_email', newUser.email);
-                localStorage.setItem('omni_user_data', JSON.stringify(newUser));
-                localStorage.setItem(`omni_following_${newUser.email}`, JSON.stringify([]));
-
-                document.getElementById('signup-screen').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                initMainApp();
+            const newUser = {
+                username: username || "kullanici",
+                name: fullname,
+                email: email,
+                avatar: avatarUrl,
+                bio: "✨ OMNI Sosyal Ağ Üyesi\n🚀 Aramıza katıldım!",
+                followers: 3,
+                following: 0,
+                verified: true
             };
 
-            if (avatarFile.files && avatarFile.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) { finalizeLogin(e.target.result); };
-                reader.readAsDataURL(avatarFile.files[0]);
-            } else {
-                finalizeLogin(null);
-            }
+            state.users.push(newUser);
+            state.currentUser = newUser;
+            state.followingList = [];
+
+            localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
+            localStorage.setItem('omni_active_user_email', newUser.email);
+            localStorage.setItem('omni_user_data', JSON.stringify(newUser));
+            localStorage.setItem(`omni_following_${newUser.email}`, JSON.stringify([]));
+
+            document.getElementById('signup-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            initMainApp();
         }
 
-        // LOGOUT ACCOUNT (PRESERVES DATA, CLEAR ACTIVE SESSION ONLY)
         function logoutAccount() {
-            if (confirm("Hesabınızdan çıkış yapmak istediğinizden emin misiniz? (Tekrar e-postanız ile giriş yapabilirsiniz)")) {
+            if (confirm("Hesabınızdan çıkış yapmak istediğinizden emin misiniz?")) {
                 localStorage.removeItem('omni_active_user_email');
                 localStorage.removeItem('omni_user_data');
-                state.currentUser = null;
                 location.reload();
             }
         }
 
-        // DELETE ACCOUNT PERMANENTLY
         function deleteAccountPermanent() {
-            if (confirm("DİKKAT: Hesabınızı silmek üzeresiniz. Bu e-posta adresine ait kullanıcı verileri tamamen kaldırılacaktır. Onaylıyor musunuz?")) {
+            if (confirm("DİKKAT: Hesabınızı silmek üzeresiniz. Onaylıyor musunuz?")) {
                 if (state.currentUser) {
                     state.users = state.users.filter(u => u.email.toLowerCase() !== state.currentUser.email.toLowerCase());
                     localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
-                    localStorage.removeItem(`omni_following_${state.currentUser.email}`);
                 }
                 localStorage.removeItem('omni_active_user_email');
-                localStorage.removeItem('omni_user_data');
                 location.reload();
             }
         }
 
         function clearAllData() {
-            if (confirm("Tüm önbellek ve veriler temizlensin mi?")) {
-                localStorage.clear();
-                location.reload();
-            }
+            if (confirm("Tüm önbellek temizlensin mi?")) { localStorage.clear(); location.reload(); }
         }
 
         function initMainApp() {
@@ -822,11 +820,8 @@
                 activeNav.classList.add('text-emerald-400');
             }
 
-            if (tabName === 'reels') {
-                renderReels();
-            } else if (tabName === 'explore') {
-                renderExplore();
-            }
+            if (tabName === 'reels') renderReels();
+            else if (tabName === 'explore') renderExplore();
         }
 
         function renderStories() {
@@ -896,10 +891,6 @@
 
                         <p class="font-bold text-xs text-emerald-400">${p.likes || 0} beğenme</p>
                         <p class="text-xs text-zinc-200"><span class="font-bold mr-1 text-white">${p.user}</span>${p.caption}</p>
-                        ${(p.comments && p.comments.length > 0) ? 
-                            `<p onclick="openCommentsModal(${p.id})" class="text-[11px] text-zinc-500 cursor-pointer">${p.comments.length} yorumun tümünü gör</p>` : 
-                            `<p onclick="openCommentsModal(${p.id})" class="text-[11px] text-zinc-600 cursor-pointer">İlk yorumu sen yaz...</p>`
-                        }
                     </div>
                 </article>
             `).join('');
@@ -912,7 +903,6 @@
                 post.likes = (post.likes || 0) + (post.liked ? 1 : -1);
                 savePostsState();
                 renderPosts();
-                if(state.activeProfileTab === 'liked') renderProfileGrid();
             }
         }
 
@@ -922,17 +912,13 @@
                 post.saved = !post.saved;
                 savePostsState();
                 renderPosts();
-                if(state.activeProfileTab === 'saved') renderProfileGrid();
             }
         }
 
         function savePostsState() {
-            try {
-                localStorage.setItem('omni_posts_data', JSON.stringify(state.posts));
-            } catch(e){}
+            try { localStorage.setItem('omni_posts_data', JSON.stringify(state.posts)); } catch(e){}
         }
 
-        // COMMENTS SYSTEM
         function openCommentsModal(postId) {
             state.activeCommentPostId = postId;
             renderComments();
@@ -962,10 +948,7 @@
             const post = state.posts.find(p => p.id === state.activeCommentPostId);
             if(post) {
                 if(!post.comments) post.comments = [];
-                post.comments.push({
-                    user: state.currentUser ? state.currentUser.username : "kullanici",
-                    text: text
-                });
+                post.comments.push({ user: state.currentUser ? state.currentUser.username : "kullanici", text: text });
                 savePostsState();
                 input.value = '';
                 renderComments();
@@ -973,94 +956,52 @@
             }
         }
 
-        // REAL FOLLOW / UNFOLLOW SYSTEM FOR OTHER USERS & BOTS
-        function toggleFollowUser(username, userObj = null) {
+        function toggleFollowUser(username) {
             if (!state.currentUser) return;
-
             const isFollowing = state.followingList.some(u => u.username === username);
-
             if (isFollowing) {
                 state.followingList = state.followingList.filter(u => u.username !== username);
             } else {
-                let targetUser = userObj;
-                if (!targetUser) {
-                    targetUser = botFollowers.find(b => b.username === username) || state.users.find(u => u.username === username);
-                }
-                if (targetUser) {
-                    state.followingList.push({
-                        username: targetUser.username,
-                        name: targetUser.name,
-                        avatar: targetUser.avatar
-                    });
-                }
+                let targetUser = botFollowers.find(b => b.username === username) || state.users.find(u => u.username === username);
+                if (targetUser) state.followingList.push({ username: targetUser.username, name: targetUser.name, avatar: targetUser.avatar });
             }
-
-            // Save following list
             localStorage.setItem(`omni_following_${state.currentUser.email}`, JSON.stringify(state.followingList));
-
-            // Update UI
             renderProfile();
             renderExplore();
             renderFollowingList();
         }
 
-        function filterExploreUsers() {
-            renderExplore();
-        }
+        function filterExploreUsers() { renderExplore(); }
 
         function renderExplore() {
             const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
             const suggestedList = document.getElementById('suggested-users-list');
+            let allPeople = [...botFollowers, ...state.users.filter(u => u.email.toLowerCase() !== (state.currentUser ? state.currentUser.email.toLowerCase() : ''))];
 
-            // Combine bot accounts and registered users (excluding current logged in user)
-            let allPeople = [
-                ...botFollowers,
-                ...state.users.filter(u => u.email.toLowerCase() !== (state.currentUser ? state.currentUser.email.toLowerCase() : ''))
-            ];
+            if (query) allPeople = allPeople.filter(p => p.username.toLowerCase().includes(query) || p.name.toLowerCase().includes(query));
 
-            if (query) {
-                allPeople = allPeople.filter(p => p.username.toLowerCase().includes(query) || p.name.toLowerCase().includes(query));
-            }
-
-            if (allPeople.length === 0) {
-                suggestedList.innerHTML = `<p class="text-xs text-zinc-500 text-center py-2">Aranan kriterde kimse bulunamadı.</p>`;
-            } else {
-                suggestedList.innerHTML = allPeople.map(u => {
-                    const isFollowing = state.followingList.some(f => f.username === u.username);
-                    return `
-                        <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800/80 p-2.5 rounded-xl">
-                            <div class="flex items-center gap-2.5">
-                                <img src="${u.avatar}" class="w-9 h-9 rounded-full object-cover border border-emerald-500/30">
-                                <div>
-                                    <p class="font-bold text-xs text-white">${u.username}</p>
-                                    <p class="text-[10px] text-zinc-400">${u.name}</p>
-                                </div>
+            suggestedList.innerHTML = allPeople.map(u => {
+                const isFollowing = state.followingList.some(f => f.username === u.username);
+                return `
+                    <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-2.5 rounded-xl">
+                        <div class="flex items-center gap-2.5">
+                            <img src="${u.avatar}" class="w-9 h-9 rounded-full object-cover border border-emerald-500/30">
+                            <div>
+                                <p class="font-bold text-xs text-white">${u.username}</p>
+                                <p class="text-[10px] text-zinc-400">${u.name}</p>
                             </div>
-                            <button onclick="toggleFollowUser('${u.username}')" class="${isFollowing ? 'bg-zinc-800 text-zinc-300 border border-zinc-700' : 'bg-emerald-500 text-black shadow-neon font-extrabold'} px-3 py-1.5 rounded-lg text-[11px] transition">
-                                ${isFollowing ? 'Takiptesin' : 'Takip Et'}
-                            </button>
                         </div>
-                    `;
-                }).join('');
-            }
-
-            const grid = document.getElementById('explore-grid');
-            if (state.posts.length === 0) {
-                grid.innerHTML = `<p class="col-span-3 text-center text-xs text-zinc-500 py-6">Keşfete düşen gönderi bulunmuyor.</p>`;
-                return;
-            }
-            grid.innerHTML = state.posts.map(item => `
-                <div class="aspect-square bg-zinc-900 overflow-hidden">
-                    ${item.isVideo ? `<video src="${item.url}" class="w-full h-full object-cover"></video>` : `<img src="${item.url}" class="w-full h-full object-cover">`}
-                </div>
-            `).join('');
+                        <button onclick="toggleFollowUser('${u.username}')" class="${isFollowing ? 'bg-zinc-800 text-zinc-300' : 'bg-emerald-500 text-black font-extrabold'} px-3 py-1.5 rounded-lg text-[11px] transition">
+                            ${isFollowing ? 'Takiptesin' : 'Takip Et'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
         }
 
-        // REELS SECTION WITH INTERACTION
         function renderReels() {
             const container = document.getElementById('reels-container');
             const videoPosts = state.posts.filter(p => p.isVideo);
-
             if (videoPosts.length === 0) {
                 container.innerHTML = `
                     <div class="h-full flex flex-col items-center justify-center p-6 text-center space-y-3">
@@ -1081,29 +1022,36 @@
                 <div class="snap-start h-full w-full relative flex items-center justify-center bg-black">
                     <video src="${r.url}" controls loop playsinline class="w-full h-full object-cover"></video>
                     
-                    <div class="absolute right-3 bottom-12 flex flex-col gap-4 items-center z-20">
+                    <!-- REELS INTERACTION BUTTONS (RIGHT) -->
+                    <div class="absolute right-3 bottom-20 flex flex-col gap-5 items-center z-20">
                         <button onclick="toggleLike(${r.id})" class="flex flex-col items-center text-white">
-                            <div class="w-10 h-10 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center ${r.liked ? 'text-emerald-400' : 'text-zinc-300'} text-lg">
+                            <div class="w-11 h-11 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center ${r.liked ? 'text-emerald-400' : 'text-zinc-300'} text-xl shadow-lg">
                                 <i class="${r.liked ? 'fas' : 'far'} fa-heart"></i>
                             </div>
-                            <span class="text-[10px] text-zinc-300 mt-0.5">${r.likes || 0}</span>
+                            <span class="text-[11px] text-white font-bold mt-1 drop-shadow">${r.likes || 0}</span>
                         </button>
                         <button onclick="openCommentsModal(${r.id})" class="flex flex-col items-center text-white">
-                            <div class="w-10 h-10 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center text-zinc-300 text-lg">
+                            <div class="w-11 h-11 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center text-zinc-300 text-xl shadow-lg">
                                 <i class="far fa-comment"></i>
                             </div>
-                            <span class="text-[10px] text-zinc-300 mt-0.5">${r.comments ? r.comments.length : 0}</span>
+                            <span class="text-[11px] text-white font-bold mt-1 drop-shadow">${r.comments ? r.comments.length : 0}</span>
                         </button>
                         <button onclick="toggleSave(${r.id})" class="flex flex-col items-center text-white">
-                            <div class="w-10 h-10 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center ${r.saved ? 'text-emerald-400' : 'text-zinc-300'} text-lg">
+                            <div class="w-11 h-11 rounded-full bg-black/60 border border-zinc-800 flex items-center justify-center ${r.saved ? 'text-emerald-400' : 'text-zinc-300'} text-xl shadow-lg">
                                 <i class="${r.saved ? 'fas' : 'far'} fa-bookmark"></i>
                             </div>
                         </button>
                     </div>
 
-                    <div class="absolute bottom-6 left-4 right-16 space-y-1.5 z-10 text-white pointer-events-none">
-                        <span class="font-bold text-xs bg-black/60 px-2 py-1 rounded-lg border border-zinc-800">@${r.user}</span>
-                        <p class="text-xs text-zinc-200 drop-shadow line-clamp-2">${r.caption}</p>
+                    <!-- REELS USER INFO & CAPTION (BOTTOM) -->
+                    <div class="absolute bottom-16 left-4 right-20 space-y-2 z-10 text-white pointer-events-none">
+                        <div class="flex items-center gap-2.5">
+                            <div class="story-ring w-9 h-9 rounded-full flex items-center justify-center shadow-lg">
+                                <img src="${r.avatar}" class="w-full h-full object-cover rounded-full border border-black">
+                            </div>
+                            <span class="font-bold text-xs text-white bg-black/50 px-2.5 py-1 rounded-full border border-zinc-800 backdrop-blur-sm">@${r.user}</span>
+                        </div>
+                        <p class="text-xs text-zinc-100 drop-shadow line-clamp-2 bg-black/40 p-2 rounded-xl backdrop-blur-sm">${r.caption}</p>
                     </div>
                 </div>
             `).join('');
@@ -1112,8 +1060,8 @@
         function renderChats() {
             const threads = document.getElementById('chat-threads');
             threads.innerHTML = state.chats.map(c => `
-                <div onclick="openChatView(${c.id})" class="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-950 hover:bg-zinc-900 border border-zinc-900 cursor-pointer">
-                    <img src="${c.avatar}" class="w-10 h-10 rounded-full object-cover border border-emerald-500/40">
+                <div onclick="openChatView(${c.id})" class="flex items-center gap-3 p-2.5 rounded-xl bg-zinc-950 border border-zinc-900 cursor-pointer">
+                    <img src="${c.avatar}" class="w-10 h-10 rounded-full object-cover">
                     <div class="flex-1">
                         <h4 class="font-bold text-xs text-white">${c.user}</h4>
                         <p class="text-[11px] text-zinc-400 truncate">${c.lastMsg}</p>
@@ -1125,55 +1073,27 @@
         function openChatView(chatId) {
             state.activeChatId = chatId;
             const chat = state.chats.find(c => c.id === chatId);
-            if(!chat) return;
             document.getElementById('chat-user-avatar').src = chat.avatar;
             document.getElementById('chat-user-name').innerText = chat.user;
-            renderChatMessages();
+            document.getElementById('chat-messages').innerHTML = chat.msgs.map(m => `<div class="bg-zinc-900 p-2.5 rounded-xl text-xs text-zinc-200">${m}</div>`).join('');
             document.getElementById('dm-chat-view').classList.remove('hidden');
         }
 
-        function closeChatView() {
-            document.getElementById('dm-chat-view').classList.add('hidden');
-        }
-
-        function renderChatMessages() {
-            const chat = state.chats.find(c => c.id === state.activeChatId);
-            if(!chat) return;
-            const box = document.getElementById('chat-messages');
-            box.innerHTML = chat.msgs.map(m => `
-                <div class="bg-zinc-900 border border-zinc-800 p-2.5 rounded-xl max-w-[80%] text-xs text-zinc-200">
-                    ${m}
-                </div>
-            `).join('');
-        }
+        function closeChatView() { document.getElementById('dm-chat-view').classList.add('hidden'); }
 
         function sendDirectMessage() {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if(!msg || !state.activeChatId) return;
-
             const chat = state.chats.find(c => c.id === state.activeChatId);
             chat.msgs.push(msg);
             chat.lastMsg = msg;
             input.value = '';
-            renderChatMessages();
-            renderChats();
+            openChatView(state.activeChatId);
         }
 
-        // PROFILE & MEDIA TABS SWITCHER
         function switchProfileMediaTab(tab) {
             state.activeProfileTab = tab;
-            ['posts', 'liked', 'saved'].forEach(t => {
-                const btn = document.getElementById(`profile-tab-${t}`);
-                if (btn) {
-                    btn.classList.remove('text-emerald-400', 'border-b-2', 'border-emerald-400');
-                    btn.classList.add('hover:text-emerald-400');
-                }
-            });
-            const activeBtn = document.getElementById(`profile-tab-${tab}`);
-            if(activeBtn) {
-                activeBtn.classList.add('text-emerald-400', 'border-b-2', 'border-emerald-400');
-            }
             renderProfileGrid();
         }
 
@@ -1185,203 +1105,81 @@
             document.getElementById('profile-bio-display').innerText = state.currentUser.bio;
             document.getElementById('edit-name-input').value = state.currentUser.name;
             document.getElementById('edit-bio-input').value = state.currentUser.bio;
-
-            const userPosts = state.posts.filter(p => p.user === state.currentUser.username);
-            document.getElementById('profile-post-count').innerText = userPosts.length;
-
-            // REAL DYNAMIC FOLLOWING COUNT (REMOVED FIXED 340)
+            document.getElementById('profile-post-count').innerText = state.posts.filter(p => p.user === state.currentUser.username).length;
             document.getElementById('profile-following-count').innerText = state.followingList ? state.followingList.length : 0;
-
             renderProfileGrid();
         }
 
         function renderProfileGrid() {
             const grid = document.getElementById('profile-grid');
-            let list = [];
-
-            if (state.activeProfileTab === 'posts') {
-                list = state.posts.filter(p => p.user === (state.currentUser ? state.currentUser.username : ''));
-            } else if (state.activeProfileTab === 'liked') {
-                list = state.posts.filter(p => p.liked);
-            } else if (state.activeProfileTab === 'saved') {
-                list = state.posts.filter(p => p.saved);
-            }
-
-            if (list.length === 0) {
-                grid.innerHTML = `<p class="col-span-3 text-center text-xs text-zinc-500 py-6">İçerik bulunmuyor.</p>`;
-                return;
-            }
-
-            grid.innerHTML = list.map(p => `
-                <div class="aspect-square overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 relative">
-                    ${p.isVideo ? `<video src="${p.url}" class="w-full h-full object-cover"></video>` : `<img src="${p.url}" class="w-full h-full object-cover">`}
-                    <div class="absolute bottom-1 right-1 text-[10px] text-emerald-400 bg-black/70 px-1 rounded">
-                        ${p.isVideo ? '<i class="fas fa-video"></i>' : '<i class="fas fa-image"></i>'}
-                    </div>
-                </div>
-            `).join('');
+            let list = state.posts.filter(p => p.user === (state.currentUser ? state.currentUser.username : ''));
+            grid.innerHTML = list.map(p => `<div class="aspect-square overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950"><img src="${p.url}" class="w-full h-full object-cover"></div>`).join('') || `<p class="col-span-3 text-center text-xs text-zinc-500 py-6">İçerik bulunmuyor.</p>`;
         }
 
         function renderFollowersList() {
-            const list = document.getElementById('followers-list');
-            list.innerHTML = botFollowers.map(b => `
-                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-900 border border-zinc-800">
-                    <div class="flex items-center gap-2.5">
-                        <img src="${b.avatar}" class="w-8 h-8 rounded-full object-cover">
-                        <div>
-                            <p class="font-bold text-xs text-white">${b.username}</p>
-                            <p class="text-[10px] text-zinc-400">${b.name}</p>
-                        </div>
-                    </div>
-                    <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-lg font-bold">Takipçin</span>
-                </div>
-            `).join('');
+            document.getElementById('followers-list').innerHTML = botFollowers.map(b => `<div class="flex items-center justify-between p-2 rounded-xl bg-zinc-900"><div class="flex items-center gap-2"><img src="${b.avatar}" class="w-8 h-8 rounded-full"><div><p class="font-bold text-xs text-white">${b.username}</p></div></div><span class="text-[10px] text-emerald-400">Takipçin</span></div>`).join('');
         }
 
         function renderFollowingList() {
-            const list = document.getElementById('following-list');
-            if (!state.followingList || state.followingList.length === 0) {
-                list.innerHTML = `<p class="text-xs text-zinc-500 text-center py-6">Henüz kimseyi takip etmiyorsun. Keşfet sekmesinden yeni kişileri takip edebilirsin!</p>`;
-                return;
-            }
-
-            list.innerHTML = state.followingList.map(f => `
-                <div class="flex items-center justify-between p-2 rounded-xl bg-zinc-900 border border-zinc-800">
-                    <div class="flex items-center gap-2.5">
-                        <img src="${f.avatar}" class="w-8 h-8 rounded-full object-cover">
-                        <div>
-                            <p class="font-bold text-xs text-white">${f.username}</p>
-                            <p class="text-[10px] text-zinc-400">${f.name}</p>
-                        </div>
-                    </div>
-                    <button onclick="toggleFollowUser('${f.username}')" class="text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700 px-2 py-1 rounded-lg font-bold hover:bg-red-500/20 hover:text-red-400 transition">
-                        Takipten Çık
-                    </button>
-                </div>
-            `).join('');
+            document.getElementById('following-list').innerHTML = (state.followingList || []).map(f => `<div class="flex items-center justify-between p-2 rounded-xl bg-zinc-900"><div class="flex items-center gap-2"><img src="${f.avatar}" class="w-8 h-8 rounded-full"><div><p class="font-bold text-xs text-white">${f.username}</p></div></div><button onclick="toggleFollowUser('${f.username}')" class="text-[10px] bg-red-500/20 text-red-400 px-2 py-1 rounded">Çık</button></div>`).join('') || `<p class="text-xs text-zinc-500 text-center py-4">Kimseyi takip etmiyorsun.</p>`;
         }
 
         function submitNewPost() {
             const fileInput = document.getElementById('post-file-input');
             const caption = document.getElementById('post-caption-input').value.trim() || "OMNI'de harika bir an! 💚";
-            const btn = document.getElementById('post-submit-btn');
-
-            if (!fileInput.files || !fileInput.files[0]) {
-                alert("Lütfen cihazınızdan bir fotoğraf veya video seçin!");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const isVid = file.type.startsWith('video');
-
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-loader"></i> <span>Yükleniyor...</span>`;
-
+            if (!fileInput.files || !fileInput.files[0]) return alert("Lütfen medya seçin!");
             const reader = new FileReader();
             reader.onload = function(e) {
                 state.posts.unshift({
                     id: Date.now(),
-                    user: state.currentUser ? state.currentUser.username : "kullanici",
-                    avatar: state.currentUser ? state.currentUser.avatar : "",
+                    user: state.currentUser.username,
+                    avatar: state.currentUser.avatar,
                     url: e.target.result,
-                    isVideo: isVid,
+                    isVideo: fileInput.files[0].type.startsWith('video'),
                     caption: caption,
                     likes: 1,
                     liked: true,
                     saved: false,
                     comments: []
                 });
-
                 savePostsState();
-
-                btn.disabled = false;
-                btn.innerHTML = `<span>Paylaş</span>`;
-                fileInput.value = '';
-                document.getElementById('post-caption-input').value = '';
                 closeModal('create-post-modal');
-
                 renderPosts();
-                renderExplore();
-                renderReels();
                 renderProfile();
             };
-
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(fileInput.files[0]);
         }
 
         function submitNewStory() {
             const fileInput = document.getElementById('story-file-input');
-            const btn = document.getElementById('story-submit-btn');
-
-            if (!fileInput.files || !fileInput.files[0]) {
-                alert("Lütfen bir hikaye medyası seçin!");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const isVid = file.type.startsWith('video');
-
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-loader"></i> <span>Yükleniyor...</span>`;
-
+            if (!fileInput.files || !fileInput.files[0]) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                state.stories.unshift({
-                    id: Date.now(),
-                    user: state.currentUser ? state.currentUser.username : "kullanici",
-                    avatar: state.currentUser ? state.currentUser.avatar : "",
-                    url: e.target.result,
-                    isVideo: isVid
-                });
-
-                btn.disabled = false;
-                btn.innerHTML = `<span>Hikayelere Ekle</span>`;
-                fileInput.value = '';
+                state.stories.unshift({ id: Date.now(), user: state.currentUser.username, avatar: state.currentUser.avatar, url: e.target.result, isVideo: fileInput.files[0].type.startsWith('video') });
                 closeModal('create-story-modal');
                 renderStories();
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(fileInput.files[0]);
         }
 
         function openStoryView(user, avatar, url, isVideo) {
             document.getElementById('story-user-name').innerText = user;
             document.getElementById('story-user-avatar').src = avatar;
-            const container = document.getElementById('story-media-container');
-            container.innerHTML = isVideo ? `<video src="${url}" autoplay playsinline controls class="max-h-full max-w-full rounded-xl"></video>` : `<img src="${url}" class="max-h-full max-w-full rounded-xl object-contain">`;
-            document.getElementById('view-story-modal').classList.remove('hidden');
+            document.getElementById('story-media-container').innerHTML = isVideo ? `<video src="${url}" autoplay controls class="max-h-full rounded-xl"></video>` : `<img src="${url}" class="max-h-full rounded-xl object-contain">`;
+            openModal('view-story-modal');
         }
 
-        function closeStoryView() {
-            document.getElementById('view-story-modal').classList.add('hidden');
-        }
+        function closeStoryView() { closeModal('view-story-modal'); }
 
         function saveProfileEdit() {
-            const name = document.getElementById('edit-name-input').value.trim();
-            const bio = document.getElementById('edit-bio-input').value.trim();
-         fileInput = document.getElementById('edit-profile-file-input');
-            if(name) state.currentUser.name = name;
-            if(bio) state.currentUser.bio = bio;
-
-            const updatePersistentState = () => {
-                const uIdx = state.users.findIndex(u => u.email.toLowerCase() === state.currentUser.email.toLowerCase());
-                if (uIdx !== -1) state.users[uIdx] = state.currentUser;
-                localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
-                localStorage.setItem('omni_user_data', JSON.stringify(state.currentUser));
-                closeModal('edit-profile-modal');
-                renderProfile();
-            };
-
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    state.currentUser.avatar = e.target.result;
-                    fileInput.value = '';
-                    updatePersistentState();
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                updatePersistentState();
-            }
+            state.currentUser.name = document.getElementById('edit-name-input').value.trim();
+            state.currentUser.bio = document.getElementById('edit-bio-input').value.trim();
+            const uIdx = state.users.findIndex(u => u.email.toLowerCase() === state.currentUser.email.toLowerCase());
+            if (uIdx !== -1) state.users[uIdx] = state.currentUser;
+            localStorage.setItem('omni_registered_users', JSON.stringify(state.users));
+            localStorage.setItem('omni_user_data', JSON.stringify(state.currentUser));
+            closeModal('edit-profile-modal');
+            renderProfile();
         }
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
@@ -1389,4 +1187,3 @@
     </script>
 </body>
 </html>
-```
