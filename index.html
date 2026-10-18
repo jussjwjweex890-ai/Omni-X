@@ -1028,8 +1028,8 @@
             }
 
             container.innerHTML = videoPosts.map(r => `
-                <div class="snap-start h-full w-full relative flex items-center justify-center bg-black">
-                    <video src="${r.url}" controls autoplay loop playsinline class="w-full h-full object-cover"></video>
+                <div class="reel-item snap-start h-full w-full relative flex items-center justify-center bg-black">
+                    <video src="${r.url}" controls loop playsinline preload="auto" class="w-full h-full object-cover"></video>
                     
                     <!-- REELS INTERACTION BUTTONS (RIGHT) -->
                     <div class="absolute right-3 bottom-20 flex flex-col gap-5 items-center z-20">
@@ -1064,6 +1064,30 @@
                     </div>
                 </div>
             `).join('');
+
+            // SETUP INTERSECTION OBSERVER FOR SMART REELS AUTO-PLAY & MUTE
+            const observerOptions = {
+                root: container,
+                threshold: 0.6
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target.querySelector('video');
+                    if (!video) return;
+
+                    if (entry.isIntersecting) {
+                        video.play().catch(() => {});
+                    } else {
+                        video.pause();
+                        video.currentTime = 0;
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reel-item').forEach(item => {
+                observer.observe(item);
+            });
         }
 
         function renderChats() {
