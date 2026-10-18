@@ -807,6 +807,14 @@
         }
 
         function switchTab(tabName) {
+            // STOP ALL REELS VIDEOS WHEN LEAVING REELS TAB
+            if (tabName !== 'reels') {
+                document.querySelectorAll('#reels-container video').forEach(v => {
+                    v.pause();
+                    v.currentTime = 0;
+                });
+            }
+
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById('tab-' + tabName).classList.remove('hidden');
 
@@ -820,8 +828,11 @@
                 activeNav.classList.add('text-emerald-400');
             }
 
-            if (tabName === 'reels') renderReels();
-            else if (tabName === 'explore') renderExplore();
+            if (tabName === 'reels') {
+                renderReels();
+            } else if (tabName === 'explore') {
+                renderExplore();
+            }
         }
 
         function renderStories() {
@@ -868,7 +879,7 @@
 
                     <div class="relative overflow-hidden cursor-pointer" ondblclick="toggleLike(${p.id})">
                         ${p.isVideo ? 
-                            `<video src="${p.url}" controls playsinline preload="metadata" class="w-full max-h-[450px] object-cover bg-zinc-950"></video>` : 
+                            `<video src="${p.url}" muted playsinline preload="metadata" class="w-full max-h-[450px] object-cover bg-zinc-950"></video>` : 
                             `<img src="${p.url}" class="w-full max-h-[450px] object-cover">`
                         }
                     </div>
