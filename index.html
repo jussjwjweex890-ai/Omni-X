@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OMNI</title>
+    <title>OMNI - Social Platform</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,10 +12,17 @@
             theme: {
                 extend: {
                     colors: {
-                        omniBlack: '#0d0e12',
-                        omniCard: '#16181f',
-                        omniBorder: '#262933',
-                        omniGreen: '#10b981'
+                        omni: {
+                            black: '#000000',
+                            card: '#0a0a0a',
+                            border: 'rgba(16, 185, 129, 0.25)',
+                            green: '#10b981',
+                            neon: '#00ff87'
+                        }
+                    },
+                    boxShadow: {
+                        'neon': '0 0 15px rgba(0, 255, 135, 0.3)',
+                        'neon-lg': '0 0 25px rgba(16, 185, 129, 0.5)'
                     }
                 }
             }
@@ -29,7 +36,7 @@
             user-select: none;
         }
         body {
-            background-color: #0d0e12;
+            background-color: #000000;
             color: #f3f4f6;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
@@ -42,35 +49,34 @@
             scrollbar-width: none;
         }
         .story-ring {
-            background: linear-gradient(135deg, #10b981, #00ff87, #3b82f6);
+            background: linear-gradient(45deg, #10b981, #00ff87, #047857);
             padding: 2px;
+        }
+        .glass-header {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
     </style>
 </head>
-<body class="bg-[#0d0e12] text-white h-full min-h-screen pb-24">
+<body class="bg-black text-white h-full min-h-screen pb-24">
 
     <!-- SIGNUP / LOGIN SCREEN -->
-    <div id="signup-screen" class="hidden fixed inset-0 z-50 bg-[#0d0e12] flex items-center justify-center p-4 max-w-md mx-auto">
-        <div class="w-full bg-[#16181f] border border-[#262933] rounded-3xl p-6 space-y-5">
-            <div class="flex justify-between items-center border-b border-[#262933] pb-3">
-                <h1 class="text-2xl font-black text-emerald-400 tracking-wider">OMNI</h1>
+    <div id="signup-screen" class="hidden fixed inset-0 z-50 bg-black flex items-center justify-center p-4 max-w-md mx-auto">
+        <div class="w-full bg-zinc-950 border border-emerald-500/40 rounded-3xl p-6 space-y-5 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-300 tracking-wider">OMNI</h1>
             </div>
-
             <div class="space-y-3.5">
                 <div>
                     <label class="text-[11px] text-zinc-400 font-semibold mb-1 block">İsim Soyisim</label>
-                    <input type="text" id="signup-fullname" placeholder="Örn: Ali Yılmaz" class="w-full bg-[#0d0e12] border border-[#262933] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="signup-fullname" placeholder="Örn: Ahmet Yılmaz" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="text-[11px] text-zinc-400 font-semibold mb-1 block">E-posta Adresi</label>
-                    <input type="email" id="signup-email" placeholder="ornek@gmail.com" class="w-full bg-[#0d0e12] border border-[#262933] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="email" id="signup-email" placeholder="ornek@gmail.com" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
-
-                <div class="pt-1">
-                    <button onclick="directRegisterOrLogin()" class="w-full bg-emerald-500 text-black font-extrabold py-3 rounded-xl text-xs hover:bg-emerald-400 transition">
-                        Giriş Yap / Kayıt Ol
-                    </button>
-                </div>
+                <button onclick="directRegisterOrLogin()" class="w-full bg-gradient-to-r from-emerald-400 to-green-500 text-black font-extrabold py-3 rounded-xl text-xs shadow-neon">Giriş Yap / Kayıt Ol</button>
             </div>
         </div>
     </div>
@@ -78,90 +84,109 @@
     <!-- MAIN APP WRAPPER -->
     <div id="main-app" class="hidden">
         <!-- TOP HEADER -->
-        <header class="sticky top-0 z-40 bg-[#0d0e12]/90 backdrop-blur-md border-b border-[#262933] px-4 py-3 flex items-center justify-between max-w-md mx-auto">
-            <span class="font-extrabold text-xl text-emerald-400 tracking-wide">OMNI</span>
-            <div class="flex items-center gap-4 text-zinc-300">
-                <button onclick="openModal('settings-modal')"><i class="fas fa-cog text-lg"></i></button>
-            </div>
+        <header class="sticky top-0 z-40 glass-header border-b border-zinc-900 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+            <span class="font-black text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400">OMNI</span>
+            <button onclick="openModal('settings-modal')" class="text-xl text-zinc-300 hover:text-emerald-400 transition"><i class="fas fa-cog"></i></button>
         </header>
 
         <!-- APP CONTAINER -->
         <div class="max-w-md mx-auto relative">
-
-            <!-- MAIN FEED -->
             <section id="tab-feed">
                 <!-- STORIES BAR -->
-                <div class="py-3 px-3 border-b border-[#262933] bg-[#0d0e12]">
-                    <h2 class="text-xs font-semibold text-zinc-400 mb-2">Hikayeler</h2>
-                    <div class="overflow-x-auto hide-scrollbar flex gap-3.5 items-center">
-                        <!-- Add Story -->
-                        <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer" onclick="openModal('create-story-modal')">
-                            <div class="relative w-14 h-14 rounded-full p-0.5 border-2 border-dashed border-zinc-600 flex items-center justify-center">
-                                <img id="my-story-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-full h-full object-cover rounded-full">
-                                <div class="absolute bottom-0 right-0 bg-emerald-500 text-black w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold border border-[#0d0e12]">
-                                    <i class="fas fa-plus"></i>
-                                </div>
+                <div class="py-3 px-2 border-b border-zinc-900 overflow-x-auto hide-scrollbar flex gap-4 items-center bg-black">
+                    <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer" onclick="openModal('create-story-modal')">
+                        <div class="relative w-16 h-16 rounded-full p-0.5 border-2 border-dashed border-emerald-500/60 flex items-center justify-center">
+                            <img id="my-story-avatar" src="" class="w-full h-full object-cover rounded-full">
+                            <div class="absolute bottom-0 right-0 bg-emerald-500 text-black w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border-2 border-black">
+                                <i class="fas fa-plus text-[10px]"></i>
                             </div>
-                            <span class="text-[10px] text-zinc-300 truncate w-14 text-center">Sen+</span>
                         </div>
-
-                        <!-- Story Items -->
-                        <div id="stories-container" class="flex gap-3.5"></div>
+                        <span class="text-[11px] text-zinc-400 truncate w-16 text-center">Hikayen</span>
                     </div>
+                    <div id="stories-container" class="flex gap-4"></div>
                 </div>
 
                 <!-- FEED POSTS -->
-                <div id="posts-container" class="space-y-4 p-3"></div>
+                <div id="posts-container" class="space-y-4 pt-2"></div>
             </section>
-
         </div>
 
-        <!-- FLOATING 'YENİ GÖNDERİ' BUTTON -->
-        <button onclick="openModal('create-post-modal')" class="fixed bottom-20 right-4 z-40 bg-white text-black font-bold px-4 py-2 rounded-full text-xs shadow-lg flex items-center gap-1.5 active:scale-95 transition">
-            <span>Yeni Gönderi</span>
-        </button>
-
         <!-- BOTTOM NAVIGATION BAR -->
-        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#0d0e12]/95 backdrop-blur-md border-t border-[#262933] max-w-md mx-auto px-6 py-3 flex justify-between items-center text-zinc-400">
-            <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-emerald-400 text-lg"><i class="fas fa-home"></i></button>
-            <button class="hover:text-white text-lg"><i class="fas fa-search"></i></button>
-            <button onclick="openModal('create-post-modal')" class="w-10 h-10 rounded-full bg-emerald-500 text-black flex items-center justify-center font-bold text-base shadow-md"><i class="fas fa-plus"></i></button>
-            <button class="hover:text-white text-lg"><i class="far fa-heart"></i></button>
-            <button onclick="openModal('profile-modal')" class="hover:text-white text-lg"><i class="far fa-user"></i></button>
+        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-md border-t border-zinc-900 max-w-md mx-auto px-6 py-3 flex justify-around items-center">
+            <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-emerald-400 text-xl"><i class="fas fa-home"></i></button>
+            <button onclick="openModal('create-post-modal')" class="w-11 h-11 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 text-black flex items-center justify-center font-bold text-lg shadow-neon"><i class="fas fa-plus"></i></button>
+            <button onclick="openModal('settings-modal')" class="text-zinc-500 hover:text-emerald-400 text-xl"><i class="fas fa-cog"></i></button>
         </nav>
     </div>
 
     <!-- MODALS -->
 
     <!-- CREATE POST MODAL -->
-    <div id="create-post-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-[#16181f] border border-[#262933] w-full max-w-sm rounded-2xl p-4 space-y-4">
-            <div class="flex justify-between items-center border-b border-[#262933] pb-2">
-                <h3 class="font-bold text-sm text-white">Yeni Gönderi Paylaş</h3>
-                <button onclick="closeModal('create-post-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
+    <div id="create-post-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400">Yeni Gönderi</h3>
+                <button onclick="closeModal('create-post-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-3">
+                <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
+                <textarea id="post-caption-input" rows="3" placeholder="Açıklama yaz..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
+                
+                <!-- Seçilen Medya Önizleme / GIF -->
+                <div id="post-media-preview" class="hidden relative rounded-xl overflow-hidden max-h-40 bg-black flex items-center justify-center"></div>
+
+                <!-- GIF Arama Entegrasyonu -->
                 <div>
-                    <label class="text-[10px] text-zinc-400 mb-1 block">Fotoğraf veya Video Seç</label>
-                    <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 cursor-pointer">
+                    <button onclick="toggleGifSearch('post')" class="w-full bg-zinc-900 border border-zinc-800 text-emerald-400 py-2 rounded-xl text-xs font-bold hover:bg-zinc-800 transition flex items-center justify-center gap-1.5">
+                        <i class="fas fa-gift"></i> GIF Ekle (Tenor)
+                    </button>
                 </div>
-                <textarea id="post-caption-input" rows="3" placeholder="Neler oluyor? #doga #gezi" class="w-full bg-[#0d0e12] border border-[#262933] rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
             </div>
-            <button onclick="submitNewPost()" class="w-full bg-emerald-500 text-black font-bold py-2.5 rounded-xl text-xs">Paylaş</button>
+            <button onclick="submitNewPost()" class="w-full bg-emerald-500 text-black font-bold py-2.5 rounded-xl text-xs shadow-neon">Paylaş</button>
+        </div>
+    </div>
+
+    <!-- GIF PICKER MODAL -->
+    <div id="gif-picker-modal" class="hidden fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/40 w-full max-w-sm rounded-2xl p-4 space-y-3 shadow-neon-lg flex flex-col max-h-[70vh]">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400">GIF Seç</h3>
+                <button onclick="closeModal('gif-picker-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="gif-search-box" placeholder="GIF ara (örn: happy, cat)..." oninput="searchGifs(this.value)" class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div id="gif-results-grid" class="grid grid-cols-2 gap-2 overflow-y-auto max-h-64 pr-1">
+                <p class="col-span-2 text-center text-xs text-zinc-500 py-6">Arama yapmak için bir kelime yazın...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMENTS MODAL (EKRANIN ALTINDAN YARISINA KADAR) -->
+    <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end">
+        <div class="bg-zinc-950 border-t border-emerald-500/40 w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 shadow-neon-lg flex flex-col h-[50vh]">
+            <div class="w-12 h-1 bg-zinc-700 rounded-full mx-auto mb-1"></div>
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400"><i class="far fa-comment text-xs mr-1"></i> Yorumlar</h3>
+                <button onclick="closeModal('comments-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="comments-list" class="flex-1 overflow-y-auto space-y-2 pr-1 my-2"></div>
+            <div class="flex gap-2 pt-2 border-t border-zinc-800">
+                <input type="text" id="comment-input" placeholder="Yorum ekle..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <button onclick="addCommentToPost()" class="bg-emerald-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-neon">Gönder</button>
+            </div>
         </div>
     </div>
 
     <!-- CREATE STORY MODAL -->
-    <div id="create-story-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-[#16181f] border border-[#262933] w-full max-w-sm rounded-2xl p-4 space-y-4">
-            <div class="flex justify-between items-center border-b border-[#262933] pb-2">
-                <h3 class="font-bold text-sm text-white">Hikaye Ekle</h3>
-                <button onclick="closeModal('create-story-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
+    <div id="create-story-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400">Hikaye Ekle</h3>
+                <button onclick="closeModal('create-story-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
             </div>
-            <div>
-                <input type="file" id="story-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 cursor-pointer">
-            </div>
-            <button onclick="submitNewStory()" class="w-full bg-emerald-500 text-black font-bold py-2.5 rounded-xl text-xs">Hikayelere Ekle</button>
+            <input type="file" id="story-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
+            <button onclick="submitNewStory()" class="w-full bg-emerald-500 text-black font-bold py-2.5 rounded-xl text-xs shadow-neon">Hikayelere Ekle</button>
         </div>
     </div>
 
@@ -169,7 +194,7 @@
     <div id="view-story-modal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4 max-w-md mx-auto">
         <div class="flex items-center justify-between py-2 border-b border-zinc-800">
             <div class="flex items-center gap-2">
-                <img id="story-user-avatar" src="" class="w-8 h-8 rounded-full object-cover">
+                <img id="story-user-avatar" src="" class="w-8 h-8 rounded-full border border-emerald-400 object-cover">
                 <span id="story-user-name" class="font-bold text-xs text-white"></span>
             </div>
             <button onclick="closeStoryView()" class="text-white text-base"><i class="fas fa-times"></i></button>
@@ -178,60 +203,42 @@
     </div>
 
     <!-- SETTINGS MODAL -->
-    <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-[#16181f] border border-[#262933] w-full max-w-sm rounded-2xl p-5 space-y-4">
-            <div class="flex justify-between items-center border-b border-[#262933] pb-2">
-                <h3 class="font-bold text-sm text-white">Ayarlar</h3>
-                <button onclick="closeModal('settings-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
+    <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-neon-lg">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400"><i class="fas fa-cog mr-1"></i> Ayarlar</h3>
+                <button onclick="closeModal('settings-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-2 text-xs">
-                <button onclick="clearAllData()" class="w-full text-left p-2.5 rounded-xl bg-[#0d0e12] border border-[#262933] text-amber-400">Önbelleği Temizle</button>
-                <button onclick="logoutAccount()" class="w-full text-left p-2.5 rounded-xl bg-[#0d0e12] border border-[#262933] text-red-400">Çıkış Yap</button>
+                <button onclick="clearAllData()" class="w-full text-left p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-amber-400">Önbelleği Temizle</button>
+                <button onclick="logoutAccount()" class="w-full text-left p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-400">Çıkış Yap</button>
             </div>
         </div>
     </div>
 
     <!-- APPLICATION LOGIC -->
     <script>
-        const initialStories = [
-            { user: "Melis_K", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=500" },
-            { user: "Berk_Can", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500" },
-            { user: "Ayşe_N", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500" },
-            { user: "Deniz_A", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150", url: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500" },
-            { user: "Ceren_S", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500" }
-        ];
-
-        const defaultPosts = [
-            {
-                id: 101,
-                user: "Ali_Yılmaz",
-                handle: "AliYilmaz",
-                time: "2dk önce",
-                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
-                caption: "Bugün harika bir yürüyüş yaptım! Manzara muhteşemdi. 🏔️⭐ <span class='text-emerald-400'>#doga #gezi</span>",
-                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-                isVideo: true,
-                likes: 12,
-                liked: false
-            },
-            {
-                id: 102,
-                user: "Zeynep_Ç",
-                handle: "Zeynep_C",
-                time: "15dk önce",
-                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-                caption: "Yeni kahve dükkanımızı açtık! Hepinizi bekleriz.☕ <span class='text-emerald-400'>#nenmara #doga #gezi</span>",
-                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-                isVideo: true,
-                likes: 34,
-                liked: false
-            }
-        ];
-
         let state = {
             currentUser: null,
-            stories: [...initialStories],
-            posts: []
+            stories: [
+                { id: 1, user: "can_tech", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false },
+                { id: 2, user: "ebru.art", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500", isVideo: false }
+            ],
+            posts: [
+                {
+                    id: 101,
+                    user: "Can_Tech",
+                    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                    isVideo: true,
+                    caption: "OMNI platformunda muhteşem bir doğa testi! 🏔️✨",
+                    likes: 14,
+                    liked: false,
+                    comments: [{ user: "ebru.art", text: "Harika görünüyor!" }]
+                }
+            ],
+            activeCommentPostId: null,
+            selectedMediaUrl: null
         };
 
         window.onload = function() {
@@ -249,31 +256,22 @@
         function loadSavedDatabase() {
             const savedUser = localStorage.getItem('omni_active_user');
             if (savedUser) { try { state.currentUser = JSON.parse(savedUser); } catch(e){} }
-
             const savedPosts = localStorage.getItem('omni_posts_data');
-            if (savedPosts) { 
-                try { state.posts = JSON.parse(savedPosts); } catch(e){ state.posts = defaultPosts; }
-            } else {
-                state.posts = defaultPosts;
-            }
+            if (savedPosts) { try { state.posts = JSON.parse(savedPosts); } catch(e){} }
         }
 
         function directRegisterOrLogin() {
             const fullname = document.getElementById('signup-fullname').value.trim();
-            const email = document.getElementById('signup-email').value.trim();
-
+            const email = document.getElementById('signup-email').value.trim().toLowerCase();
             if (!email) { alert("Lütfen e-posta giriniz!"); return; }
 
-            const user = {
-                username: fullname ? fullname.replace(/\s+/g, '_') : email.split('@')[0],
-                handle: email.split('@')[0],
+            state.currentUser = {
+                username: email.split('@')[0],
                 name: fullname || email.split('@')[0],
                 email: email,
                 avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
             };
-
-            state.currentUser = user;
-            localStorage.setItem('omni_active_user', JSON.stringify(user));
+            localStorage.setItem('omni_active_user', JSON.stringify(state.currentUser));
             document.getElementById('signup-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             initMainApp();
@@ -285,17 +283,16 @@
             }
             renderStories();
             renderPosts();
-            setupVideoAutoplayObserver();
         }
 
         function renderStories() {
             const container = document.getElementById('stories-container');
             container.innerHTML = state.stories.map(s => `
-                <div onclick="openStoryView('${s.user}', '${s.avatar}', '${s.url}', ${s.isVideo || false})" class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
-                    <div class="story-ring w-14 h-14 rounded-full flex items-center justify-center">
-                        <img src="${s.avatar}" class="w-full h-full object-cover rounded-full border-2 border-[#0d0e12]">
+                <div onclick="openStoryView('${s.user}', '${s.avatar}', '${s.url}', ${s.isVideo})" class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
+                    <div class="story-ring w-16 h-16 rounded-full flex items-center justify-center">
+                        <img src="${s.avatar}" class="w-full h-full object-cover rounded-full border-2 border-black">
                     </div>
-                    <span class="text-[10px] text-zinc-300 truncate w-14 text-center">${s.user}</span>
+                    <span class="text-[11px] text-zinc-300 truncate w-16 text-center">${s.user}</span>
                 </div>
             `).join('');
         }
@@ -303,61 +300,45 @@
         function renderPosts() {
             const container = document.getElementById('posts-container');
             container.innerHTML = state.posts.map(p => `
-                <article class="post-item bg-[#16181f] border border-[#262933] rounded-2xl overflow-hidden shadow-sm">
-                    <!-- Header -->
+                <article class="post-item bg-black border-b border-zinc-900 pb-4">
                     <div class="flex items-center justify-between p-3">
                         <div class="flex items-center gap-2.5">
-                            <img src="${p.avatar}" class="w-8 h-8 rounded-full object-cover">
-                            <div>
-                                <h4 class="font-bold text-xs text-white">${p.user}</h4>
-                                <p class="text-[10px] text-zinc-400">@${p.handle || p.user} ${p.time ? '· ' + p.time : ''}</p>
+                            <div class="story-ring w-9 h-9 rounded-full flex items-center justify-center">
+                                <img src="${p.avatar}" class="w-full h-full object-cover rounded-full border border-black">
                             </div>
+                            <span class="font-bold text-xs text-white">${p.user}</span>
                         </div>
-                        <i class="fas fa-ellipsis-h text-zinc-500 text-xs"></i>
                     </div>
 
-                    <!-- Media -->
-                    ${p.url ? `
-                        <div class="relative bg-black max-h-[400px] overflow-hidden flex items-center justify-center">
-                            ${p.isVideo ? 
-                                `<video src="${p.url}" muted playsinline preload="auto" class="w-full max-h-[400px] object-cover"></video>` : 
-                                `<img src="${p.url}" class="w-full max-h-[400px] object-cover">`
-                            }
-                        </div>
-                    ` : ''}
+                    <div class="relative overflow-hidden bg-zinc-950 flex items-center justify-center max-h-[450px]">
+                        ${p.isVideo ? 
+                            `<video src="${p.url}" muted playsinline preload="auto" class="w-full max-h-[450px] object-cover"></video>` : 
+                            `<img src="${p.url}" class="w-full max-h-[450px] object-cover">`
+                        }
+                    </div>
 
-                    <!-- Text & Actions -->
-                    <div class="p-3 space-y-2.5">
-                        <p class="text-xs text-zinc-200 leading-relaxed">${p.caption}</p>
-
-                        <!-- Action Bar -->
-                        <div class="flex items-center justify-between text-zinc-400 pt-1 text-xs border-t border-[#262933]/60">
-                            <button class="flex items-center gap-1 hover:text-white">
-                                <i class="far fa-comment"></i>
-                                <span class="text-[10px]">Yorum Yap</span>
-                            </button>
-                            <button class="flex items-center gap-1 hover:text-white">
-                                <i class="fas fa-retweet"></i>
-                                <span class="text-[10px]">Tekrar Paylaş</span>
-                            </button>
-                            <button onclick="toggleLike(${p.id})" class="flex items-center gap-1 ${p.liked ? 'text-red-500' : 'hover:text-white'}">
-                                <i class="${p.liked ? 'fas' : 'far'} fa-heart"></i>
-                                <span class="text-[10px]">Beğen</span>
-                            </button>
-                            <button class="flex items-center gap-1 hover:text-white">
-                                <i class="far fa-bookmark"></i>
-                                <span class="text-[10px]">Kaydet</span>
-                            </button>
+                    <div class="p-3 space-y-2">
+                        <div class="flex justify-between items-center text-lg">
+                            <div class="flex gap-4">
+                                <button onclick="toggleLike(${p.id})" class="${p.liked ? 'text-emerald-400' : 'text-zinc-300'} transition">
+                                    <i class="${p.liked ? 'fas' : 'far'} fa-heart"></i>
+                                </button>
+                                <button onclick="openCommentsModal(${p.id})" class="text-zinc-300 hover:text-emerald-400">
+                                    <i class="far fa-comment"></i>
+                                </button>
+                            </div>
                         </div>
+                        <p class="font-bold text-xs text-emerald-400">${p.likes || 0} beğenme</p>
+                        <p class="text-xs text-zinc-200"><span class="font-bold mr-1 text-white">${p.user}</span>${p.caption}</p>
                     </div>
                 </article>
             `).join('');
 
-            setupVideoAutoplayObserver();
+            setupVideoIntersectionObserver();
         }
 
-        // Akıllı Video Gözlemcisi: %25 ekrana girince otomatik oynatır, %75 olunca sesi açar
-        function setupVideoAutoplayObserver() {
+        // VİDEO SES VE EKRAN ORANI GÖZLEMCİSİ (%25 Oynat, %75 Ses Aç)
+        function setupVideoIntersectionObserver() {
             const observerOptions = {
                 root: null,
                 threshold: [0, 0.25, 0.75, 1.0]
@@ -369,11 +350,11 @@
                     if (!video) return;
 
                     if (entry.intersectionRatio >= 0.25) {
-                        video.play().catch(() => {});
+                        video.play().catch(()=>{});
                         if (entry.intersectionRatio >= 0.75) {
-                            video.muted = false;
+                            video.muted = false; // %75 ve üzeri görünürlükte ses açılır
                         } else {
-                            video.muted = true;
+                            video.muted = true;  // %25 - %75 arası sessiz oynar
                         }
                     } else {
                         video.pause();
@@ -391,6 +372,7 @@
             const post = state.posts.find(p => p.id === postId);
             if(post) {
                 post.liked = !post.liked;
+                post.likes = (post.likes || 0) + (post.liked ? 1 : -1);
                 savePostsState();
                 renderPosts();
             }
@@ -400,40 +382,119 @@
             try { localStorage.setItem('omni_posts_data', JSON.stringify(state.posts)); } catch(e){}
         }
 
-        function submitNewPost() {
-            const fileInput = document.getElementById('post-file-input');
-            const caption = document.getElementById('post-caption-input').value.trim();
-            if (!caption && (!fileInput.files || !fileInput.files[0])) return alert("İçerik yazın veya medya seçin!");
+        // TENOR GIF ARAMA ENTEGRASYONU (Canlı Çalışır)
+        function toggleGifSearch(target) {
+            openModal('gif-picker-modal');
+        }
 
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    addPostToState(e.target.result, fileInput.files[0].type.startsWith('video'), caption);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                addPostToState(null, false, caption);
+        async function searchGifs(query) {
+            const grid = document.getElementById('gif-results-grid');
+            if (!query.trim()) {
+                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-zinc-500 py-6">Arama yapmak için bir kelime yazın...</p>`;
+                return;
+            }
+            try {
+                // Tenor Açık API Test Anahtarı (LIVDSRZULELA)
+                const res = await fetch(`https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULELA&limit=10`);
+                const data = await res.json();
+                if (data && data.results) {
+                    grid.innerHTML = data.results.map(g => `
+                        <div onclick="selectGif('${g.media[0].gif.url}')" class="cursor-pointer rounded-xl overflow-hidden border border-zinc-800 hover:border-emerald-500 bg-black h-28 flex items-center justify-center">
+                            <img src="${g.media[0].gif.url}" class="w-full h-full object-cover">
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-red-400 py-6">GIF yüklenirken hata oluştu.</p>`;
             }
         }
 
-        function addPostToState(mediaUrl, isVideo, caption) {
+        function selectGif(url) {
+            state.selectedMediaUrl = url;
+            const preview = document.getElementById('post-media-preview');
+            preview.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-xl">`;
+            preview.classList.remove('hidden');
+            closeModal('gif-picker-modal');
+        }
+
+        function submitNewPost() {
+            const fileInput = document.getElementById('post-file-input');
+            const caption = document.getElementById('post-caption-input').value.trim();
+
+            if (!state.selectedMediaUrl && (!fileInput.files || !fileInput.files[0]) && !caption) {
+                alert("Lütfen bir medya, GIF veya açıklama ekleyin!");
+                return;
+            }
+
+            if (state.selectedMediaUrl) {
+                createPostFinal(state.selectedMediaUrl, false, caption);
+            } else if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    createPostFinal(e.target.result, fileInput.files[0].type.startsWith('video'), caption);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                createPostFinal(null, false, caption);
+            }
+        }
+
+        function createPostFinal(url, isVideo, caption) {
             state.posts.unshift({
                 id: Date.now(),
-                user: state.currentUser.name,
-                handle: state.currentUser.handle,
-                time: "Şimdi",
+                user: state.currentUser.username,
                 avatar: state.currentUser.avatar,
-                url: mediaUrl,
+                url: url,
                 isVideo: isVideo,
                 caption: caption || "",
                 likes: 0,
-                liked: false
+                liked: false,
+                comments: []
             });
             savePostsState();
-            closeModal('create-post-modal');
+            state.selectedMediaUrl = null;
+            document.getElementById('post-media-preview').classList.add('hidden');
             document.getElementById('post-caption-input').value = '';
             document.getElementById('post-file-input').value = '';
+            closeModal('create-post-modal');
             renderPosts();
+        }
+
+        function openCommentsModal(postId) {
+            state.activeCommentPostId = postId;
+            renderComments();
+            openModal('comments-modal');
+        }
+
+        function renderComments() {
+            const post = state.posts.find(p => p.id === state.activeCommentPostId);
+            const list = document.getElementById('comments-list');
+            if (!post || !post.comments || post.comments.length === 0) {
+                list.innerHTML = `<p class="text-center text-xs text-zinc-500 py-6">Henüz yorum yapılmamış.</p>`;
+                return;
+            }
+            list.innerHTML = post.comments.map(c => `
+                <div class="bg-zinc-900 p-2.5 rounded-xl text-xs border border-zinc-800">
+                    <span class="font-bold text-emerald-400 mr-1.5">${c.user}:</span>
+                    <span class="text-zinc-200">${c.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function addCommentToPost() {
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if(!text || !state.activeCommentPostId) return;
+
+            const post = state.posts.find(p => p.id === state.activeCommentPostId);
+            if(post) {
+                if(!post.comments) post.comments = [];
+                post.comments.push({ user: state.currentUser.username, text: text });
+                savePostsState();
+                input.value = '';
+                renderComments();
+                renderPosts();
+            }
         }
 
         function submitNewStory() {
@@ -441,7 +502,7 @@
             if (!fileInput.files || !fileInput.files[0]) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                state.stories.unshift({ user: state.currentUser.username, avatar: state.currentUser.avatar, url: e.target.result, isVideo: fileInput.files[0].type.startsWith('video') });
+                state.stories.unshift({ id: Date.now(), user: state.currentUser.username, avatar: state.currentUser.avatar, url: e.target.result, isVideo: fileInput.files[0].type.startsWith('video') });
                 closeModal('create-story-modal');
                 renderStories();
             };
@@ -451,24 +512,13 @@
         function openStoryView(user, avatar, url, isVideo) {
             document.getElementById('story-user-name').innerText = user;
             document.getElementById('story-user-avatar').src = avatar;
-            document.getElementById('story-media-container').innerHTML = isVideo ? `<video src="${url}" autoplay controls class="max-h-[70vh] rounded-xl"></video>` : `<img src="${url}" class="max-h-[70vh] rounded-xl object-contain">`;
+            document.getElementById('story-media-container').innerHTML = isVideo ? `<video src="${url}" autoplay controls class="max-h-full rounded-xl"></video>` : `<img src="${url}" class="max-h-full rounded-xl object-contain">`;
             openModal('view-story-modal');
         }
 
-        function closeStoryView() { 
-            document.getElementById('story-media-container').innerHTML = '';
-            closeModal('view-story-modal'); 
-        }
-
-        function logoutAccount() {
-            localStorage.removeItem('omni_active_user');
-            location.reload();
-        }
-
-        function clearAllData() {
-            if (confirm("Tüm veri ve önbellek temizlensin mi?")) { localStorage.clear(); location.reload(); }
-        }
-
+        function closeStoryView() { closeModal('view-story-modal'); }
+        function logoutAccount() { localStorage.removeItem('omni_active_user'); location.reload(); }
+        function clearAllData() { if (confirm("Önbellek temizlensin mi?")) { localStorage.clear(); location.reload(); } }
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
     </script>
