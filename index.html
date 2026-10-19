@@ -87,9 +87,14 @@
         <header class="sticky top-0 z-40 glass-header border-b border-zinc-900 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
             <span class="font-black text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400">OMNI</span>
             <div class="flex items-center gap-4">
+                <!-- GELEN KUTUSU (BİLDİRİMLER) -->
+                <button onclick="openModal('inbox-modal')" class="relative text-xl text-zinc-300 hover:text-emerald-400 transition">
+                    <i class="far fa-bell"></i>
+                    <span id="inbox-badge" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full"></span>
+                </button>
+                <!-- DM MESAJLAR -->
                 <button onclick="openModal('dm-modal')" class="relative text-xl text-zinc-300 hover:text-emerald-400 transition">
                     <i class="far fa-paper-plane"></i>
-                    <span id="dm-badge" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full"></span>
                 </button>
                 <button onclick="openModal('settings-modal')" class="text-xl text-zinc-300 hover:text-emerald-400 transition"><i class="fas fa-cog"></i></button>
             </div>
@@ -122,23 +127,36 @@
             <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-emerald-400 text-xl"><i class="fas fa-home"></i></button>
             <button onclick="openModal('search-modal')" class="text-zinc-500 hover:text-emerald-400 text-xl"><i class="fas fa-search"></i></button>
             <button onclick="openModal('create-post-modal')" class="w-11 h-11 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 text-black flex items-center justify-center font-bold text-lg shadow-neon"><i class="fas fa-plus"></i></button>
+            <button onclick="openModal('inbox-modal')" class="text-zinc-500 hover:text-emerald-400 text-xl"><i class="far fa-bell"></i></button>
             <button onclick="openModal('dm-modal')" class="text-zinc-500 hover:text-emerald-400 text-xl"><i class="far fa-paper-plane"></i></button>
-            <button onclick="openModal('settings-modal')" class="text-zinc-500 hover:text-emerald-400 text-xl"><i class="fas fa-cog"></i></button>
         </nav>
     </div>
 
     <!-- MODALS -->
 
-    <!-- VİDEO VE İÇERİK ARAMA MODAL -->
+    <!-- GELEN KUTUSU (BİLDİRİMLER) MODAL -->
+    <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg flex flex-col h-[70vh]">
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400"><i class="far fa-bell mr-1"></i> Gelen Kutusu</h3>
+                <button onclick="closeModal('inbox-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="inbox-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                <!-- Dinamik Bildirimler -->
+            </div>
+        </div>
+    </div>
+
+    <!-- VİDEO VE İÇERİK/KİŞİ ARAMA MODAL -->
     <div id="search-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-zinc-950 border border-emerald-500/30 w-full max-w-sm rounded-2xl p-4 space-y-4 shadow-neon-lg flex flex-col h-[70vh]">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-                <h3 class="font-bold text-sm text-emerald-400"><i class="fas fa-search mr-1"></i> Arama yap (Video/Kullanıcı)</h3>
+                <h3 class="font-bold text-sm text-emerald-400"><i class="fas fa-search mr-1"></i> Arama (Video / Kişi)</h3>
                 <button onclick="closeModal('search-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
             </div>
-            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Video başlığı veya kullanıcı ara..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Video başlığı veya kişi kullanıcı adı ara..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
             <div id="search-results" class="flex-1 overflow-y-auto space-y-3 pr-1">
-                <p class="text-center text-xs text-zinc-500 py-6">Arama yapmak için bir şeyler yazın...</p>
+                <p class="text-center text-xs text-zinc-500 py-6">Aramak istediğiniz kişi veya videoyu yazın...</p>
             </div>
         </div>
     </div>
@@ -151,12 +169,8 @@
                 <button onclick="closeModal('dm-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
             </div>
             
-            <!-- Sohbet Listesi -->
-            <div id="chat-list" class="flex-1 overflow-y-auto space-y-2">
-                <!-- Dinamik Sohbetler -->
-            </div>
+            <div id="chat-list" class="flex-1 overflow-y-auto space-y-2"></div>
 
-            <!-- Aktif Sohbet Alanı -->
             <div id="chat-active-view" class="hidden flex-1 flex flex-col space-y-2 border-t border-zinc-800 pt-2">
                 <div class="flex justify-between items-center border-b border-zinc-800 pb-1">
                     <span id="chat-target-name" class="text-xs font-bold text-emerald-400">Sohbet</span>
@@ -167,6 +181,29 @@
                     <input type="text" id="chat-input" placeholder="Mesaj yaz..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                     <button onclick="sendMessage()" class="bg-emerald-500 text-black px-3 py-2 rounded-xl text-xs font-bold shadow-neon"><i class="fas fa-paper-plane"></i></button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YORUMLAR MODAL (EKRANIN YARISINI KAPLAYAN & YANITLAMA DESTEKLİ) -->
+    <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end">
+        <div class="bg-zinc-950 border-t border-emerald-500/40 w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 shadow-neon-lg flex flex-col h-[50vh]">
+            <div class="w-12 h-1 bg-zinc-700 rounded-full mx-auto mb-1"></div>
+            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
+                <h3 class="font-bold text-sm text-emerald-400"><i class="far fa-comment text-xs mr-1"></i> Yorumlar</h3>
+                <button onclick="closeModal('comments-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="comments-list" class="flex-1 overflow-y-auto space-y-2 pr-1 my-2"></div>
+            
+            <!-- Yanıtlanan Kullanıcı Bildirimi -->
+            <div id="replying-to-bar" class="hidden flex justify-between items-center bg-zinc-900 px-3 py-1 rounded-lg text-[11px] text-emerald-400 border border-emerald-500/30">
+                <span id="replying-to-text"></span>
+                <button onclick="cancelReply()" class="text-zinc-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="flex gap-2 pt-1 border-t border-zinc-800">
+                <input type="text" id="comment-input" placeholder="Yorum ekle..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <button onclick="addCommentToPost()" class="bg-emerald-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-neon">Gönder</button>
             </div>
         </div>
     </div>
@@ -204,22 +241,6 @@
             <input type="text" id="gif-search-box" placeholder="GIF ara (örn: happy, cat)..." oninput="searchGifs(this.value)" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
             <div id="gif-results-grid" class="grid grid-cols-2 gap-2 overflow-y-auto max-h-64 pr-1">
                 <p class="col-span-2 text-center text-xs text-zinc-500 py-6">Arama yapmak için kelime yazın...</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- COMMENTS MODAL -->
-    <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end">
-        <div class="bg-zinc-950 border-t border-emerald-500/40 w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 shadow-neon-lg flex flex-col h-[50vh]">
-            <div class="w-12 h-1 bg-zinc-700 rounded-full mx-auto mb-1"></div>
-            <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-                <h3 class="font-bold text-sm text-emerald-400"><i class="far fa-comment text-xs mr-1"></i> Yorumlar</h3>
-                <button onclick="closeModal('comments-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="comments-list" class="flex-1 overflow-y-auto space-y-2 pr-1 my-2"></div>
-            <div class="flex gap-2 pt-2 border-t border-zinc-800">
-                <input type="text" id="comment-input" placeholder="Yorum ekle..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                <button onclick="addCommentToPost()" class="bg-emerald-500 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-neon">Gönder</button>
             </div>
         </div>
     </div>
@@ -267,6 +288,11 @@
         let state = {
             currentUser: null,
             followingUsers: [],
+            notifications: [
+                { id: 1, type: "follow", user: "ebru.art", text: "seni takip etmeye başladı.", time: "10dk önce" },
+                { id: 2, type: "like", user: "can_tech", text: "gönderini beğendi.", time: "1sa önce" },
+                { id: 3, type: "reply", user: "ebru.art", text: "yorumuna yanıt verdi: 'Aynen katılıyorum!'", time: "2sa önce" }
+            ],
             stories: [
                 { id: 1, user: "can_tech", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false },
                 { id: 2, user: "ebru.art", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500", isVideo: false }
@@ -281,7 +307,7 @@
                     caption: "OMNI ortamında harika bir doğa videosu! 🏔️✨",
                     likes: 18,
                     liked: false,
-                    comments: [{ user: "ebru.art", text: "Çok iyi!" }]
+                    comments: [{ id: 1, user: "ebru.art", text: "Çok iyi!", replies: [{ user: "Can_Tech", text: "Teşekkürler!" }] }]
                 }
             ],
             chats: {
@@ -291,6 +317,7 @@
             },
             activeChatUser: null,
             activeCommentPostId: null,
+            replyingToCommentUser: null,
             selectedMediaUrl: null
         };
 
@@ -339,6 +366,24 @@
             renderStories();
             renderPosts();
             renderChatList();
+            renderInbox();
+        }
+
+        function renderInbox() {
+            const list = document.getElementById('inbox-list');
+            list.innerHTML = state.notifications.map(n => `
+                <div class="flex items-center justify-between p-3 rounded-xl bg-zinc-900 border border-zinc-800">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+                            ${n.type === 'follow' ? '<i class="fas fa-user-plus"></i>' : n.type === 'like' ? '<i class="fas fa-heart"></i>' : '<i class="fas fa-reply"></i>'}
+                        </div>
+                        <div>
+                            <p class="text-xs text-white"><span class="font-bold text-emerald-400">${n.user}</span> ${n.text}</p>
+                            <span class="text-[10px] text-zinc-500">${n.time}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function renderStories() {
@@ -409,16 +454,19 @@
                 state.followingUsers = state.followingUsers.filter(u => u !== username);
             } else {
                 state.followingUsers.push(username);
+                // Bildirim ekle
+                state.notifications.unshift({ id: Date.now(), type: "follow", user: state.currentUser.username, text: "seni takip etmeye başladı.", time: "Şimdi" });
             }
             localStorage.setItem('omni_following_users', JSON.stringify(state.followingUsers));
             renderPosts();
+            renderInbox();
         }
 
-        // VİDEO VE İÇERİK ARAMA HİZMETİ
+        // VİDEO VE İÇERİK/KİŞİ ARAMA HİZMETİ
         function searchVideosAndPosts(query) {
             const resultsContainer = document.getElementById('search-results');
             if (!query.trim()) {
-                resultsContainer.innerHTML = `<p class="text-center text-xs text-zinc-500 py-6">Arama yapmak için bir şeyler yazın...</p>`;
+                resultsContainer.innerHTML = `<p class="text-center text-xs text-zinc-500 py-6">Aramak istediğiniz kişi veya videoyu yazın...</p>`;
                 return;
             }
 
@@ -501,127 +549,7 @@
             renderMessages();
         }
 
-        // VİDEO EKRAN ORANI GÖZLEMCİSİ (%25 Oynatır, %75 Sesi Açar)
-        function setupVideoIntersectionObserver() {
-            const observerOptions = {
-                root: null,
-                threshold: [0, 0.25, 0.75, 1.0]
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const video = entry.target.querySelector('video');
-                    if (!video) return;
-
-                    if (entry.intersectionRatio >= 0.25) {
-                        video.play().catch(()=>{});
-                        if (entry.intersectionRatio >= 0.75) {
-                            video.muted = false;
-                        } else {
-                            video.muted = true;
-                        }
-                    } else {
-                        video.pause();
-                        video.muted = true;
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.post-item').forEach(item => {
-                observer.observe(item);
-            });
-        }
-
-        function toggleLike(postId) {
-            const post = state.posts.find(p => p.id === postId);
-            if(post) {
-                post.liked = !post.liked;
-                post.likes = (post.likes || 0) + (post.liked ? 1 : -1);
-                savePostsState();
-                renderPosts();
-            }
-        }
-
-        function savePostsState() {
-            try { localStorage.setItem('omni_posts_data', JSON.stringify(state.posts)); } catch(e){}
-        }
-
-        function toggleGifSearch() {
-            openModal('gif-picker-modal');
-        }
-
-        async function searchGifs(query) {
-            const grid = document.getElementById('gif-results-grid');
-            if (!query.trim()) {
-                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-zinc-500 py-6">Arama yapmak için kelime yazın...</p>`;
-                return;
-            }
-            try {
-                const res = await fetch(`https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULELA&limit=10`);
-                const data = await res.json();
-                if (data && data.results) {
-                    grid.innerHTML = data.results.map(g => `
-                        <div onclick="selectGif('${g.media[0].gif.url}')" class="cursor-pointer rounded-xl overflow-hidden border border-zinc-800 hover:border-emerald-500 bg-black h-28 flex items-center justify-center">
-                            <img src="${g.media[0].gif.url}" class="w-full h-full object-cover">
-                        </div>
-                    `).join('');
-                }
-            } catch(e) {
-                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-red-400 py-6">GIF arama hatası.</p>`;
-            }
-        }
-
-        function selectGif(url) {
-            state.selectedMediaUrl = url;
-            const preview = document.getElementById('post-media-preview');
-            preview.innerHTML = `<img src="${url}" class="w-full h-full object-cover rounded-xl">`;
-            preview.classList.remove('hidden');
-            closeModal('gif-picker-modal');
-        }
-
-        function submitNewPost() {
-            const fileInput = document.getElementById('post-file-input');
-            const caption = document.getElementById('post-caption-input').value.trim();
-
-            if (!state.selectedMediaUrl && (!fileInput.files || !fileInput.files[0]) && !caption) {
-                alert("Lütfen medya, GIF veya yazı ekleyin!");
-                return;
-            }
-
-            if (state.selectedMediaUrl) {
-                createPostFinal(state.selectedMediaUrl, false, caption);
-            } else if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    createPostFinal(e.target.result, fileInput.files[0].type.startsWith('video'), caption);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                createPostFinal(null, false, caption);
-            }
-        }
-
-        function createPostFinal(url, isVideo, caption) {
-            state.posts.unshift({
-                id: Date.now(),
-                user: state.currentUser.username,
-                avatar: state.currentUser.avatar,
-                url: url,
-                isVideo: isVideo,
-                caption: caption || "",
-                likes: 0,
-                liked: false,
-                comments: []
-            });
-            savePostsState();
-            state.selectedMediaUrl = null;
-            document.getElementById('post-media-preview').classList.add('hidden');
-            document.getElementById('post-caption-input').value = '';
-            document.getElementById('post-file-input').value = '';
-            closeModal('create-post-modal');
-            renderPosts();
-        }
-
+        // YORUMLARA YANIT VERME SİSTEMİ
         function openCommentsModal(postId) {
             state.activeCommentPostId = postId;
             renderComments();
@@ -635,12 +563,40 @@
                 list.innerHTML = `<p class="text-center text-xs text-zinc-500 py-6">Henüz yorum yapılmamış.</p>`;
                 return;
             }
-            list.innerHTML = post.comments.map(c => `
-                <div class="bg-zinc-900 p-2.5 rounded-xl text-xs border border-zinc-800">
-                    <span class="font-bold text-emerald-400 mr-1.5">${c.user}:</span>
-                    <span class="text-zinc-200">${c.text}</span>
+            list.innerHTML = post.comments.map((c, idx) => `
+                <div class="bg-zinc-900 p-2.5 rounded-xl text-xs border border-zinc-800 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-emerald-400">${c.user}</span>
+                        <button onclick="startReplyTo('${c.user}')" class="text-[10px] text-zinc-400 hover:text-emerald-400 flex items-center gap-1">
+                            <i class="fas fa-reply"></i> Yanıtla
+                        </button>
+                    </div>
+                    <p class="text-zinc-200">${c.text}</p>
+                    
+                    ${c.replies && c.replies.length > 0 ? `
+                        <div class="pl-3 border-l-2 border-emerald-500/40 space-y-1 mt-1">
+                            ${c.replies.map(r => `
+                                <div class="text-[11px]">
+                                    <span class="font-bold text-emerald-300">${r.user}:</span>
+                                    <span class="text-zinc-300">${r.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
+        }
+
+        function startReplyTo(user) {
+            state.replyingToCommentUser = user;
+            document.getElementById('replying-to-text').innerText = `@${user} kullanıcısına yanıt veriyorsun`;
+            document.getElementById('replying-to-bar').classList.remove('hidden');
+            document.getElementById('comment-input').focus();
+        }
+
+        function cancelReply() {
+            state.replyingToCommentUser = null;
+            document.getElementById('replying-to-bar').classList.add('hidden');
         }
 
         function addCommentToPost() {
@@ -651,38 +607,8 @@
             const post = state.posts.find(p => p.id === state.activeCommentPostId);
             if(post) {
                 if(!post.comments) post.comments = [];
-                post.comments.push({ user: state.currentUser.username, text: text });
-                savePostsState();
-                input.value = '';
-                renderComments();
-                renderPosts();
-            }
-        }
-
-        function submitNewStory() {
-            const fileInput = document.getElementById('story-file-input');
-            if (!fileInput.files || !fileInput.files[0]) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                state.stories.unshift({ id: Date.now(), user: state.currentUser.username, avatar: state.currentUser.avatar, url: e.target.result, isVideo: fileInput.files[0].type.startsWith('video') });
-                closeModal('create-story-modal');
-                renderStories();
-            };
-            reader.readAsDataURL(fileInput.files[0]);
-        }
-
-        function openStoryView(user, avatar, url, isVideo) {
-            document.getElementById('story-user-name').innerText = user;
-            document.getElementById('story-user-avatar').src = avatar;
-            document.getElementById('story-media-container').innerHTML = isVideo ? `<video src="${url}" autoplay controls class="max-h-full rounded-xl"></video>` : `<img src="${url}" class="max-h-full rounded-xl object-contain">`;
-            openModal('view-story-modal');
-        }
-
-        function closeStoryView() { closeModal('view-story-modal'); }
-        function logoutAccount() { localStorage.removeItem('omni_active_user'); location.reload(); }
-        function clearAllData() { if (confirm("Önbellek temizlensin mi?")) { localStorage.clear(); location.reload(); } }
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-    </script>
-</body>
-</html>
+                
+                if (state.replyingToCommentUser) {
+                    const targetComment = post.comments.find(c => c.user === state.replyingToCommentUser);
+                    if (targetComment) {
+                        if (!targetComment.repl
