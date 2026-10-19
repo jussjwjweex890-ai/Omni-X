@@ -132,13 +132,11 @@
                 <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
                 <textarea id="post-caption-input" rows="3" placeholder="Açıklama yaz..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
                 
-                <!-- Seçilen Medya Önizleme / GIF -->
                 <div id="post-media-preview" class="hidden relative rounded-xl overflow-hidden max-h-40 bg-black flex items-center justify-center"></div>
 
-                <!-- GIF Arama Entegrasyonu -->
                 <div>
-                    <button onclick="toggleGifSearch('post')" class="w-full bg-zinc-900 border border-zinc-800 text-emerald-400 py-2 rounded-xl text-xs font-bold hover:bg-zinc-800 transition flex items-center justify-center gap-1.5">
-                        <i class="fas fa-gift"></i> GIF Ekle (Tenor)
+                    <button onclick="toggleGifSearch()" class="w-full bg-zinc-900 border border-zinc-800 text-emerald-400 py-2 rounded-xl text-xs font-bold hover:bg-zinc-800 transition flex items-center justify-center gap-1.5">
+                        <i class="fas fa-gift"></i> GIF Arayıp Ekle (Tenor)
                     </button>
                 </div>
             </div>
@@ -150,14 +148,12 @@
     <div id="gif-picker-modal" class="hidden fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-zinc-950 border border-emerald-500/40 w-full max-w-sm rounded-2xl p-4 space-y-3 shadow-neon-lg flex flex-col max-h-[70vh]">
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
-                <h3 class="font-bold text-sm text-emerald-400">GIF Seç</h3>
+                <h3 class="font-bold text-sm text-emerald-400">GIF Arama</h3>
                 <button onclick="closeModal('gif-picker-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex gap-2">
-                <input type="text" id="gif-search-box" placeholder="GIF ara (örn: happy, cat)..." oninput="searchGifs(this.value)" class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-            </div>
+            <input type="text" id="gif-search-box" placeholder="GIF ara (örn: happy, cat)..." oninput="searchGifs(this.value)" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
             <div id="gif-results-grid" class="grid grid-cols-2 gap-2 overflow-y-auto max-h-64 pr-1">
-                <p class="col-span-2 text-center text-xs text-zinc-500 py-6">Arama yapmak için bir kelime yazın...</p>
+                <p class="col-span-2 text-center text-xs text-zinc-500 py-6">Arama yapmak için kelime yazın...</p>
             </div>
         </div>
     </div>
@@ -231,10 +227,10 @@
                     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
                     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
                     isVideo: true,
-                    caption: "OMNI platformunda muhteşem bir doğa testi! 🏔️✨",
-                    likes: 14,
+                    caption: "OMNI ortamında harika bir doğa videosu! 🏔️✨",
+                    likes: 18,
                     liked: false,
-                    comments: [{ user: "ebru.art", text: "Harika görünüyor!" }]
+                    comments: [{ user: "ebru.art", text: "Çok iyi!" }]
                 }
             ],
             activeCommentPostId: null,
@@ -337,7 +333,7 @@
             setupVideoIntersectionObserver();
         }
 
-        // VİDEO SES VE EKRAN ORANI GÖZLEMCİSİ (%25 Oynat, %75 Ses Aç)
+        // VİDEO EKRAN ORANI GÖZLEMCİSİ (%25 Oynatır, %75 Sesi Açar)
         function setupVideoIntersectionObserver() {
             const observerOptions = {
                 root: null,
@@ -352,9 +348,9 @@
                     if (entry.intersectionRatio >= 0.25) {
                         video.play().catch(()=>{});
                         if (entry.intersectionRatio >= 0.75) {
-                            video.muted = false; // %75 ve üzeri görünürlükte ses açılır
+                            video.muted = false; // %75 ekrana girince ses açılır
                         } else {
-                            video.muted = true;  // %25 - %75 arası sessiz oynar
+                            video.muted = true;  // %25-%75 arası sessiz oynar
                         }
                     } else {
                         video.pause();
@@ -382,19 +378,17 @@
             try { localStorage.setItem('omni_posts_data', JSON.stringify(state.posts)); } catch(e){}
         }
 
-        // TENOR GIF ARAMA ENTEGRASYONU (Canlı Çalışır)
-        function toggleGifSearch(target) {
+        function toggleGifSearch() {
             openModal('gif-picker-modal');
         }
 
         async function searchGifs(query) {
             const grid = document.getElementById('gif-results-grid');
             if (!query.trim()) {
-                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-zinc-500 py-6">Arama yapmak için bir kelime yazın...</p>`;
+                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-zinc-500 py-6">Arama yapmak için kelime yazın...</p>`;
                 return;
             }
             try {
-                // Tenor Açık API Test Anahtarı (LIVDSRZULELA)
                 const res = await fetch(`https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULELA&limit=10`);
                 const data = await res.json();
                 if (data && data.results) {
@@ -405,7 +399,7 @@
                     `).join('');
                 }
             } catch(e) {
-                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-red-400 py-6">GIF yüklenirken hata oluştu.</p>`;
+                grid.innerHTML = `<p class="col-span-2 text-center text-xs text-red-400 py-6">GIF arama hatası.</p>`;
             }
         }
 
@@ -422,7 +416,7 @@
             const caption = document.getElementById('post-caption-input').value.trim();
 
             if (!state.selectedMediaUrl && (!fileInput.files || !fileInput.files[0]) && !caption) {
-                alert("Lütfen bir medya, GIF veya açıklama ekleyin!");
+                alert("Lütfen medya, GIF veya yazı ekleyin!");
                 return;
             }
 
