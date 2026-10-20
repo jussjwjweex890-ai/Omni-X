@@ -135,7 +135,7 @@
         </nav>
     </div>
 
-    <!-- MODALS (TAM EKRAN UYUMLU) -->
+    <!-- MODALS -->
 
     <!-- GELEN KUTUSU MODAL -->
     <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-[#050508] flex flex-col max-w-md mx-auto">
@@ -170,7 +170,7 @@
         <div id="chat-active-view" class="hidden flex-1 flex flex-col p-4 space-y-3">
             <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
                 <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs"><i class="fas fa-user"></i></div>
+                    <img id="chat-target-avatar" src="" class="w-7 h-7 rounded-full object-cover border border-emerald-400">
                     <span id="chat-target-name" class="text-xs font-bold text-emerald-400">Sohbet</span>
                 </div>
                 <button onclick="closeActiveChat()" class="text-xs text-zinc-400 hover:text-white bg-zinc-900 px-2.5 py-1 rounded-lg">Geri Dön</button>
@@ -183,7 +183,7 @@
         </div>
     </div>
 
-    <!-- YORUMLAR MODAL (EKRANIN ALT YARISI) -->
+    <!-- YORUMLAR MODAL -->
     <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end">
         <div class="bg-[#0f1016] border-t border-emerald-500/30 w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 shadow-neon-lg flex flex-col h-[50vh]">
             <div class="w-10 h-1 bg-zinc-700/80 rounded-full mx-auto mb-1"></div>
@@ -252,7 +252,9 @@
     <div id="view-story-modal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4 max-w-md mx-auto">
         <div class="flex items-center justify-between py-2 border-b border-zinc-800">
             <div class="flex items-center gap-2">
-                <div id="story-user-avatar-view" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs overflow-hidden"><i class="fas fa-user"></i></div>
+                <div id="story-user-avatar-view" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs overflow-hidden">
+                    <i class="fas fa-user"></i>
+                </div>
                 <span id="story-user-name" class="font-bold text-xs text-white"></span>
             </div>
             <button onclick="closeStoryView()" class="text-white text-base"><i class="fas fa-times"></i></button>
@@ -276,33 +278,33 @@
 
     <!-- APPLICATION LOGIC -->
     <script>
+        var BOT_AVATAR = "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150";
+
         var state = {
             currentUser: null,
-            followingUsers: [],
+            followingUsers: ["Can_Tech"],
             notifications: [
-                { id: 1, type: "follow", user: "ebru.art", text: "seni takip etmeye başladı.", time: "10dk önce" },
-                { id: 2, type: "like", user: "can_tech", text: "gönderini beğendi.", time: "1sa önce" }
+                { id: 1, type: "follow", user: "Can_Tech", text: "seni takip etmeye başladı.", time: "Şimdi" }
             ],
             stories: [
-                { id: 1, user: "can_tech", avatar: "", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false },
-                { id: 2, user: "ebru.art", avatar: "", url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500", isVideo: false }
+                { id: 1, user: "Can_Tech", avatar: BOT_AVATAR, url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false }
             ],
             posts: [
                 {
                     id: 101,
                     user: "Can_Tech",
-                    avatar: "",
+                    avatar: BOT_AVATAR,
                     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
                     isVideo: true,
-                    caption: "OMNI X dünyasında harika bir doğa videosu! 🏔️✨",
-                    likes: 24,
+                    caption: "Ben Can_Tech AI! Sorduğun her soruya anında cevap verebilirim. DM'den bana ulaşabilirsin! 🤖🔥",
+                    likes: 99,
                     liked: false,
-                    comments: [{ id: 1, user: "ebru.art", text: "Muhteşem bir paylaşım!", replies: [{ user: "Can_Tech", text: "Teşekkürler!" }] }]
+                    comments: [{ id: 1, user: "Can_Tech", text: "Sorularını bekliyorum!", replies: [] }]
                 }
             ],
             chats: {
-                "can_tech": [
-                    { sender: "can_tech", text: "OMNI X'e hoş geldin!" }
+                "Can_Tech": [
+                    { sender: "Can_Tech", text: "Selam! Ben Can_Tech yapay zeka asistanın. Bana istediğin her şeyi sorabilirsin!" }
                 ]
             },
             activeChatUser: null,
@@ -343,7 +345,7 @@
                 username: email.split('@')[0],
                 name: fullname || email.split('@')[0],
                 email: email,
-                avatar: "" // Varsayılan anonim
+                avatar: ""
             };
             localStorage.setItem('omnix_active_user', JSON.stringify(state.currentUser));
             document.getElementById('signup-screen').classList.add('hidden');
@@ -474,9 +476,10 @@
             var list = document.getElementById('chat-list');
             var users = Object.keys(state.chats);
             list.innerHTML = users.map(function(u){
+                var avatarHtml = u === "Can_Tech" ? '<img src="' + BOT_AVATAR + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user"></i>';
                 return '<div onclick="openChatWith(\'' + u + '\')" class="flex items-center justify-between p-3.5 rounded-2xl bg-[#0f1016] border border-zinc-800 cursor-pointer hover:border-emerald-500/40 transition">' +
                     '<div class="flex items-center gap-3">' +
-                        '<div class="w-9 h-9 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center text-xs"><i class="fas fa-user"></i></div>' +
+                        '<div class="w-9 h-9 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center text-xs overflow-hidden">' + avatarHtml + '</div>' +
                         '<span class="text-xs font-bold text-white">' + u + '</span>' +
                     '</div>' +
                     '<i class="fas fa-chevron-right text-xs text-zinc-600"></i>' +
@@ -488,6 +491,15 @@
             state.activeChatUser = username;
             if (!state.chats[username]) state.chats[username] = [];
             document.getElementById('chat-target-name').innerText = '@' + username;
+            
+            var avatarEl = document.getElementById('chat-target-avatar');
+            if(username === "Can_Tech") {
+                avatarEl.src = BOT_AVATAR;
+                avatarEl.classList.remove('hidden');
+            } else {
+                avatarEl.classList.add('hidden');
+            }
+
             document.getElementById('chat-list').classList.add('hidden');
             document.getElementById('chat-active-view').classList.remove('hidden');
             renderMessages();
@@ -511,6 +523,15 @@
             container.scrollTop = container.scrollHeight;
         }
 
+        function generateAiResponse(prompt) {
+            var p = prompt.toLowerCase();
+            if (p.includes("merhaba") || p.includes("selam")) return "Selam! Sana nasıl yardımcı olabilirim?";
+            if (p.includes("kimsin") || p.includes("nedir")) return "Ben OMNI X yapay zeka asistanı Can_Tech'im. Sorularını yanıtlamak için buradayım!";
+            if (p.includes("saat") || p.includes("zaman")) return "Zaman OMNI X dünyasında su gibi akıyor! 🚀";
+            if (p.includes("teşekkür")) return "Rica ederim, her zaman buradayım!";
+            return "Anladım! '" + prompt + "' hakkında sana yardımcı olmaktan mutluluk duyarım. Başka sormak istediğin bir şey var mı?";
+        }
+
         function sendMessage() {
             var input = document.getElementById('chat-input');
             var text = input.value.trim();
@@ -519,6 +540,14 @@
             state.chats[state.activeChatUser].push({ sender: state.currentUser.username, text: text });
             input.value = '';
             renderMessages();
+
+            if (state.activeChatUser === "Can_Tech") {
+                setTimeout(function() {
+                    var reply = generateAiResponse(text);
+                    state.chats["Can_Tech"].push({ sender: "Can_Tech", text: reply });
+                    renderMessages();
+                }, 800);
+            }
         }
 
         function openCommentsModal(postId) {
