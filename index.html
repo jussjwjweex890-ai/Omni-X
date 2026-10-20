@@ -182,7 +182,6 @@
             <button onclick="closeModal('profile-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
         </div>
         <div class="p-4 space-y-5 flex-1 overflow-y-auto">
-            <!-- Profil Üst Bilgi -->
             <div class="flex flex-col items-center text-center space-y-2">
                 <div class="relative group cursor-pointer" onclick="triggerAvatarUpload()">
                     <div id="profile-avatar-container" class="w-20 h-20 rounded-full bg-zinc-800 border-2 border-sky-400 flex items-center justify-center text-2xl text-zinc-400 overflow-hidden shadow-ios-glass">
@@ -193,17 +192,15 @@
                     </div>
                 </div>
                 <input type="file" id="avatar-upload-input" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
-                
                 <div>
                     <h2 id="profile-display-name" class="font-bold text-base text-white">Kullanıcı</h2>
                     <p id="profile-username" class="text-xs text-zinc-400">@kullanici</p>
                 </div>
-                <button onclick="openEditProfileModal()" class="px-3.5 py-1.5 rounded-xl bg-white/10 text-xs text-sky-400 border border-sky-400/30 hover:bg-white/20 transition font-semibold">
+                <button onclick="openEditProfileModal()" class="px-3.5 py-1.5 rounded-xl bg-white/10 text-xs text-sky-400 border border-sky-400/35 hover:bg-white/20 transition font-semibold">
                     Profili Düzenle
                 </button>
             </div>
 
-            <!-- Sayılar -->
             <div class="grid grid-cols-3 gap-3 text-center">
                 <div class="ios-card p-3 rounded-2xl">
                     <span id="profile-posts-count" class="block font-bold text-sm text-white">0</span>
@@ -219,7 +216,6 @@
                 </div>
             </div>
 
-            <!-- Profil İçi Sekmeler (Gönderiler, Repostlar, Kaydedilenler) -->
             <div class="space-y-3 pt-2">
                 <div class="flex border-b border-white/10 text-xs text-zinc-400 font-semibold justify-around pb-2">
                     <button id="btn-tab-posts" onclick="switchProfileTab('posts')" class="text-sky-400 border-b-2 border-sky-400 pb-1"><i class="fas fa-th mr-1"></i> Gönderiler</button>
@@ -270,16 +266,21 @@
         <div id="saved-posts-container" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
-    <!-- ARAMA VE KEŞFET MODAL -->
+    <!-- ARAMA VE KEŞFET MODAL (TÜM KULLANICILAR & FİLTRELEME) -->
     <div id="search-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
         <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
-            <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="fas fa-search mr-1.5"></i> Keşfet & Arama</h3>
+            <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="fas fa-search mr-1.5"></i> Keşfet & Kullanıcılar</h3>
             <button onclick="closeModal('search-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
         </div>
         <div class="p-4 space-y-4 flex-1 flex flex-col">
-            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Kullanıcı veya içerik ara..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400">
+            <input type="text" id="global-search-input" oninput="handleGlobalSearch(this.value)" placeholder="Kişi, bot veya video ara..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400">
+            
+            <div class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">Kayıtlı Kullanıcılar & Botlar</div>
+            <div id="search-users-list" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+
+            <div class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider pt-2">İçerik Sonuçları</div>
             <div id="search-results" class="flex-1 overflow-y-auto space-y-3">
-                <p class="text-center text-xs text-zinc-500 py-12">Arama yapmak için bir şeyler yazın...</p>
+                <p class="text-center text-xs text-zinc-500 py-6">Arama yapmak için yukarıya yazın...</p>
             </div>
         </div>
     </div>
@@ -335,7 +336,7 @@
                 <button onclick="closeModal('create-post-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-3">
-                <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-400/20 file:text-sky-400 cursor-pointer">
+                <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-400/20 file:text-sky-400 cursor-pointer" onchange="previewSelectedMedia(event)">
                 <textarea id="post-caption-input" rows="3" placeholder="Düşüncelerini yaz..." class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs text-white focus:outline-none focus:border-sky-400"></textarea>
                 <div id="post-media-preview" class="hidden relative rounded-2xl overflow-hidden max-h-36 bg-black flex items-center justify-center"></div>
                 <button onclick="toggleGifSearch()" class="w-full bg-black/40 border border-white/10 text-sky-400 py-2.5 rounded-2xl text-xs font-semibold hover:border-sky-400/40 transition flex items-center justify-center gap-2">
@@ -422,6 +423,7 @@
         var state = {
             lang: "tr",
             currentUser: null,
+            allRegisteredUsers: ["Can_Tech", "ebru_art", "ali_dev", "zeynep_x"],
             followingUsers: ["Can_Tech"],
             savedPosts: [],
             currentProfileTab: "posts",
@@ -495,6 +497,20 @@
                 if (savedFollowing) { state.followingUsers = JSON.parse(savedFollowing); }
                 var savedBookmarks = localStorage.getItem('omnix_saved_posts');
                 if (savedBookmarks) { state.savedPosts = JSON.parse(savedBookmarks); }
+                var savedUsersList = localStorage.getItem('omnix_all_users');
+                if (savedUsersList) { state.allRegisteredUsers = JSON.parse(savedUsersList); }
+            } catch(e){}
+        }
+
+        function saveDatabaseToStorage() {
+            try {
+                localStorage.setItem('omnix_posts_data', JSON.stringify(state.posts));
+                localStorage.setItem('omnix_saved_posts', JSON.stringify(state.savedPosts));
+                localStorage.setItem('omnix_following_users', JSON.stringify(state.followingUsers));
+                localStorage.setItem('omnix_all_users', JSON.stringify(state.allRegisteredUsers));
+                if(state.currentUser) {
+                    localStorage.setItem('omnix_active_user', JSON.stringify(state.currentUser));
+                }
             } catch(e){}
         }
 
@@ -503,13 +519,19 @@
             var email = document.getElementById('signup-email').value.trim().toLowerCase();
             if (!email) { alert("Lütfen e-posta giriniz!"); return; }
 
+            var username = email.split('@')[0];
             state.currentUser = {
-                username: email.split('@')[0],
-                name: fullname || email.split('@')[0],
+                username: username,
+                name: fullname || username,
                 email: email,
                 avatar: ""
             };
-            localStorage.setItem('omnix_active_user', JSON.stringify(state.currentUser));
+
+            if (!state.allRegisteredUsers.includes(username)) {
+                state.allRegisteredUsers.push(username);
+            }
+
+            saveDatabaseToStorage();
             document.getElementById('signup-screen').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             initMainApp();
@@ -533,6 +555,7 @@
             renderInbox();
             renderSavedPosts();
             renderProfileTabContent();
+            renderSearchUsersList("");
         }
 
         /* PROFİL İŞLEMLERİ */
@@ -546,7 +569,7 @@
             var reader = new FileReader();
             reader.onload = function(evt) {
                 state.currentUser.avatar = evt.target.result;
-                localStorage.setItem('omnix_active_user', JSON.stringify(state.currentUser));
+                saveDatabaseToStorage();
                 initMainApp();
             };
             reader.readAsDataURL(file);
@@ -565,7 +588,7 @@
 
             state.currentUser.name = newName;
             state.currentUser.username = newUsername;
-            localStorage.setItem('omnix_active_user', JSON.stringify(state.currentUser));
+            saveDatabaseToStorage();
             closeModal('edit-profile-modal');
             initMainApp();
         }
@@ -715,7 +738,7 @@
                 } else {
                     state.savedPosts = state.savedPosts.filter(function(s){ return s.id !== postId; });
                 }
-                savePostsState();
+                saveDatabaseToStorage();
                 renderPosts();
                 renderSavedPosts();
                 renderProfileTabContent();
@@ -727,7 +750,7 @@
             if(post) {
                 post.reposted = !post.reposted;
                 post.reposts = (post.reposts || 0) + (post.reposted ? 1 : -1);
-                savePostsState();
+                saveDatabaseToStorage();
                 renderPosts();
                 renderProfileTabContent();
             }
@@ -758,16 +781,49 @@
                 state.followingUsers.push(username);
                 state.notifications.unshift({ id: Date.now(), type: "follow", user: state.currentUser.username, text: username + " kullanıcısını takip ettin.", time: "Şimdi" });
             }
-            localStorage.setItem('omnix_following_users', JSON.stringify(state.followingUsers));
+            saveDatabaseToStorage();
             document.getElementById('profile-following-count').innerText = state.followingUsers.length;
             renderPosts();
             renderInbox();
+            renderSearchUsersList(document.getElementById('global-search-input').value);
         }
 
-        function searchVideosAndPosts(query) {
+        /* GÜNCELLENMİŞ KİŞİ VE VİDEO ARAMA SİSTEMİ */
+        function handleGlobalSearch(query) {
+            renderSearchUsersList(query);
+            renderVideoSearchResults(query);
+        }
+
+        function renderSearchUsersList(filter) {
+            var container = document.getElementById('search-users-list');
+            var users = state.allRegisteredUsers.filter(function(u){
+                return u !== state.currentUser.username && u.toLowerCase().includes(filter.toLowerCase());
+            });
+
+            if(users.length === 0) {
+                container.innerHTML = '<p class="text-[11px] text-zinc-500">Kullanıcı bulunamadı.</p>';
+                return;
+            }
+
+            container.innerHTML = users.map(function(u){
+                var isFollowing = state.followingUsers.includes(u);
+                var avatarHtml = u === "Can_Tech" ? '<img src="' + BOT_AVATAR + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-sky-400"></i>';
+                return '<div class="flex items-center justify-between p-2 rounded-xl ios-card">' +
+                    '<div class="flex items-center gap-2.5">' +
+                        '<div class="w-8 h-8 rounded-full bg-sky-400/10 text-sky-400 flex items-center justify-center text-xs overflow-hidden border border-sky-400/30">' + avatarHtml + '</div>' +
+                        '<span class="text-xs font-bold text-white">@' + u + '</span>' +
+                    '</div>' +
+                    '<button onclick="toggleFollow(\'' + u + '\')" class="text-[10px] px-3 py-1 rounded-full font-semibold transition ' + (isFollowing ? 'bg-white/10 text-zinc-300' : 'bg-sky-400 text-black') + '">' +
+                        (isFollowing ? 'Takiptesin' : 'Takip Et') +
+                    '</button>' +
+                '</div>';
+            }).join('');
+        }
+
+        function renderVideoSearchResults(query) {
             var resultsContainer = document.getElementById('search-results');
             if (!query.trim()) {
-                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Arama yapmak için bir şeyler yazın...</p>';
+                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-6">Video veya içerik aramak için yazın...</p>';
                 return;
             }
 
@@ -776,7 +832,7 @@
             });
 
             if (filtered.length === 0) {
-                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Sonuç bulunamadı.</p>';
+                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-6">Eşleşen video/gönderi bulunamadı.</p>';
                 return;
             }
 
@@ -865,12 +921,14 @@
             state.chats[state.activeChatUser].push({ sender: state.currentUser.username, text: text });
             input.value = '';
             renderMessages();
+            saveDatabaseToStorage();
 
             if (state.activeChatUser === "Can_Tech") {
                 setTimeout(function() {
                     var reply = generateAiResponse(text);
                     state.chats["Can_Tech"].push({ sender: "Can_Tech", text: reply });
                     renderMessages();
+                    saveDatabaseToStorage();
                 }, 800);
             }
         }
@@ -936,7 +994,7 @@
                 } else {
                     post.comments.push({ id: Date.now(), user: state.currentUser.username, text: text, replies: [] });
                 }
-                savePostsState();
+                saveDatabaseToStorage();
                 input.value = '';
                 renderComments();
                 renderPosts();
@@ -970,16 +1028,9 @@
             if(post) {
                 post.liked = !post.liked;
                 post.likes = (post.likes || 0) + (post.liked ? 1 : -1);
-                savePostsState();
+                saveDatabaseToStorage();
                 renderPosts();
             }
-        }
-
-        function savePostsState() {
-            try { 
-                localStorage.setItem('omnix_posts_data', JSON.stringify(state.posts)); 
-                localStorage.setItem('omnix_saved_posts', JSON.stringify(state.savedPosts)); 
-            } catch(e){}
         }
 
         function toggleGifSearch() { openModal('gif-picker-modal'); }
@@ -1013,34 +1064,41 @@
             closeModal('gif-picker-modal');
         }
 
+        function previewSelectedMedia(e) {
+            var file = e.target.files[0];
+            if(!file) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                state.selectedMediaUrl = evt.target.result;
+                var preview = document.getElementById('post-media-preview');
+                if (file.type.startsWith('video')) {
+                    preview.innerHTML = '<video src="' + evt.target.result + '" class="w-full h-full object-cover rounded-xl"></video>';
+                } else {
+                    preview.innerHTML = '<img src="' + evt.target.result + '" class="w-full h-full object-cover rounded-xl">';
+                }
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
         function submitNewPost() {
-            var fileInput = document.getElementById('post-file-input');
             var caption = document.getElementById('post-caption-input').value.trim();
 
-            if (!state.selectedMediaUrl && (!fileInput.files || !fileInput.files[0]) && !caption) {
-                alert("Lütfen medya, GIF veya yazı ekleyin!");
+            if (!state.selectedMediaUrl && !caption) {
+                alert("Lütfen medya veya yazı ekleyin!");
                 return;
             }
 
-            if (state.selectedMediaUrl) {
-                createPostFinal(state.selectedMediaUrl, false, caption);
-            } else if (fileInput.files && fileInput.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    createPostFinal(e.target.result, fileInput.files[0].type.startsWith('video'), caption);
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                createPostFinal(null, false, caption);
+            var isVideo = false;
+            if(state.selectedMediaUrl && state.selectedMediaUrl.startsWith('data:video')) {
+                isVideo = true;
             }
-        }
 
-        function createPostFinal(url, isVideo, caption) {
             state.posts.unshift({
                 id: Date.now(),
                 user: state.currentUser.username,
-                avatar: state.currentUser.avatar,
-                url: url,
+                avatar: state.currentUser.avatar || "",
+                url: state.selectedMediaUrl || "",
                 isVideo: isVideo,
                 caption: caption || "",
                 likes: 0,
@@ -1051,7 +1109,8 @@
                 likedFriends: [],
                 comments: []
             });
-            savePostsState();
+
+            saveDatabaseToStorage();
             state.selectedMediaUrl = null;
             document.getElementById('post-media-preview').classList.add('hidden');
             document.getElementById('post-caption-input').value = '';
@@ -1067,6 +1126,7 @@
             var reader = new FileReader();
             reader.onload = function(e) {
                 state.stories.unshift({ id: Date.now(), user: state.currentUser.username, avatar: state.currentUser.avatar, url: e.target.result, isVideo: fileInput.files[0].type.startsWith('video') });
+                saveDatabaseToStorage();
                 closeModal('create-story-modal');
                 renderStories();
             };
