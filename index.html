@@ -13,16 +13,16 @@
                 extend: {
                     colors: {
                         omni: {
-                            black: '#050508',
-                            card: '#0f1016',
-                            border: 'rgba(16, 185, 129, 0.2)',
+                            black: '#000000',
+                            card: 'rgba(255, 255, 255, 0.07)',
+                            border: 'rgba(255, 255, 255, 0.15)',
                             neon: '#00ff87',
                             green: '#10b981'
                         }
                     },
                     boxShadow: {
-                        'neon': '0 0 15px rgba(0, 255, 135, 0.3)',
-                        'neon-lg': '0 0 25px rgba(16, 185, 129, 0.4)'
+                        'ios': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                        'neon': '0 0 20px rgba(0, 255, 135, 0.4)'
                     }
                 }
             }
@@ -36,200 +36,243 @@
             user-select: none;
         }
         body {
-            background-color: #050508;
+            background: linear-gradient(180deg, #090a0f 0%, #000000 100%);
             color: #f3f4f6;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .story-ring {
-            background: linear-gradient(135deg, #10b981, #00ff87, #3b82f6);
-            padding: 2px;
+        
+        /* iOS Glassmorphism Styles */
+        .ios-glass {
+            background: rgba(30, 32, 40, 0.55);
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
-        .glass-panel {
-            background: rgba(15, 16, 22, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+        .ios-glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .ios-nav-bar {
+            background: rgba(20, 20, 25, 0.65);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .story-ring {
+            background: linear-gradient(135deg, #00ff87, #60a5fa, #a855f7);
+            padding: 2.5px;
         }
         .x-gradient-text {
-            background: linear-gradient(135deg, #00ff87, #10b981, #60a5fa);
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
-<body class="bg-[#050508] text-white h-full min-h-screen pb-24">
+<body class="bg-black text-white h-full min-h-screen pb-28">
 
-    <!-- SIGNUP / LOGIN SCREEN -->
-    <div id="signup-screen" class="fixed inset-0 z-50 bg-[#050508] flex items-center justify-center p-4 max-w-md mx-auto">
-        <div class="w-full bg-[#0f1016] border border-emerald-500/30 rounded-3xl p-6 space-y-6 shadow-neon-lg">
-            <div class="text-center space-y-1">
-                <h1 class="text-3xl font-black tracking-widest x-gradient-text">OMNI X</h1>
-                <p class="text-xs text-zinc-400">Yeni Nesil Sosyal Deneyim</p>
+    <!-- SIGNUP / LOGIN SCREEN WITH MULTI-LANGUAGE -->
+    <div id="signup-screen" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 max-w-md mx-auto">
+        <div class="w-full ios-glass rounded-3xl p-6 space-y-6 shadow-ios">
+            <div class="flex justify-between items-center">
+                <span class="font-black text-2xl tracking-widest text-emerald-400">OMNI X</span>
+                <!-- Dil Seçimi -->
+                <div class="relative">
+                    <select id="language-select" onchange="changeLanguage(this.value)" class="bg-zinc-900/80 text-white text-xs border border-zinc-700/80 rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-emerald-400">
+                        <option value="tr">🇹🇷 Türkçe</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="zh">🇨🇳 中文</option>
+                    </select>
+                </div>
             </div>
+
+            <div class="space-y-1">
+                <h2 id="lbl-welcome" class="text-xl font-bold text-white">Hoş Geldiniz</h2>
+                <p id="lbl-subtitle" class="text-xs text-zinc-400">Yeni nesil sosyal medya deneyimine katılın.</p>
+            </div>
+
             <div class="space-y-4">
                 <div>
-                    <label class="text-[11px] text-zinc-400 font-semibold mb-1 block">İsim Soyisim</label>
-                    <input type="text" id="signup-fullname" placeholder="Örn: Ahmet Yılmaz" class="w-full bg-[#050508] border border-zinc-800 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-emerald-500 transition">
+                    <label id="lbl-fullname" class="text-[11px] text-zinc-300 font-semibold mb-1 block">İsim Soyisim</label>
+                    <input type="text" id="signup-fullname" placeholder="Ahmet Yılmaz" class="w-full bg-black/50 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400 transition">
                 </div>
                 <div>
-                    <label class="text-[11px] text-zinc-400 font-semibold mb-1 block">E-posta Adresi</label>
-                    <input type="email" id="signup-email" placeholder="ornek@gmail.com" class="w-full bg-[#050508] border border-zinc-800 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-emerald-500 transition">
+                    <label id="lbl-email" class="text-[11px] text-zinc-300 font-semibold mb-1 block">E-posta Adresi</label>
+                    <input type="email" id="signup-email" placeholder="ornek@gmail.com" class="w-full bg-black/50 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400 transition">
                 </div>
-                <button onclick="directRegisterOrLogin()" class="w-full bg-gradient-to-r from-emerald-400 to-green-500 text-black font-black py-3.5 rounded-xl text-xs shadow-neon active:scale-95 transition">GİRİŞ YAP / KAYIT OL</button>
+                <button id="btn-login" onclick="directRegisterOrLogin()" class="w-full bg-gradient-to-r from-emerald-400 via-teal-400 to-emerald-500 text-black font-extrabold py-3.5 rounded-2xl text-xs shadow-neon active:scale-95 transition">
+                    GİRİŞ YAP / KAYIT OL
+                </button>
             </div>
         </div>
     </div>
 
     <!-- MAIN APP WRAPPER -->
     <div id="main-app" class="hidden">
-        <!-- TOP HEADER -->
-        <header class="sticky top-0 z-40 glass-panel border-b border-zinc-900/80 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
-            <span class="font-black text-2xl tracking-wider x-gradient-text">OMNI X</span>
-            <div class="flex items-center gap-4">
-                <button onclick="openModal('inbox-modal')" class="relative text-lg text-zinc-300 hover:text-emerald-400 transition">
-                    <i class="far fa-bell"></i>
-                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full"></span>
-                </button>
-                <button onclick="openModal('dm-modal')" class="text-lg text-zinc-300 hover:text-emerald-400 transition">
-                    <i class="far fa-paper-plane"></i>
-                </button>
-                <button onclick="openModal('settings-modal')" class="text-lg text-zinc-300 hover:text-emerald-400 transition">
-                    <i class="fas fa-cog"></i>
-                </button>
+        <!-- TOP HEADER (iOS GLASS STYLE) -->
+        <header class="sticky top-0 z-40 px-4 py-3 max-w-md mx-auto">
+            <div class="ios-glass rounded-2xl px-4 py-2.5 flex items-center justify-between">
+                <span class="font-black text-xl tracking-wider text-emerald-400">OMNI X</span>
+                <div class="flex items-center gap-3.5">
+                    <button onclick="openModal('inbox-modal')" class="relative text-lg text-zinc-200 hover:text-emerald-400 transition">
+                        <i class="far fa-bell"></i>
+                        <span id="inbox-dot" class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-400 rounded-full"></span>
+                    </button>
+                    <button onclick="openModal('dm-modal')" class="text-lg text-zinc-200 hover:text-emerald-400 transition">
+                        <i class="far fa-paper-plane"></i>
+                    </button>
+                    <button onclick="openModal('settings-modal')" class="text-lg text-zinc-200 hover:text-emerald-400 transition">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
             </div>
         </header>
 
         <!-- APP CONTAINER -->
-        <div class="max-w-md mx-auto relative">
+        <div class="max-w-md mx-auto relative px-2">
             <section id="tab-feed">
                 <!-- STORIES BAR -->
-                <div class="py-3 px-3 border-b border-zinc-900/60 overflow-x-auto hide-scrollbar flex gap-4 items-center bg-[#050508]">
+                <div class="py-3 px-2 my-2 ios-glass rounded-2xl overflow-x-auto hide-scrollbar flex gap-4 items-center">
                     <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer" onclick="openModal('create-story-modal')">
                         <div class="story-ring w-14 h-14 rounded-full flex items-center justify-center relative">
                             <div id="my-story-avatar-container" class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border-2 border-black">
-                                <i class="fas fa-user text-zinc-500 text-sm"></i>
+                                <i class="fas fa-user text-zinc-400 text-sm"></i>
                             </div>
                             <div class="absolute bottom-0 right-0 bg-emerald-400 text-black w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold border border-black">
                                 <i class="fas fa-plus"></i>
                             </div>
                         </div>
-                        <span class="text-[10px] text-zinc-400 font-medium">Hikayen</span>
+                        <span class="text-[10px] text-zinc-300 font-medium">Hikayen</span>
                     </div>
                     <div id="stories-container" class="flex gap-4"></div>
                 </div>
 
                 <!-- FEED POSTS -->
-                <div id="posts-container" class="space-y-4 pt-2"></div>
+                <div id="posts-container" class="space-y-4 pt-1"></div>
             </section>
         </div>
 
-        <!-- BOTTOM NAVIGATION BAR -->
-        <nav class="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-zinc-900/80 max-w-md mx-auto px-6 py-3 flex justify-around items-center">
-            <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-emerald-400 text-xl"><i class="fas fa-home"></i></button>
-            <button onclick="openModal('search-modal')" class="text-zinc-500 hover:text-emerald-400 text-xl transition"><i class="fas fa-search"></i></button>
-            <button onclick="openModal('create-post-modal')" class="w-11 h-11 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 text-black flex items-center justify-center font-bold text-lg shadow-neon active:scale-90 transition"><i class="fas fa-plus"></i></button>
-            <button onclick="openModal('dm-modal')" class="text-zinc-500 hover:text-emerald-400 text-xl transition"><i class="far fa-paper-plane"></i></button>
-            <button onclick="openModal('settings-modal')" class="text-zinc-500 hover:text-emerald-400 text-xl transition"><i class="fas fa-cog"></i></button>
-        </nav>
+        <!-- BOTTOM NAVIGATION BAR (iOS 26 GLASS FLOATING BAR) -->
+        <div class="fixed bottom-4 left-0 right-0 z-40 max-w-md mx-auto px-4">
+            <nav class="ios-nav-bar rounded-3xl px-6 py-3 flex justify-between items-center">
+                <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-emerald-400 text-xl hover:scale-110 transition"><i class="fas fa-home"></i></button>
+                <button onclick="openModal('search-modal')" class="text-zinc-400 hover:text-emerald-400 text-xl hover:scale-110 transition"><i class="fas fa-search"></i></button>
+                <button onclick="openModal('create-post-modal')" class="w-12 h-12 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 text-black flex items-center justify-center font-bold text-lg shadow-neon active:scale-90 transition"><i class="fas fa-plus"></i></button>
+                <button onclick="openModal('dm-modal')" class="text-zinc-400 hover:text-emerald-400 text-xl hover:scale-110 transition"><i class="far fa-paper-plane"></i></button>
+                <button onclick="openModal('inbox-modal')" class="text-zinc-400 hover:text-emerald-400 text-xl hover:scale-110 transition"><i class="far fa-bell"></i></button>
+            </nav>
+        </div>
     </div>
 
-    <!-- MODALS -->
+    <!-- MODALS (FULLSCREEN iOS GLASS STYLE) -->
 
     <!-- GELEN KUTUSU MODAL -->
-    <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-[#050508] flex flex-col max-w-md mx-auto">
-        <div class="glass-panel border-b border-zinc-900 px-4 py-3 flex items-center justify-between">
-            <h3 class="font-bold text-sm tracking-wider uppercase text-emerald-400"><i class="far fa-bell mr-1.5"></i> Gelen Kutusu</h3>
+    <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
+        <div class="ios-glass px-4 py-3 flex items-center justify-between border-b border-white/10">
+            <h3 class="font-bold text-sm tracking-wider uppercase text-emerald-400"><i class="far fa-bell mr-1.5"></i> Gelen Kutusu & Bildirimler</h3>
             <button onclick="closeModal('inbox-modal')" class="text-zinc-400 text-base"><i class="fas fa-times"></i></button>
         </div>
         <div id="inbox-list" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
     <!-- ARAMA MODAL -->
-    <div id="search-modal" class="hidden fixed inset-0 z-50 bg-[#050508] flex flex-col max-w-md mx-auto">
-        <div class="glass-panel border-b border-zinc-900 px-4 py-3 flex items-center justify-between">
+    <div id="search-modal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
+        <div class="ios-glass px-4 py-3 flex items-center justify-between border-b border-white/10">
             <h3 class="font-bold text-sm tracking-wider uppercase text-emerald-400"><i class="fas fa-search mr-1.5"></i> Keşfet & Arama</h3>
             <button onclick="closeModal('search-modal')" class="text-zinc-400 text-base"><i class="fas fa-times"></i></button>
         </div>
         <div class="p-4 space-y-4 flex-1 flex flex-col">
-            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Video başlığı veya kullanıcı ara..." class="w-full bg-[#0f1016] border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Kullanıcı veya içerik başlığı ara..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400">
             <div id="search-results" class="flex-1 overflow-y-auto space-y-3 pr-1">
-                <p class="text-center text-xs text-zinc-500 py-12">Kullanıcı veya video başlığı yazın...</p>
+                <p class="text-center text-xs text-zinc-500 py-12">Aradığınız kişi veya içeriği yazın...</p>
             </div>
         </div>
     </div>
 
     <!-- DM MESAJLAR MODAL -->
-    <div id="dm-modal" class="hidden fixed inset-0 z-50 bg-[#050508] flex flex-col max-w-md mx-auto">
-        <div class="glass-panel border-b border-zinc-900 px-4 py-3 flex items-center justify-between">
-            <h3 class="font-bold text-sm tracking-wider uppercase text-emerald-400"><i class="far fa-paper-plane mr-1.5"></i> Direkt Mesajlar</h3>
+    <div id="dm-modal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
+        <div class="ios-glass px-4 py-3 flex items-center justify-between border-b border-white/10">
+            <h3 class="font-bold text-sm tracking-wider uppercase text-emerald-400"><i class="far fa-paper-plane mr-1.5"></i> Mesajlar (DM)</h3>
             <button onclick="closeModal('dm-modal')" class="text-zinc-400 text-base"><i class="fas fa-times"></i></button>
         </div>
         <div id="chat-list" class="flex-1 overflow-y-auto p-4 space-y-2.5"></div>
         <div id="chat-active-view" class="hidden flex-1 flex flex-col p-4 space-y-3">
-            <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
-                <div class="flex items-center gap-2">
-                    <img id="chat-target-avatar" src="" class="w-7 h-7 rounded-full object-cover border border-emerald-400">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                <div class="flex items-center gap-2.5">
+                    <img id="chat-target-avatar" src="" class="w-8 h-8 rounded-full object-cover border border-emerald-400">
                     <span id="chat-target-name" class="text-xs font-bold text-emerald-400">Sohbet</span>
                 </div>
-                <button onclick="closeActiveChat()" class="text-xs text-zinc-400 hover:text-white bg-zinc-900 px-2.5 py-1 rounded-lg">Geri Dön</button>
+                <button onclick="closeActiveChat()" class="text-xs text-zinc-300 bg-white/10 px-3 py-1 rounded-xl hover:bg-white/20">Geri Dön</button>
             </div>
             <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
-            <div class="flex gap-2 pt-2 border-t border-zinc-900">
-                <input type="text" id="chat-input" placeholder="Mesaj gönder..." class="flex-1 bg-[#0f1016] border border-zinc-800 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-emerald-500">
-                <button onclick="sendMessage()" class="bg-emerald-400 text-black px-4 py-3 rounded-xl text-xs font-bold shadow-neon"><i class="fas fa-arrow-right"></i></button>
+            <div class="flex gap-2 pt-2 border-t border-white/10">
+                <input type="text" id="chat-input" placeholder="Mesaj yaz..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400">
+                <button onclick="sendMessage()" class="bg-emerald-400 text-black px-4 py-3 rounded-2xl text-xs font-bold shadow-neon"><i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
     </div>
 
     <!-- YORUMLAR MODAL -->
-    <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end">
-        <div class="bg-[#0f1016] border-t border-emerald-500/30 w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 shadow-neon-lg flex flex-col h-[50vh]">
-            <div class="w-10 h-1 bg-zinc-700/80 rounded-full mx-auto mb-1"></div>
-            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2">
+    <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-end">
+        <div class="ios-glass w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 shadow-ios flex flex-col h-[55vh]">
+            <div class="w-10 h-1 bg-zinc-600/80 rounded-full mx-auto mb-1"></div>
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
                 <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400"><i class="far fa-comment mr-1"></i> Yorumlar</h3>
-                <button onclick="closeModal('comments-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+                <button onclick="closeModal('comments-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div id="comments-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
-            <div id="replying-to-bar" class="hidden flex justify-between items-center bg-[#050508] px-3 py-1.5 rounded-lg text-[11px] text-emerald-400 border border-emerald-500/30">
+            <div id="replying-to-bar" class="hidden flex justify-between items-center bg-white/5 px-3 py-1.5 rounded-xl text-[11px] text-emerald-400 border border-emerald-400/30">
                 <span id="replying-to-text"></span>
                 <button onclick="cancelReply()" class="text-zinc-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex gap-2 pt-1 border-t border-zinc-800/80">
-                <input type="text" id="comment-input" placeholder="Yorum ekle..." class="flex-1 bg-[#050508] border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                <button onclick="addCommentToPost()" class="bg-emerald-400 text-black px-4 py-2 rounded-xl text-xs font-bold shadow-neon">Gönder</button>
+            <div class="flex gap-2 pt-1 border-t border-white/10">
+                <input type="text" id="comment-input" placeholder="Yorum ekle..." class="flex-1 bg-black/40 border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400">
+                <button onclick="addCommentToPost()" class="bg-emerald-400 text-black px-4 py-2.5 rounded-2xl text-xs font-bold shadow-neon">Gönder</button>
             </div>
         </div>
     </div>
 
     <!-- CREATE POST MODAL -->
-    <div id="create-post-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0f1016] border border-emerald-500/30 w-full max-w-sm rounded-3xl p-4 space-y-4 shadow-neon-lg">
-            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2">
+    <div id="create-post-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="ios-glass w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-ios">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
                 <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400">Yeni Paylaşım</h3>
-                <button onclick="closeModal('create-post-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+                <button onclick="closeModal('create-post-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-3">
-                <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
-                <textarea id="post-caption-input" rows="3" placeholder="Açıklama veya düşünceni yaz..." class="w-full bg-[#050508] border border-zinc-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-emerald-500"></textarea>
-                <div id="post-media-preview" class="hidden relative rounded-xl overflow-hidden max-h-36 bg-black flex items-center justify-center"></div>
-                <button onclick="toggleGifSearch()" class="w-full bg-[#050508] border border-zinc-800 text-emerald-400 py-2 rounded-xl text-xs font-semibold hover:border-emerald-500/40 transition flex items-center justify-center gap-2">
+                <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-400/20 file:text-emerald-400 cursor-pointer">
+                <textarea id="post-caption-input" rows="3" placeholder="Açıklama yaz..." class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs text-white focus:outline-none focus:border-emerald-400"></textarea>
+                <div id="post-media-preview" class="hidden relative rounded-2xl overflow-hidden max-h-36 bg-black flex items-center justify-center"></div>
+                <button onclick="toggleGifSearch()" class="w-full bg-black/40 border border-white/10 text-emerald-400 py-2.5 rounded-2xl text-xs font-semibold hover:border-emerald-400/40 transition flex items-center justify-center gap-2">
                     <i class="fas fa-gift"></i> GIF Arayıp Ekle (Tenor)
                 </button>
             </div>
-            <button onclick="submitNewPost()" class="w-full bg-emerald-400 text-black font-black py-3 rounded-xl text-xs shadow-neon">Paylaş</button>
+            <button onclick="submitNewPost()" class="w-full bg-emerald-400 text-black font-black py-3 rounded-2xl text-xs shadow-neon">Paylaş</button>
         </div>
     </div>
 
     <!-- GIF PICKER MODAL -->
-    <div id="gif-picker-modal" class="hidden fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0f1016] border border-emerald-500/30 w-full max-w-sm rounded-3xl p-4 space-y-3 shadow-neon-lg flex flex-col h-[65vh]">
-            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2">
+    <div id="gif-picker-modal" class="hidden fixed inset-0 z-[60] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4">
+        <div class="ios-glass w-full max-w-sm rounded-3xl p-4 space-y-3 shadow-ios flex flex-col h-[65vh]">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
                 <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400">GIF Arama</h3>
                 <button onclick="closeModal('gif-picker-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
             </div>
-            <input type="text" id="gif-search-box" placeholder="GIF ara..." oninput="searchGifs(this.value)" class="w-full bg-[#050508] border border-zinc-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+            <input type="text" id="gif-search-box" placeholder="GIF ara..." oninput="searchGifs(this.value)" class="w-full bg-black/40 border border-white/10 rounded-2xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-400">
             <div id="gif-results-grid" class="grid grid-cols-2 gap-2 overflow-y-auto max-h-60 pr-1">
                 <p class="col-span-2 text-center text-xs text-zinc-500 py-8">Arama yapmak için kelime yazın...</p>
             </div>
@@ -237,21 +280,21 @@
     </div>
 
     <!-- CREATE STORY MODAL -->
-    <div id="create-story-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0f1016] border border-emerald-500/30 w-full max-w-sm rounded-3xl p-4 space-y-4 shadow-neon-lg">
-            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2">
+    <div id="create-story-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="ios-glass w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-ios">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
                 <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400">Hikaye Ekle</h3>
-                <button onclick="closeModal('create-story-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+                <button onclick="closeModal('create-story-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
-            <input type="file" id="story-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 cursor-pointer">
-            <button onclick="submitNewStory()" class="w-full bg-emerald-400 text-black font-black py-3 rounded-xl text-xs shadow-neon">Hikayelere Ekle</button>
+            <input type="file" id="story-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-400/20 file:text-emerald-400 cursor-pointer">
+            <button onclick="submitNewStory()" class="w-full bg-emerald-400 text-black font-black py-3 rounded-2xl text-xs shadow-neon">Hikayelere Ekle</button>
         </div>
     </div>
 
     <!-- VIEW STORY MODAL -->
     <div id="view-story-modal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4 max-w-md mx-auto">
-        <div class="flex items-center justify-between py-2 border-b border-zinc-800">
-            <div class="flex items-center gap-2">
+        <div class="flex items-center justify-between py-2 border-b border-white/10">
+            <div class="flex items-center gap-2.5">
                 <div id="story-user-avatar-view" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs overflow-hidden">
                     <i class="fas fa-user"></i>
                 </div>
@@ -263,31 +306,49 @@
     </div>
 
     <!-- SETTINGS MODAL -->
-    <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0f1016] border border-emerald-500/30 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-neon-lg">
-            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2">
+    <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
+        <div class="ios-glass w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-ios">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
                 <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400"><i class="fas fa-cog mr-1"></i> Ayarlar</h3>
-                <button onclick="closeModal('settings-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
+                <button onclick="closeModal('settings-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-2 text-xs">
-                <button onclick="clearAllData()" class="w-full text-left p-3 rounded-xl bg-[#050508] border border-zinc-800 text-amber-400 hover:border-amber-500/40 transition">Önbelleği Temizle</button>
-                <button onclick="logoutAccount()" class="w-full text-left p-3 rounded-xl bg-[#050508] border border-zinc-800 text-emerald-400 hover:border-emerald-500/40 transition">Çıkış Yap</button>
+                <button onclick="clearAllData()" class="w-full text-left p-3 rounded-2xl bg-white/5 border border-white/10 text-amber-400 hover:bg-white/10 transition">Önbelleği Temizle</button>
+                <button onclick="logoutAccount()" class="w-full text-left p-3 rounded-2xl bg-white/5 border border-white/10 text-emerald-400 hover:bg-white/10 transition">Çıkış Yap</button>
             </div>
         </div>
     </div>
 
     <!-- APPLICATION LOGIC -->
     <script>
-        var BOT_AVATAR = "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150";
+        // DÜZELTİLMİŞ BOT FOTOĞRAFI
+        var BOT_AVATAR = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300";
+        var BOT_STORY_MEDIA = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600";
+
+        var i18n = {
+            tr: { welcome: "Hoş Geldiniz", subtitle: "Yeni nesil sosyal medya deneyimine katılın.", fullname: "İsim Soyisim", email: "E-posta Adresi", btnLogin: "GİRİŞ YAP / KAYIT OL" },
+            en: { welcome: "Welcome", subtitle: "Join the next generation social experience.", fullname: "Full Name", email: "Email Address", btnLogin: "LOGIN / REGISTER" },
+            de: { welcome: "Willkommen", subtitle: "Treten Sie der nächsten Social-Media-Generation bei.", fullname: "Vollständiger Name", email: "E-Mail-Adresse", btnLogin: "ANMELDEN / REGISTRIEREN" },
+            fr: { welcome: "Bienvenue", subtitle: "Rejoignez l'expérience sociale nouvelle génération.", fullname: "Nom Complet", email: "Adresse E-mail", btnLogin: "SE CONNECTER / S'INSCRIRE" },
+            es: { welcome: "Bienvenido", subtitle: "Únete a la experiencia social de nueva generación.", fullname: "Nombre Completo", email: "Correo Electrónico", btnLogin: "INICIAR SESIÓN / REGISTRARSE" },
+            it: { welcome: "Benvenuto", subtitle: "Unisciti all'esperienza social di nuova generazione.", fullname: "Nome Completo", email: "Indirizzo Email", btnLogin: "ACCEDI / REGISTRATI" },
+            ru: { welcome: "Добро пожаловать", subtitle: "Присоединяйтесь к новому поколению соцсетей.", fullname: "Полное имя", email: "Эл. адрес", btnLogin: "ВОЙТИ / ЗАРЕГИСТРИРОВАТЬСЯ" },
+            ar: { welcome: "أهلاً بك", subtitle: "انضم إلى جيل جديد من التواصل الاجتماعي.", fullname: "الاسم الكامل", email: "البريد الإلكتروني", btnLogin: "تسجيل الدخول / التسجيل" },
+            ja: { welcome: "ようこそ", subtitle: "次世代のソーシャル体験に参加しましょう。", fullname: "フルネーム", email: "メールアドレス", btnLogin: "ログイン / 登録" },
+            ko: { welcome: "환영합니다", subtitle: "차세대 소셜 경험에 참여하세요.", fullname: "이름", email: "이메일 주소", btnLogin: "로그인 / 회원가입" },
+            zh: { welcome: "欢迎", subtitle: "加入下一代社交体验。", fullname: "全名", email: "电子邮件地址", btnLogin: "登录 / 注册" }
+        };
 
         var state = {
+            lang: "tr",
             currentUser: null,
             followingUsers: ["Can_Tech"],
             notifications: [
-                { id: 1, type: "follow", user: "Can_Tech", text: "seni takip etmeye başladı.", time: "Şimdi" }
+                { id: 1, type: "follow", user: "Can_Tech", text: "seni takip etmeye başladı.", time: "Şimdi" },
+                { id: 2, type: "dm", user: "Can_Tech", text: "sana bir mesaj gönderdi.", time: "2dk önce" }
             ],
             stories: [
-                { id: 1, user: "Can_Tech", avatar: BOT_AVATAR, url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false }
+                { id: 1, user: "Can_Tech", avatar: BOT_AVATAR, url: BOT_STORY_MEDIA, isVideo: false }
             ],
             posts: [
                 {
@@ -296,15 +357,15 @@
                     avatar: BOT_AVATAR,
                     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
                     isVideo: true,
-                    caption: "Ben Can_Tech AI! Sorduğun her soruya anında cevap verebilirim. DM'den bana ulaşabilirsin! 🤖🔥",
-                    likes: 99,
+                    caption: "Ben Can_Tech AI! OMNI X yapay zekasıyım. İstediğin her soruyu bana sorabilirsin! 🚀🤖",
+                    likes: 128,
                     liked: false,
                     comments: [{ id: 1, user: "Can_Tech", text: "Sorularını bekliyorum!", replies: [] }]
                 }
             ],
             chats: {
                 "Can_Tech": [
-                    { sender: "Can_Tech", text: "Selam! Ben Can_Tech yapay zeka asistanın. Bana istediğin her şeyi sorabilirsin!" }
+                    { sender: "Can_Tech", text: "Merhaba! Ben Can_Tech yapay zeka asistanın. İstediğin her konuda bana soru sorabilirsin!" }
                 ]
             },
             activeChatUser: null,
@@ -324,6 +385,16 @@
                 initMainApp();
             }
         };
+
+        function changeLanguage(langCode) {
+            state.lang = langCode;
+            var t = i18n[langCode] || i18n.tr;
+            document.getElementById('lbl-welcome').innerText = t.welcome;
+            document.getElementById('lbl-subtitle').innerText = t.subtitle;
+            document.getElementById('lbl-fullname').innerText = t.fullname;
+            document.getElementById('lbl-email').innerText = t.email;
+            document.getElementById('btn-login').innerText = t.btnLogin;
+        }
 
         function loadSavedDatabase() {
             try {
@@ -367,13 +438,13 @@
         function renderInbox() {
             var list = document.getElementById('inbox-list');
             list.innerHTML = state.notifications.map(function(n) {
-                var icon = n.type === 'follow' ? '<i class="fas fa-user-plus"></i>' : '<i class="fas fa-heart"></i>';
-                return '<div class="flex items-center justify-between p-3.5 rounded-2xl bg-[#0f1016] border border-zinc-800/80">' +
+                var icon = n.type === 'follow' ? '<i class="fas fa-user-plus"></i>' : (n.type === 'dm' ? '<i class="far fa-paper-plane"></i>' : '<i class="fas fa-heart"></i>');
+                return '<div class="flex items-center justify-between p-3.5 rounded-2xl ios-glass-card">' +
                     '<div class="flex items-center gap-3">' +
-                        '<div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">' + icon + '</div>' +
+                        '<div class="w-9 h-9 rounded-full bg-emerald-400/20 text-emerald-400 flex items-center justify-center font-bold text-xs">' + icon + '</div>' +
                         '<div>' +
                             '<p class="text-xs text-white"><span class="font-bold text-emerald-400">' + n.user + '</span> ' + n.text + '</p>' +
-                            '<span class="text-[10px] text-zinc-500">' + n.time + '</span>' +
+                            '<span class="text-[10px] text-zinc-400">' + n.time + '</span>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
@@ -398,17 +469,17 @@
             container.innerHTML = state.posts.map(function(p) {
                 var isFollowing = state.followingUsers.includes(p.user);
                 var followBtn = (p.user !== state.currentUser.username) ? 
-                    '<button onclick="toggleFollow(\'' + p.user + '\')" class="text-[11px] px-3 py-1 rounded-full font-bold transition ' + (isFollowing ? 'bg-zinc-800 text-zinc-400' : 'bg-emerald-400 text-black shadow-neon') + '">' +
+                    '<button onclick="toggleFollow(\'' + p.user + '\')" class="text-[11px] px-3.5 py-1 rounded-full font-bold transition ' + (isFollowing ? 'bg-white/10 text-zinc-300' : 'bg-emerald-400 text-black shadow-neon') + '">' +
                         (isFollowing ? 'Takiptesin' : 'Takip Et') +
                     '</button>' : '';
 
                 var avContent = p.avatar ? '<img src="' + p.avatar + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-zinc-400 text-xs"></i>';
                 var media = p.isVideo ? 
-                    '<video src="' + p.url + '" muted playsinline preload="auto" class="w-full max-h-[420px] object-cover"></video>' : 
-                    '<img src="' + p.url + '" class="w-full max-h-[420px] object-cover">';
+                    '<video src="' + p.url + '" muted playsinline preload="auto" class="w-full max-h-[420px] object-cover rounded-2xl"></video>' : 
+                    '<img src="' + p.url + '" class="w-full max-h-[420px] object-cover rounded-2xl">';
 
-                return '<article class="post-item bg-[#050508] border-b border-zinc-900/80 pb-4">' +
-                    '<div class="flex items-center justify-between p-3">' +
+                return '<article class="post-item ios-glass rounded-3xl overflow-hidden p-3 space-y-3">' +
+                    '<div class="flex items-center justify-between">' +
                         '<div class="flex items-center gap-2.5">' +
                             '<div class="story-ring w-8 h-8 rounded-full flex items-center justify-center">' +
                                 '<div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border border-black">' + avContent + '</div>' +
@@ -416,13 +487,13 @@
                             '<span class="font-bold text-xs text-white">' + p.user + '</span>' +
                         '</div>' + followBtn +
                     '</div>' +
-                    '<div class="relative overflow-hidden bg-black flex items-center justify-center max-h-[420px]">' + media + '</div>' +
-                    '<div class="p-3 space-y-2">' +
+                    '<div class="relative overflow-hidden bg-black flex items-center justify-center max-h-[420px] rounded-2xl">' + media + '</div>' +
+                    '<div class="space-y-1.5 px-1">' +
                         '<div class="flex justify-between items-center text-lg">' +
                             '<div class="flex gap-4">' +
-                                '<button onclick="toggleLike(' + p.id + ')" class="' + (p.liked ? 'text-emerald-400' : 'text-zinc-400') + ' transition"><i class="' + (p.liked ? 'fas' : 'far') + ' fa-heart"></i></button>' +
-                                '<button onclick="openCommentsModal(' + p.id + ')" class="text-zinc-400 hover:text-emerald-400 transition"><i class="far fa-comment"></i></button>' +
-                                '<button onclick="openChatWith(\'' + p.user + '\')" class="text-zinc-400 hover:text-emerald-400 transition"><i class="far fa-paper-plane"></i></button>' +
+                                '<button onclick="toggleLike(' + p.id + ')" class="' + (p.liked ? 'text-emerald-400' : 'text-zinc-300') + ' transition"><i class="' + (p.liked ? 'fas' : 'far') + ' fa-heart"></i></button>' +
+                                '<button onclick="openCommentsModal(' + p.id + ')" class="text-zinc-300 hover:text-emerald-400 transition"><i class="far fa-comment"></i></button>' +
+                                '<button onclick="openChatWith(\'' + p.user + '\')" class="text-zinc-300 hover:text-emerald-400 transition"><i class="far fa-paper-plane"></i></button>' +
                             '</div>' +
                         '</div>' +
                         '<p class="font-bold text-xs text-emerald-400">' + (p.likes || 0) + ' beğenme</p>' +
@@ -439,15 +510,17 @@
                 state.followingUsers = state.followingUsers.filter(function(u){ return u !== username; });
             } else {
                 state.followingUsers.push(username);
+                state.notifications.unshift({ id: Date.now(), type: "follow", user: state.currentUser.username, text: username + " kullanıcısını takip ettin.", time: "Şimdi" });
             }
             localStorage.setItem('omnix_following_users', JSON.stringify(state.followingUsers));
             renderPosts();
+            renderInbox();
         }
 
         function searchVideosAndPosts(query) {
             var resultsContainer = document.getElementById('search-results');
             if (!query.trim()) {
-                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Kullanıcı veya video başlığı yazın...</p>';
+                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Aradığınız kişi veya içeriği yazın...</p>';
                 return;
             }
 
@@ -462,7 +535,7 @@
 
             resultsContainer.innerHTML = filtered.map(function(p){
                 var media = p.isVideo ? '<video src="' + p.url + '" class="w-full h-full object-cover"></video>' : '<img src="' + p.url + '" class="w-full h-full object-cover">';
-                return '<div class="flex items-center gap-3 p-3 rounded-2xl bg-[#0f1016] border border-zinc-800">' +
+                return '<div class="flex items-center gap-3 p-3 rounded-2xl ios-glass-card">' +
                     '<div class="w-12 h-12 rounded-xl bg-black overflow-hidden shrink-0 flex items-center justify-center">' + media + '</div>' +
                     '<div class="flex-1 truncate">' +
                         '<p class="font-bold text-xs text-white">' + p.user + '</p>' +
@@ -474,15 +547,20 @@
 
         function renderChatList() {
             var list = document.getElementById('chat-list');
-            var users = Object.keys(state.chats);
+            var users = state.followingUsers;
+            if (users.length === 0) {
+                list.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Mesajlaşmak için kullanıcıları takip etmelisin.</p>';
+                return;
+            }
+
             list.innerHTML = users.map(function(u){
                 var avatarHtml = u === "Can_Tech" ? '<img src="' + BOT_AVATAR + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user"></i>';
-                return '<div onclick="openChatWith(\'' + u + '\')" class="flex items-center justify-between p-3.5 rounded-2xl bg-[#0f1016] border border-zinc-800 cursor-pointer hover:border-emerald-500/40 transition">' +
+                return '<div onclick="openChatWith(\'' + u + '\')" class="flex items-center justify-between p-3.5 rounded-2xl ios-glass-card cursor-pointer hover:border-emerald-400/40 transition">' +
                     '<div class="flex items-center gap-3">' +
                         '<div class="w-9 h-9 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center text-xs overflow-hidden">' + avatarHtml + '</div>' +
                         '<span class="text-xs font-bold text-white">' + u + '</span>' +
                     '</div>' +
-                    '<i class="fas fa-chevron-right text-xs text-zinc-600"></i>' +
+                    '<i class="fas fa-chevron-right text-xs text-zinc-500"></i>' +
                 '</div>';
             }).join('');
         }
@@ -517,7 +595,7 @@
             container.innerHTML = msgs.map(function(m){
                 var isMe = m.sender === state.currentUser.username;
                 return '<div class="flex flex-col ' + (isMe ? 'items-end' : 'items-start') + '">' +
-                    '<div class="max-w-[80%] p-3 rounded-2xl text-xs ' + (isMe ? 'bg-emerald-400 text-black font-bold' : 'bg-[#0f1016] text-white border border-zinc-800') + '">' + m.text + '</div>' +
+                    '<div class="max-w-[80%] p-3 rounded-2xl text-xs ' + (isMe ? 'bg-emerald-400 text-black font-bold' : 'ios-glass-card text-white') + '">' + m.text + '</div>' +
                 '</div>';
             }).join('');
             container.scrollTop = container.scrollHeight;
@@ -529,7 +607,7 @@
             if (p.includes("kimsin") || p.includes("nedir")) return "Ben OMNI X yapay zeka asistanı Can_Tech'im. Sorularını yanıtlamak için buradayım!";
             if (p.includes("saat") || p.includes("zaman")) return "Zaman OMNI X dünyasında su gibi akıyor! 🚀";
             if (p.includes("teşekkür")) return "Rica ederim, her zaman buradayım!";
-            return "Anladım! '" + prompt + "' hakkında sana yardımcı olmaktan mutluluk duyarım. Başka sormak istediğin bir şey var mı?";
+            return "Harika bir soru! '" + prompt + "' hakkında sana yardımcı olmaktan mutluluk duyarım. Başka bir şey öğrenmek ister misin?";
         }
 
         function sendMessage() {
@@ -565,16 +643,16 @@
             }
             list.innerHTML = post.comments.map(function(c){
                 var repliesHtml = (c.replies && c.replies.length > 0) ? 
-                    '<div class="pl-3 border-l-2 border-emerald-500/40 space-y-1 mt-1.5">' +
+                    '<div class="pl-3 border-l-2 border-emerald-400/40 space-y-1 mt-1.5">' +
                         c.replies.map(function(r){
                             return '<div class="text-[11px]"><span class="font-bold text-emerald-300">' + r.user + ':</span> <span class="text-zinc-300">' + r.text + '</span></div>';
                         }).join('') +
                     '</div>' : '';
 
-                return '<div class="bg-[#050508] p-2.5 rounded-2xl text-xs border border-zinc-800 space-y-1">' +
+                return '<div class="ios-glass-card p-3 rounded-2xl text-xs space-y-1">' +
                     '<div class="flex justify-between items-center">' +
                         '<span class="font-bold text-emerald-400">' + c.user + '</span>' +
-                        '<button onclick="startReplyTo(\'' + c.user + '\')" class="text-[10px] text-zinc-500 hover:text-emerald-400 flex items-center gap-1"><i class="fas fa-reply"></i> Yanıtla</button>' +
+                        '<button onclick="startReplyTo(\'' + c.user + '\')" class="text-[10px] text-zinc-400 hover:text-emerald-400 flex items-center gap-1"><i class="fas fa-reply"></i> Yanıtla</button>' +
                     '</div>' +
                     '<p class="text-zinc-200">' + c.text + '</p>' + repliesHtml +
                 '</div>';
@@ -618,6 +696,7 @@
             }
         }
 
+        // VİDEO OYNATMA MANTIĞI (%25 Giriş -> Oynat, %75 -> Sesi Aç)
         function setupVideoIntersectionObserver() {
             var observerOptions = { root: null, threshold: [0, 0.25, 0.75, 1.0] };
             var observer = new IntersectionObserver(function(entries) {
@@ -667,7 +746,7 @@
                 var data = await res.json();
                 if (data && data.results) {
                     grid.innerHTML = data.results.map(function(g){
-                        return '<div onclick="selectGif(\'' + g.media[0].gif.url + '\')" class="cursor-pointer rounded-2xl overflow-hidden border border-zinc-800 hover:border-emerald-500 bg-black h-28 flex items-center justify-center">' +
+                        return '<div onclick="selectGif(\'' + g.media[0].gif.url + '\')" class="cursor-pointer rounded-2xl overflow-hidden border border-white/10 hover:border-emerald-400 bg-black h-28 flex items-center justify-center">' +
                             '<img src="' + g.media[0].gif.url + '" class="w-full h-full object-cover">' +
                         '</div>';
                     }).join('');
