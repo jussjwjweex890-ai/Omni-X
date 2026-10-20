@@ -12,19 +12,18 @@
             theme: {
                 extend: {
                     colors: {
-                        omni: {
-                            black: '#000000',
-                            card: 'rgba(255, 255, 255, 0.08)',
-                            border: 'rgba(0, 255, 135, 0.3)',
-                            neon: '#00ff87',
-                            green: '#10b981',
-                            cyan: '#00f0ff'
+                        ios: {
+                            bg: '#0a0a0c',
+                            card: 'rgba(255, 255, 255, 0.05)',
+                            glass: 'rgba(28, 28, 35, 0.65)',
+                            border: 'rgba(255, 255, 255, 0.12)',
+                            accent: '#38bdf8',
+                            blue: '#0a84ff',
+                            heart: '#ff375f'
                         }
                     },
                     boxShadow: {
-                        'ios': '0 8px 32px 0 rgba(0, 255, 135, 0.25)',
-                        'neon': '0 0 20px rgba(0, 255, 135, 0.6)',
-                        'neon-lg': '0 0 35px rgba(0, 255, 135, 0.8)'
+                        'ios-glass': '0 10px 30px rgba(0, 0, 0, 0.5)'
                     }
                 }
             }
@@ -38,86 +37,76 @@
             user-select: none;
         }
         body {
-            background: #000000;
-            color: #ffffff;
+            background-color: #0a0a0c;
+            color: #f3f4f6;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Vibrant iOS Glassmorphism Styles */
-        .ios-glass {
-            background: rgba(18, 24, 27, 0.75);
-            backdrop-filter: blur(25px) saturate(200%);
-            -webkit-backdrop-filter: blur(25px) saturate(200%);
-            border: 1px solid rgba(0, 255, 135, 0.25);
-            box-shadow: 0 8px 25px rgba(0, 255, 135, 0.15);
+        .ios-glass-panel {
+            background: rgba(22, 22, 29, 0.75);
+            backdrop-filter: blur(25px) saturate(190%);
+            -webkit-backdrop-filter: blur(25px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .ios-glass-card {
-            background: rgba(20, 28, 30, 0.65);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 255, 135, 0.2);
+        .ios-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .ios-nav-bar {
-            background: rgba(12, 18, 20, 0.85);
+        .ios-nav {
+            background: rgba(18, 18, 24, 0.8);
             backdrop-filter: blur(30px) saturate(200%);
             -webkit-backdrop-filter: blur(30px) saturate(200%);
-            border: 1.5px solid rgba(0, 255, 135, 0.35);
-            box-shadow: 0 10px 35px rgba(0, 255, 135, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         .story-ring {
-            background: linear-gradient(135deg, #00ff87, #00f0ff, #3b82f6);
-            padding: 2.5px;
-        }
-        .x-gradient-text {
-            background: linear-gradient(135deg, #00ff87 0%, #00f0ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+            padding: 2px;
         }
     </style>
 </head>
-<body class="bg-black text-white h-full min-h-screen pb-28">
+<body class="bg-[#0a0a0c] text-white h-full min-h-screen pb-28">
 
-    <!-- SIGNUP / LOGIN SCREEN WITH MULTI-LANGUAGE -->
-    <div id="signup-screen" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4 max-w-md mx-auto">
-        <div class="w-full ios-glass rounded-3xl p-6 space-y-6 shadow-neon-lg">
+    <!-- SIGNUP / LOGIN SCREEN -->
+    <div id="signup-screen" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 max-w-md mx-auto">
+        <div class="w-full ios-glass-panel rounded-3xl p-6 space-y-6 shadow-ios-glass">
             <div class="flex justify-between items-center">
-                <span class="font-black text-2xl tracking-widest x-gradient-text">OMNI X</span>
-                <!-- Dil Seçimi -->
-                <div class="relative">
-                    <select id="language-select" onchange="changeLanguage(this.value)" class="bg-zinc-900 text-emerald-400 font-bold text-xs border border-emerald-500/40 rounded-xl px-2.5 py-1.5 focus:outline-none">
-                        <option value="tr">🇹🇷 Türkçe</option>
-                        <option value="en">🇺🇸 English</option>
-                        <option value="de">🇩🇪 Deutsch</option>
-                        <option value="fr">🇫🇷 Français</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="it">🇮🇹 Italiano</option>
-                        <option value="ru">🇷🇺 Русский</option>
-                        <option value="ar">🇸🇦 العربية</option>
-                        <option value="ja">🇯🇵 日本語</option>
-                        <option value="ko">🇰🇷 한국어</option>
-                        <option value="zh">🇨🇳 中文</option>
-                    </select>
-                </div>
+                <span class="font-bold text-2xl tracking-wider text-sky-400">OMNI X</span>
+                <select id="language-select" onchange="changeLanguage(this.value)" class="bg-zinc-900/90 text-zinc-300 font-medium text-xs border border-white/10 rounded-xl px-2.5 py-1.5 focus:outline-none">
+                    <option value="tr">🇹🇷 Türkçe</option>
+                    <option value="en">🇺🇸 English</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="ar">🇸🇦 العربية</option>
+                    <option value="ja">🇯🇵 日本語</option>
+                    <option value="ko">🇰🇷 한국어</option>
+                    <option value="zh">🇨🇳 中文</option>
+                </select>
             </div>
 
             <div class="space-y-1">
                 <h2 id="lbl-welcome" class="text-xl font-bold text-white">Hoş Geldiniz</h2>
-                <p id="lbl-subtitle" class="text-xs text-zinc-400">Yeni nesil sosyal medya deneyimine katılın.</p>
+                <p id="lbl-subtitle" class="text-xs text-zinc-400">Yeni nesil minimalist sosyal ağ deneyimi.</p>
             </div>
 
             <div class="space-y-4">
                 <div>
-                    <label id="lbl-fullname" class="text-[11px] text-emerald-400 font-semibold mb-1 block">İsim Soyisim</label>
-                    <input type="text" id="signup-fullname" placeholder="Ahmet Yılmaz" class="w-full bg-black/60 border border-emerald-500/30 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400 transition">
+                    <label id="lbl-fullname" class="text-[11px] text-zinc-300 font-semibold mb-1 block">İsim Soyisim</label>
+                    <input type="text" id="signup-fullname" placeholder="Ahmet Yılmaz" class="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400 transition">
                 </div>
                 <div>
-                    <label id="lbl-email" class="text-[11px] text-emerald-400 font-semibold mb-1 block">E-posta Adresi</label>
-                    <input type="email" id="signup-email" placeholder="ornek@gmail.com" class="w-full bg-black/60 border border-emerald-500/30 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400 transition">
+                    <label id="lbl-email" class="text-[11px] text-zinc-300 font-semibold mb-1 block">E-posta Adresi</label>
+                    <input type="email" id="signup-email" placeholder="ornek@gmail.com" class="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400 transition">
                 </div>
-                <button id="btn-login" onclick="directRegisterOrLogin()" class="w-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-black font-black py-3.5 rounded-2xl text-xs shadow-neon active:scale-95 transition">
+                <button id="btn-login" onclick="directRegisterOrLogin()" class="w-full bg-sky-500 hover:bg-sky-400 text-black font-bold py-3.5 rounded-2xl text-xs active:scale-95 transition">
                     GİRİŞ YAP / KAYIT OL
                 </button>
             </div>
@@ -126,20 +115,23 @@
 
     <!-- MAIN APP WRAPPER -->
     <div id="main-app" class="hidden">
-        <!-- TOP HEADER (VIBRANT iOS GLASS STYLE) -->
+        <!-- TOP HEADER -->
         <header class="sticky top-0 z-40 px-4 py-3 max-w-md mx-auto">
-            <div class="ios-glass rounded-2xl px-4 py-2.5 flex items-center justify-between">
-                <span class="font-black text-2xl tracking-wider x-gradient-text drop-shadow-[0_0_10px_rgba(0,255,135,0.5)]">OMNI X</span>
-                <div class="flex items-center gap-4">
-                    <button onclick="openModal('inbox-modal')" class="relative text-xl text-emerald-400 hover:text-cyan-400 transition">
-                        <i class="far fa-bell"></i>
-                        <span id="inbox-dot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full shadow-neon"></span>
+            <div class="ios-glass-panel rounded-2xl px-4 py-2.5 flex items-center justify-between">
+                <span class="font-black text-xl tracking-wider text-sky-400">OMNI X</span>
+                <div class="flex items-center gap-4 text-zinc-300">
+                    <button onclick="openModal('inbox-modal')" class="relative hover:text-sky-400 transition">
+                        <i class="far fa-bell text-lg"></i>
+                        <span id="inbox-dot" class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-sky-400 rounded-full"></span>
                     </button>
-                    <button onclick="openModal('dm-modal')" class="text-xl text-emerald-400 hover:text-cyan-400 transition">
-                        <i class="far fa-paper-plane"></i>
+                    <button onclick="openModal('saved-modal')" class="hover:text-sky-400 transition">
+                        <i class="far fa-bookmark text-lg"></i>
                     </button>
-                    <button onclick="openModal('settings-modal')" class="text-xl text-emerald-400 hover:text-cyan-400 transition">
-                        <i class="fas fa-cog"></i>
+                    <button onclick="openModal('dm-modal')" class="hover:text-sky-400 transition">
+                        <i class="far fa-paper-plane text-lg"></i>
+                    </button>
+                    <button onclick="openModal('settings-modal')" class="hover:text-sky-400 transition">
+                        <i class="fas fa-cog text-lg"></i>
                     </button>
                 </div>
             </div>
@@ -149,17 +141,17 @@
         <div class="max-w-md mx-auto relative px-2">
             <section id="tab-feed">
                 <!-- STORIES BAR -->
-                <div class="py-3 px-3 my-2 ios-glass rounded-2xl overflow-x-auto hide-scrollbar flex gap-4 items-center">
+                <div class="py-3 px-3 my-2 ios-glass-panel rounded-2xl overflow-x-auto hide-scrollbar flex gap-4 items-center">
                     <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer" onclick="openModal('create-story-modal')">
-                        <div class="story-ring w-14 h-14 rounded-full flex items-center justify-center relative shadow-neon">
+                        <div class="story-ring w-14 h-14 rounded-full flex items-center justify-center relative">
                             <div id="my-story-avatar-container" class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border-2 border-black">
                                 <i class="fas fa-user text-zinc-400 text-sm"></i>
                             </div>
-                            <div class="absolute bottom-0 right-0 bg-emerald-400 text-black w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold border border-black shadow-neon">
+                            <div class="absolute bottom-0 right-0 bg-sky-400 text-black w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold border border-black">
                                 <i class="fas fa-plus"></i>
                             </div>
                         </div>
-                        <span class="text-[10px] text-emerald-400 font-semibold">Hikayen</span>
+                        <span class="text-[10px] text-zinc-300 font-medium">Hikayen</span>
                     </div>
                     <div id="stories-container" class="flex gap-4"></div>
                 </div>
@@ -169,113 +161,122 @@
             </section>
         </div>
 
-        <!-- BOTTOM NAVIGATION BAR (iOS 26 CANLI FLOATING BAR) -->
+        <!-- FLOATING BOTTOM NAV BAR -->
         <div class="fixed bottom-4 left-0 right-0 z-40 max-w-md mx-auto px-4">
-            <nav class="ios-nav-bar rounded-3xl px-6 py-3 flex justify-between items-center">
-                <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-emerald-400 text-2xl hover:scale-110 transition drop-shadow-[0_0_8px_rgba(0,255,135,0.8)]"><i class="fas fa-home"></i></button>
-                <button onclick="openModal('search-modal')" class="text-emerald-400/70 hover:text-emerald-400 text-2xl hover:scale-110 transition"><i class="fas fa-search"></i></button>
-                <button onclick="openModal('create-post-modal')" class="w-12 h-12 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-black flex items-center justify-center font-black text-xl shadow-neon active:scale-90 transition"><i class="fas fa-plus"></i></button>
-                <button onclick="openModal('dm-modal')" class="text-emerald-400/70 hover:text-emerald-400 text-2xl hover:scale-110 transition"><i class="far fa-paper-plane"></i></button>
-                <button onclick="openModal('inbox-modal')" class="text-emerald-400/70 hover:text-emerald-400 text-2xl hover:scale-110 transition"><i class="far fa-bell"></i></button>
+            <nav class="ios-nav rounded-3xl px-6 py-3 flex justify-between items-center text-zinc-400">
+                <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-sky-400 text-xl hover:scale-110 transition"><i class="fas fa-home"></i></button>
+                <button onclick="openModal('search-modal')" class="hover:text-sky-400 text-xl hover:scale-110 transition"><i class="fas fa-search"></i></button>
+                <button onclick="openModal('create-post-modal')" class="w-11 h-11 rounded-2xl bg-sky-400 text-black flex items-center justify-center font-bold text-lg active:scale-90 transition"><i class="fas fa-plus"></i></button>
+                <button onclick="openModal('dm-modal')" class="hover:text-sky-400 text-xl hover:scale-110 transition"><i class="far fa-paper-plane"></i></button>
+                <button onclick="openModal('inbox-modal')" class="hover:text-sky-400 text-xl hover:scale-110 transition"><i class="far fa-bell"></i></button>
             </nav>
         </div>
     </div>
 
-    <!-- MODALS (CANLI FULLSCREEN iOS GLASS STYLE) -->
+    <!-- MODALS -->
 
     <!-- GELEN KUTUSU MODAL -->
-    <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
-        <div class="ios-glass px-4 py-3 flex items-center justify-between border-b border-emerald-500/30">
-            <h3 class="font-bold text-sm tracking-wider uppercase x-gradient-text"><i class="far fa-bell mr-1.5"></i> Gelen Kutusu & Bildirimler</h3>
-            <button onclick="closeModal('inbox-modal')" class="text-emerald-400 text-base"><i class="fas fa-times"></i></button>
+    <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
+        <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
+            <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="far fa-bell mr-1.5"></i> Bildirimler</h3>
+            <button onclick="closeModal('inbox-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
         </div>
         <div id="inbox-list" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
-    <!-- ARAMA MODAL -->
-    <div id="search-modal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
-        <div class="ios-glass px-4 py-3 flex items-center justify-between border-b border-emerald-500/30">
-            <h3 class="font-bold text-sm tracking-wider uppercase x-gradient-text"><i class="fas fa-search mr-1.5"></i> Keşfet & Arama</h3>
-            <button onclick="closeModal('search-modal')" class="text-emerald-400 text-base"><i class="fas fa-times"></i></button>
+    <!-- KAYDEDİLENLER MODAL -->
+    <div id="saved-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
+        <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
+            <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="far fa-bookmark mr-1.5"></i> Kaydedilen Gönderiler</h3>
+            <button onclick="closeModal('saved-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="saved-posts-container" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+    </div>
+
+    <!-- ARAMA VE KEŞFET MODAL -->
+    <div id="search-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
+        <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
+            <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="fas fa-search mr-1.5"></i> Keşfet & Arama</h3>
+            <button onclick="closeModal('search-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
         </div>
         <div class="p-4 space-y-4 flex-1 flex flex-col">
-            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Kullanıcı veya içerik başlığı ara..." class="w-full bg-black/60 border border-emerald-500/30 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400">
-            <div id="search-results" class="flex-1 overflow-y-auto space-y-3 pr-1">
-                <p class="text-center text-xs text-zinc-500 py-12">Aradığınız kişi veya içeriği yazın...</p>
+            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Kullanıcı veya içerik ara..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400">
+            <div id="search-results" class="flex-1 overflow-y-auto space-y-3">
+                <p class="text-center text-xs text-zinc-500 py-12">Arama yapmak için bir şeyler yazın...</p>
             </div>
         </div>
     </div>
 
     <!-- DM MESAJLAR MODAL -->
-    <div id="dm-modal" class="hidden fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
-        <div class="ios-glass px-4 py-3 flex items-center justify-between border-b border-emerald-500/30">
-            <h3 class="font-bold text-sm tracking-wider uppercase x-gradient-text"><i class="far fa-paper-plane mr-1.5"></i> Mesajlar (DM)</h3>
-            <button onclick="closeModal('dm-modal')" class="text-emerald-400 text-base"><i class="fas fa-times"></i></button>
+    <div id="dm-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
+        <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
+            <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="far fa-paper-plane mr-1.5"></i> Mesajlar</h3>
+            <button onclick="closeModal('dm-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
         </div>
         <div id="chat-list" class="flex-1 overflow-y-auto p-4 space-y-2.5"></div>
         <div id="chat-active-view" class="hidden flex-1 flex flex-col p-4 space-y-3">
-            <div class="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+            <div class="flex items-center justify-between border-b border-white/10 pb-2">
                 <div class="flex items-center gap-2.5">
-                    <img id="chat-target-avatar" src="" class="w-8 h-8 rounded-full object-cover border border-emerald-400 shadow-neon">
-                    <span id="chat-target-name" class="text-xs font-bold text-emerald-400">Sohbet</span>
+                    <img id="chat-target-avatar" src="" class="w-8 h-8 rounded-full object-cover border border-sky-400">
+                    <span id="chat-target-name" class="text-xs font-bold text-sky-400">Sohbet</span>
                 </div>
-                <button onclick="closeActiveChat()" class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-xl">Geri Dön</button>
+                <button onclick="closeActiveChat()" class="text-xs text-zinc-300 bg-white/10 px-3 py-1 rounded-xl">Geri Dön</button>
             </div>
             <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
-            <div class="flex gap-2 pt-2 border-t border-emerald-500/20">
-                <input type="text" id="chat-input" placeholder="Mesaj yaz..." class="flex-1 bg-black/60 border border-emerald-500/30 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-400">
-                <button onclick="sendMessage()" class="bg-gradient-to-r from-emerald-400 to-cyan-400 text-black px-4 py-3 rounded-2xl text-xs font-bold shadow-neon"><i class="fas fa-arrow-right"></i></button>
+            <div class="flex gap-2 pt-2 border-t border-white/10">
+                <input type="text" id="chat-input" placeholder="Mesaj yaz..." class="flex-1 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400">
+                <button onclick="sendMessage()" class="bg-sky-400 text-black px-4 py-3 rounded-2xl text-xs font-bold"><i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
     </div>
 
     <!-- YORUMLAR MODAL -->
     <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-end">
-        <div class="ios-glass w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 shadow-neon-lg flex flex-col h-[55vh]">
-            <div class="w-10 h-1 bg-emerald-400/80 rounded-full mx-auto mb-1"></div>
-            <div class="flex justify-between items-center border-b border-emerald-500/30 pb-2">
-                <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400"><i class="far fa-comment mr-1"></i> Yorumlar</h3>
-                <button onclick="closeModal('comments-modal')" class="text-emerald-400 text-sm"><i class="fas fa-times"></i></button>
+        <div class="ios-glass-panel w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 flex flex-col h-[55vh]">
+            <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-1"></div>
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <h3 class="font-bold text-xs uppercase tracking-wider text-sky-400"><i class="far fa-comment mr-1"></i> Yorumlar</h3>
+                <button onclick="closeModal('comments-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div id="comments-list" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
-            <div id="replying-to-bar" class="hidden flex justify-between items-center bg-emerald-500/10 px-3 py-1.5 rounded-xl text-[11px] text-emerald-400 border border-emerald-400/40">
+            <div id="replying-to-bar" class="hidden flex justify-between items-center bg-white/5 px-3 py-1.5 rounded-xl text-[11px] text-sky-400 border border-sky-400/30">
                 <span id="replying-to-text"></span>
-                <button onclick="cancelReply()" class="text-zinc-400 hover:text-white"><i class="fas fa-times"></i></button>
+                <button onclick="cancelReply()" class="text-zinc-400"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex gap-2 pt-1 border-t border-emerald-500/20">
-                <input type="text" id="comment-input" placeholder="Yorum ekle..." class="flex-1 bg-black/60 border border-emerald-500/30 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-400">
-                <button onclick="addCommentToPost()" class="bg-gradient-to-r from-emerald-400 to-cyan-400 text-black px-4 py-2.5 rounded-2xl text-xs font-bold shadow-neon">Gönder</button>
+            <div class="flex gap-2 pt-1 border-t border-white/10">
+                <input type="text" id="comment-input" placeholder="Yorum ekle..." class="flex-1 bg-black/40 border border-white/10 rounded-2xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-sky-400">
+                <button onclick="addCommentToPost()" class="bg-sky-400 text-black px-4 py-2.5 rounded-2xl text-xs font-bold">Gönder</button>
             </div>
         </div>
     </div>
 
     <!-- CREATE POST MODAL -->
     <div id="create-post-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
-        <div class="ios-glass w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-neon-lg">
-            <div class="flex justify-between items-center border-b border-emerald-500/30 pb-2">
-                <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400">Yeni Paylaşım</h3>
-                <button onclick="closeModal('create-post-modal')" class="text-emerald-400 text-sm"><i class="fas fa-times"></i></button>
+        <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <h3 class="font-bold text-xs uppercase tracking-wider text-sky-400">Yeni Paylaşım</h3>
+                <button onclick="closeModal('create-post-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-3">
-                <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-400/20 file:text-emerald-400 cursor-pointer">
-                <textarea id="post-caption-input" rows="3" placeholder="Açıklama yaz..." class="w-full bg-black/60 border border-emerald-500/30 rounded-2xl p-3 text-xs text-white focus:outline-none focus:border-emerald-400"></textarea>
+                <input type="file" id="post-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-400/20 file:text-sky-400 cursor-pointer">
+                <textarea id="post-caption-input" rows="3" placeholder="Düşüncelerini yaz..." class="w-full bg-black/40 border border-white/10 rounded-2xl p-3 text-xs text-white focus:outline-none focus:border-sky-400"></textarea>
                 <div id="post-media-preview" class="hidden relative rounded-2xl overflow-hidden max-h-36 bg-black flex items-center justify-center"></div>
-                <button onclick="toggleGifSearch()" class="w-full bg-black/60 border border-emerald-500/30 text-emerald-400 py-2.5 rounded-2xl text-xs font-semibold hover:border-emerald-400/60 transition flex items-center justify-center gap-2">
-                    <i class="fas fa-gift"></i> GIF Arayıp Ekle (Tenor)
+                <button onclick="toggleGifSearch()" class="w-full bg-black/40 border border-white/10 text-sky-400 py-2.5 rounded-2xl text-xs font-semibold hover:border-sky-400/40 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-gift"></i> Tenor GIF Ekle
                 </button>
             </div>
-            <button onclick="submitNewPost()" class="w-full bg-gradient-to-r from-emerald-400 to-cyan-400 text-black font-black py-3 rounded-2xl text-xs shadow-neon">Paylaş</button>
+            <button onclick="submitNewPost()" class="w-full bg-sky-400 text-black font-bold py-3 rounded-2xl text-xs">Paylaş</button>
         </div>
     </div>
 
     <!-- GIF PICKER MODAL -->
     <div id="gif-picker-modal" class="hidden fixed inset-0 z-[60] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4">
-        <div class="ios-glass w-full max-w-sm rounded-3xl p-4 space-y-3 shadow-neon-lg flex flex-col h-[65vh]">
-            <div class="flex justify-between items-center border-b border-emerald-500/30 pb-2">
-                <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400">GIF Arama</h3>
-                <button onclick="closeModal('gif-picker-modal')" class="text-emerald-400"><i class="fas fa-times"></i></button>
+        <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-4 space-y-3 flex flex-col h-[65vh]">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <h3 class="font-bold text-xs uppercase tracking-wider text-sky-400">Dahili Tenor GIF Arama</h3>
+                <button onclick="closeModal('gif-picker-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
             </div>
-            <input type="text" id="gif-search-box" placeholder="GIF ara..." oninput="searchGifs(this.value)" class="w-full bg-black/60 border border-emerald-500/30 rounded-2xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-400">
+            <input type="text" id="gif-search-box" placeholder="GIF ara..." oninput="searchGifs(this.value)" class="w-full bg-black/40 border border-white/10 rounded-2xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-sky-400">
             <div id="gif-results-grid" class="grid grid-cols-2 gap-2 overflow-y-auto max-h-60 pr-1">
                 <p class="col-span-2 text-center text-xs text-zinc-500 py-8">Arama yapmak için kelime yazın...</p>
             </div>
@@ -284,24 +285,24 @@
 
     <!-- CREATE STORY MODAL -->
     <div id="create-story-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
-        <div class="ios-glass w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-neon-lg">
-            <div class="flex justify-between items-center border-b border-emerald-500/30 pb-2">
-                <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400">Hikaye Ekle</h3>
-                <button onclick="closeModal('create-story-modal')" class="text-emerald-400 text-sm"><i class="fas fa-times"></i></button>
+        <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <h3 class="font-bold text-xs uppercase tracking-wider text-sky-400">Hikaye Ekle</h3>
+                <button onclick="closeModal('create-story-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
-            <input type="file" id="story-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-400/20 file:text-emerald-400 cursor-pointer">
-            <button onclick="submitNewStory()" class="w-full bg-gradient-to-r from-emerald-400 to-cyan-400 text-black font-black py-3 rounded-2xl text-xs shadow-neon">Hikayelere Ekle</button>
+            <input type="file" id="story-file-input" accept="image/*,video/*" class="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-400/20 file:text-sky-400 cursor-pointer">
+            <button onclick="submitNewStory()" class="w-full bg-sky-400 text-black font-bold py-3 rounded-2xl text-xs">Hikayelere Ekle</button>
         </div>
     </div>
 
     <!-- VIEW STORY MODAL -->
     <div id="view-story-modal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4 max-w-md mx-auto">
-        <div class="flex items-center justify-between py-2 border-b border-emerald-500/30">
+        <div class="flex items-center justify-between py-2 border-b border-white/10">
             <div class="flex items-center gap-2.5">
-                <div id="story-user-avatar-view" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs overflow-hidden border border-emerald-400 shadow-neon">
+                <div id="story-user-avatar-view" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs overflow-hidden border border-sky-400">
                     <i class="fas fa-user"></i>
                 </div>
-                <span id="story-user-name" class="font-bold text-xs text-emerald-400"></span>
+                <span id="story-user-name" class="font-bold text-xs text-sky-400"></span>
             </div>
             <button onclick="closeStoryView()" class="text-white text-base"><i class="fas fa-times"></i></button>
         </div>
@@ -310,21 +311,20 @@
 
     <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
-        <div class="ios-glass w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-neon-lg">
-            <div class="flex justify-between items-center border-b border-emerald-500/30 pb-2">
-                <h3 class="font-bold text-xs uppercase tracking-wider text-emerald-400"><i class="fas fa-cog mr-1"></i> Ayarlar</h3>
-                <button onclick="closeModal('settings-modal')" class="text-emerald-400 text-sm"><i class="fas fa-times"></i></button>
+        <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+                <h3 class="font-bold text-xs uppercase tracking-wider text-sky-400"><i class="fas fa-cog mr-1"></i> Ayarlar</h3>
+                <button onclick="closeModal('settings-modal')" class="text-zinc-400 text-sm"><i class="fas fa-times"></i></button>
             </div>
             <div class="space-y-2 text-xs">
-                <button onclick="clearAllData()" class="w-full text-left p-3 rounded-2xl bg-black/60 border border-emerald-500/30 text-amber-400 hover:border-amber-400 transition">Önbelleği Temizle</button>
-                <button onclick="logoutAccount()" class="w-full text-left p-3 rounded-2xl bg-black/60 border border-emerald-500/30 text-emerald-400 hover:border-emerald-400 transition">Çıkış Yap</button>
+                <button onclick="clearAllData()" class="w-full text-left p-3 rounded-2xl bg-black/40 border border-white/10 text-amber-400 hover:border-amber-400 transition">Önbelleği Temizle</button>
+                <button onclick="logoutAccount()" class="w-full text-left p-3 rounded-2xl bg-black/40 border border-white/10 text-sky-400 hover:border-sky-400 transition">Çıkış Yap</button>
             </div>
         </div>
     </div>
 
     <!-- APPLICATION LOGIC -->
     <script>
-        // SİYAH ERKEK BOT FOTOĞRAFI
         var BOT_AVATAR = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300";
         var BOT_STORY_MEDIA = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600";
 
@@ -346,9 +346,10 @@
             lang: "tr",
             currentUser: null,
             followingUsers: ["Can_Tech"],
+            savedPosts: [],
             notifications: [
                 { id: 1, type: "follow", user: "Can_Tech", text: "seni takip etmeye başladı.", time: "Şimdi" },
-                { id: 2, type: "dm", user: "Can_Tech", text: "sana bir mesaj gönderdi.", time: "2dk önce" }
+                { id: 2, type: "dm", user: "Can_Tech", text: "sana mesaj gönderdi.", time: "3dk önce" }
             ],
             stories: [
                 { id: 1, user: "Can_Tech", avatar: BOT_AVATAR, url: BOT_STORY_MEDIA, isVideo: false }
@@ -360,15 +361,22 @@
                     avatar: BOT_AVATAR,
                     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
                     isVideo: true,
-                    caption: "Ben Can_Tech AI! OMNI X yapay zekasıyım. İstediğin her soruyu bana sorabilirsin! 🚀🤖",
-                    likes: 128,
+                    caption: "Ben Can_Tech AI! Sorduğun her soruyu anında cevaplayabilirim. DM'den yazabilirsin! 🤖✨",
+                    likes: 142,
+                    reposts: 12,
                     liked: false,
-                    comments: [{ id: 1, user: "Can_Tech", text: "Sorularını bekliyorum!", replies: [] }]
+                    reposted: false,
+                    saved: false,
+                    likedFriends: [
+                        { name: "ebru.art", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" },
+                        { name: "ali_dev", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100" }
+                    ],
+                    comments: [{ id: 1, user: "Can_Tech", text: "Herhangi bir konuda soru sorabilirsin!", replies: [] }]
                 }
             ],
             chats: {
                 "Can_Tech": [
-                    { sender: "Can_Tech", text: "Merhaba! Ben Can_Tech yapay zeka asistanın. İstediğin her konuda bana soru sorabilirsin!" }
+                    { sender: "Can_Tech", text: "Selam! Ben Can_Tech yapay zeka asistanın. İstediğin konuyu sorabilirsin!" }
                 ]
             },
             activeChatUser: null,
@@ -407,6 +415,8 @@
                 if (savedPosts) { state.posts = JSON.parse(savedPosts); }
                 var savedFollowing = localStorage.getItem('omnix_following_users');
                 if (savedFollowing) { state.followingUsers = JSON.parse(savedFollowing); }
+                var savedBookmarks = localStorage.getItem('omnix_saved_posts');
+                if (savedBookmarks) { state.savedPosts = JSON.parse(savedBookmarks); }
             } catch(e){}
         }
 
@@ -436,17 +446,18 @@
             renderPosts();
             renderChatList();
             renderInbox();
+            renderSavedPosts();
         }
 
         function renderInbox() {
             var list = document.getElementById('inbox-list');
             list.innerHTML = state.notifications.map(function(n) {
-                var icon = n.type === 'follow' ? '<i class="fas fa-user-plus"></i>' : (n.type === 'dm' ? '<i class="far fa-paper-plane"></i>' : '<i class="fas fa-heart"></i>');
-                return '<div class="flex items-center justify-between p-3.5 rounded-2xl ios-glass-card">' +
+                var icon = n.type === 'follow' ? '<i class="fas fa-user-plus"></i>' : (n.type === 'dm' ? '<i class="far fa-paper-plane"></i>' : '<i class="fas fa-heart text-red-500"></i>');
+                return '<div class="flex items-center justify-between p-3.5 rounded-2xl ios-card">' +
                     '<div class="flex items-center gap-3">' +
-                        '<div class="w-9 h-9 rounded-full bg-emerald-400/20 text-emerald-400 flex items-center justify-center font-bold text-xs shadow-neon">' + icon + '</div>' +
+                        '<div class="w-9 h-9 rounded-full bg-sky-400/20 text-sky-400 flex items-center justify-center font-bold text-xs">' + icon + '</div>' +
                         '<div>' +
-                            '<p class="text-xs text-white"><span class="font-bold text-emerald-400">' + n.user + '</span> ' + n.text + '</p>' +
+                            '<p class="text-xs text-white"><span class="font-bold text-sky-400">' + n.user + '</span> ' + n.text + '</p>' +
                             '<span class="text-[10px] text-zinc-400">' + n.time + '</span>' +
                         '</div>' +
                     '</div>' +
@@ -459,10 +470,10 @@
             container.innerHTML = state.stories.map(function(s) {
                 var avContent = s.avatar ? '<img src="' + s.avatar + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-zinc-400 text-xs"></i>';
                 return '<div onclick="openStoryView(\'' + s.user + '\', \'' + s.avatar + '\', \'' + s.url + '\', ' + s.isVideo + ')" class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">' +
-                    '<div class="story-ring w-14 h-14 rounded-full flex items-center justify-center shadow-neon">' +
+                    '<div class="story-ring w-14 h-14 rounded-full flex items-center justify-center">' +
                         '<div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border-2 border-black">' + avContent + '</div>' +
                     '</div>' +
-                    '<span class="text-[10px] text-emerald-400 font-medium truncate w-14 text-center">' + s.user + '</span>' +
+                    '<span class="text-[10px] text-zinc-300 font-medium truncate w-14 text-center">' + s.user + '</span>' +
                 '</div>';
             }).join('');
         }
@@ -472,7 +483,7 @@
             container.innerHTML = state.posts.map(function(p) {
                 var isFollowing = state.followingUsers.includes(p.user);
                 var followBtn = (p.user !== state.currentUser.username) ? 
-                    '<button onclick="toggleFollow(\'' + p.user + '\')" class="text-[11px] px-3.5 py-1 rounded-full font-bold transition ' + (isFollowing ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-emerald-400 text-black shadow-neon') + '">' +
+                    '<button onclick="toggleFollow(\'' + p.user + '\')" class="text-[11px] px-3.5 py-1 rounded-full font-semibold transition ' + (isFollowing ? 'bg-white/10 text-zinc-300' : 'bg-sky-400 text-black') + '">' +
                         (isFollowing ? 'Takiptesin' : 'Takip Et') +
                     '</button>' : '';
 
@@ -481,10 +492,23 @@
                     '<video src="' + p.url + '" muted playsinline preload="auto" class="w-full max-h-[420px] object-cover rounded-2xl"></video>' : 
                     '<img src="' + p.url + '" class="w-full max-h-[420px] object-cover rounded-2xl">';
 
-                return '<article class="post-item ios-glass rounded-3xl overflow-hidden p-3.5 space-y-3">' +
+                // SOSYAL KANIT (ARKADAŞ BEĞENİ GÖSTERGESİ)
+                var friendLikesHtml = '';
+                if (p.likedFriends && p.likedFriends.length > 0) {
+                    var avatars = p.likedFriends.map(function(f){
+                        return '<img src="' + f.avatar + '" class="w-4 h-4 rounded-full border border-black object-cover -ml-1.5 first:ml-0">';
+                    }).join('');
+                    friendLikesHtml = '<div class="flex items-center gap-1.5 text-[11px] text-zinc-400 pt-1">' +
+                        '<div class="flex items-center">' + avatars + '</div>' +
+                        '<span><strong class="text-white">' + p.likedFriends[0].name + '</strong> ve diğer kişiler beğendi</span>' +
+                        '<i class="fas fa-heart text-red-500 text-[10px] ml-0.5"></i>' +
+                    '</div>';
+                }
+
+                return '<article class="post-item ios-glass-panel rounded-3xl overflow-hidden p-3.5 space-y-3">' +
                     '<div class="flex items-center justify-between">' +
                         '<div class="flex items-center gap-2.5">' +
-                            '<div class="story-ring w-8 h-8 rounded-full flex items-center justify-center shadow-neon">' +
+                            '<div class="story-ring w-8 h-8 rounded-full flex items-center justify-center">' +
                                 '<div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border border-black">' + avContent + '</div>' +
                             '</div>' +
                             '<span class="font-bold text-xs text-white">' + p.user + '</span>' +
@@ -492,20 +516,68 @@
                     '</div>' +
                     '<div class="relative overflow-hidden bg-black flex items-center justify-center max-h-[420px] rounded-2xl">' + media + '</div>' +
                     '<div class="space-y-1.5 px-1">' +
-                        '<div class="flex justify-between items-center text-lg">' +
+                        '<div class="flex justify-between items-center text-lg text-zinc-300">' +
                             '<div class="flex gap-4">' +
-                                '<button onclick="toggleLike(' + p.id + ')" class="' + (p.liked ? 'text-emerald-400' : 'text-emerald-400/80') + ' transition"><i class="' + (p.liked ? 'fas' : 'far') + ' fa-heart"></i></button>' +
-                                '<button onclick="openCommentsModal(' + p.id + ')" class="text-emerald-400/80 hover:text-emerald-400 transition"><i class="far fa-comment"></i></button>' +
-                                '<button onclick="openChatWith(\'' + p.user + '\')" class="text-emerald-400/80 hover:text-emerald-400 transition"><i class="far fa-paper-plane"></i></button>' +
+                                '<button onclick="toggleLike(' + p.id + ')" class="' + (p.liked ? 'text-red-500' : 'hover:text-sky-400') + ' transition"><i class="' + (p.liked ? 'fas' : 'far') + ' fa-heart"></i></button>' +
+                                '<button onclick="openCommentsModal(' + p.id + ')" class="hover:text-sky-400 transition"><i class="far fa-comment"></i></button>' +
+                                '<button onclick="toggleRepost(' + p.id + ')" class="' + (p.reposted ? 'text-green-400' : 'hover:text-sky-400') + ' transition flex items-center gap-1"><i class="fas fa-retweet"></i><span class="text-xs font-bold">' + (p.reposts || 0) + '</span></button>' +
+                                '<button onclick="openChatWith(\'' + p.user + '\')" class="hover:text-sky-400 transition"><i class="far fa-paper-plane"></i></button>' +
                             '</div>' +
+                            '<button onclick="toggleSavePost(' + p.id + ')" class="' + (p.saved ? 'text-sky-400' : 'hover:text-sky-400') + ' transition"><i class="' + (p.saved ? 'fas' : 'far') + ' fa-bookmark"></i></button>' +
                         '</div>' +
-                        '<p class="font-bold text-xs text-emerald-400">' + (p.likes || 0) + ' beğenme</p>' +
-                        '<p class="text-xs text-zinc-200"><span class="font-bold mr-1 text-emerald-400">' + p.user + '</span>' + p.caption + '</p>' +
+                        friendLikesHtml +
+                        '<p class="font-bold text-xs text-sky-400 pt-0.5">' + (p.likes || 0) + ' beğenme</p>' +
+                        '<p class="text-xs text-zinc-200"><span class="font-bold mr-1 text-white">' + p.user + '</span>' + p.caption + '</p>' +
                     '</div>' +
                 '</article>';
             }).join('');
 
             setupVideoIntersectionObserver();
+        }
+
+        function toggleSavePost(postId) {
+            var post = state.posts.find(function(p){ return p.id === postId; });
+            if(post) {
+                post.saved = !post.saved;
+                if(post.saved) {
+                    if(!state.savedPosts.some(function(s){ return s.id === postId; })) {
+                        state.savedPosts.push(post);
+                    }
+                } else {
+                    state.savedPosts = state.savedPosts.filter(function(s){ return s.id !== postId; });
+                }
+                savePostsState();
+                renderPosts();
+                renderSavedPosts();
+            }
+        }
+
+        function toggleRepost(postId) {
+            var post = state.posts.find(function(p){ return p.id === postId; });
+            if(post) {
+                post.reposted = !post.reposted;
+                post.reposts = (post.reposts || 0) + (post.reposted ? 1 : -1);
+                savePostsState();
+                renderPosts();
+            }
+        }
+
+        function renderSavedPosts() {
+            var container = document.getElementById('saved-posts-container');
+            if (state.savedPosts.length === 0) {
+                container.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Henüz kaydedilmiş gönderi yok.</p>';
+                return;
+            }
+            container.innerHTML = state.savedPosts.map(function(p){
+                var media = p.isVideo ? '<video src="' + p.url + '" class="w-full h-full object-cover"></video>' : '<img src="' + p.url + '" class="w-full h-full object-cover">';
+                return '<div class="flex items-center gap-3 p-3 rounded-2xl ios-card">' +
+                    '<div class="w-12 h-12 rounded-xl bg-black overflow-hidden shrink-0 flex items-center justify-center">' + media + '</div>' +
+                    '<div class="flex-1 truncate">' +
+                        '<p class="font-bold text-xs text-sky-400">' + p.user + '</p>' +
+                        '<p class="text-[10px] text-zinc-300 truncate">' + p.caption + '</p>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
         }
 
         function toggleFollow(username) {
@@ -523,7 +595,7 @@
         function searchVideosAndPosts(query) {
             var resultsContainer = document.getElementById('search-results');
             if (!query.trim()) {
-                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Aradığınız kişi veya içeriği yazın...</p>';
+                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Arama yapmak için bir şeyler yazın...</p>';
                 return;
             }
 
@@ -538,10 +610,10 @@
 
             resultsContainer.innerHTML = filtered.map(function(p){
                 var media = p.isVideo ? '<video src="' + p.url + '" class="w-full h-full object-cover"></video>' : '<img src="' + p.url + '" class="w-full h-full object-cover">';
-                return '<div class="flex items-center gap-3 p-3 rounded-2xl ios-glass-card">' +
+                return '<div class="flex items-center gap-3 p-3 rounded-2xl ios-card">' +
                     '<div class="w-12 h-12 rounded-xl bg-black overflow-hidden shrink-0 flex items-center justify-center">' + media + '</div>' +
                     '<div class="flex-1 truncate">' +
-                        '<p class="font-bold text-xs text-emerald-400">' + p.user + '</p>' +
+                        '<p class="font-bold text-xs text-sky-400">' + p.user + '</p>' +
                         '<p class="text-[10px] text-zinc-300 truncate">' + p.caption + '</p>' +
                     '</div>' +
                 '</div>';
@@ -552,18 +624,18 @@
             var list = document.getElementById('chat-list');
             var users = state.followingUsers;
             if (users.length === 0) {
-                list.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Mesajlaşmak için kullanıcıları takip etmelisin.</p>';
+                list.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Mesajlaşmak için takip etmelisin.</p>';
                 return;
             }
 
             list.innerHTML = users.map(function(u){
-                var avatarHtml = u === "Can_Tech" ? '<img src="' + BOT_AVATAR + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-emerald-400"></i>';
-                return '<div onclick="openChatWith(\'' + u + '\')" class="flex items-center justify-between p-3.5 rounded-2xl ios-glass-card cursor-pointer hover:border-emerald-400/60 transition">' +
+                var avatarHtml = u === "Can_Tech" ? '<img src="' + BOT_AVATAR + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-sky-400"></i>';
+                return '<div onclick="openChatWith(\'' + u + '\')" class="flex items-center justify-between p-3.5 rounded-2xl ios-card cursor-pointer hover:border-sky-400/40 transition">' +
                     '<div class="flex items-center gap-3">' +
-                        '<div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs overflow-hidden border border-emerald-500/30">' + avatarHtml + '</div>' +
+                        '<div class="w-9 h-9 rounded-full bg-sky-400/10 text-sky-400 flex items-center justify-center text-xs overflow-hidden border border-sky-400/30">' + avatarHtml + '</div>' +
                         '<span class="text-xs font-bold text-white">' + u + '</span>' +
                     '</div>' +
-                    '<i class="fas fa-chevron-right text-xs text-emerald-400/60"></i>' +
+                    '<i class="fas fa-chevron-right text-xs text-zinc-500"></i>' +
                 '</div>';
             }).join('');
         }
@@ -598,7 +670,7 @@
             container.innerHTML = msgs.map(function(m){
                 var isMe = m.sender === state.currentUser.username;
                 return '<div class="flex flex-col ' + (isMe ? 'items-end' : 'items-start') + '">' +
-                    '<div class="max-w-[80%] p-3 rounded-2xl text-xs ' + (isMe ? 'bg-gradient-to-r from-emerald-400 to-cyan-400 text-black font-bold shadow-neon' : 'ios-glass-card text-white') + '">' + m.text + '</div>' +
+                    '<div class="max-w-[80%] p-3 rounded-2xl text-xs ' + (isMe ? 'bg-sky-400 text-black font-bold' : 'ios-card text-white') + '">' + m.text + '</div>' +
                 '</div>';
             }).join('');
             container.scrollTop = container.scrollHeight;
@@ -610,7 +682,7 @@
             if (p.includes("kimsin") || p.includes("nedir")) return "Ben OMNI X yapay zeka asistanı Can_Tech'im. Sorularını yanıtlamak için buradayım!";
             if (p.includes("saat") || p.includes("zaman")) return "Zaman OMNI X dünyasında su gibi akıyor! 🚀";
             if (p.includes("teşekkür")) return "Rica ederim, her zaman buradayım!";
-            return "Harika bir soru! '" + prompt + "' hakkında sana yardımcı olmaktan mutluluk duyarım. Başka bir şey öğrenmek ister misin?";
+            return "Harika bir soru! '" + prompt + "' hakkında sana yardımcı olmaktan mutluluk duyarım. Başka soracağın bir şey var mı?";
         }
 
         function sendMessage() {
@@ -646,16 +718,16 @@
             }
             list.innerHTML = post.comments.map(function(c){
                 var repliesHtml = (c.replies && c.replies.length > 0) ? 
-                    '<div class="pl-3 border-l-2 border-emerald-400/50 space-y-1 mt-1.5">' +
+                    '<div class="pl-3 border-l-2 border-sky-400/40 space-y-1 mt-1.5">' +
                         c.replies.map(function(r){
-                            return '<div class="text-[11px]"><span class="font-bold text-emerald-300">' + r.user + ':</span> <span class="text-zinc-200">' + r.text + '</span></div>';
+                            return '<div class="text-[11px]"><span class="font-bold text-sky-300">' + r.user + ':</span> <span class="text-zinc-200">' + r.text + '</span></div>';
                         }).join('') +
                     '</div>' : '';
 
-                return '<div class="ios-glass-card p-3 rounded-2xl text-xs space-y-1">' +
+                return '<div class="ios-card p-3 rounded-2xl text-xs space-y-1">' +
                     '<div class="flex justify-between items-center">' +
-                        '<span class="font-bold text-emerald-400">' + c.user + '</span>' +
-                        '<button onclick="startReplyTo(\'' + c.user + '\')" class="text-[10px] text-emerald-400/80 hover:text-emerald-400 flex items-center gap-1"><i class="fas fa-reply"></i> Yanıtla</button>' +
+                        '<span class="font-bold text-sky-400">' + c.user + '</span>' +
+                        '<button onclick="startReplyTo(\'' + c.user + '\')" class="text-[10px] text-zinc-400 hover:text-sky-400 flex items-center gap-1"><i class="fas fa-reply"></i> Yanıtla</button>' +
                     '</div>' +
                     '<p class="text-zinc-200">' + c.text + '</p>' + repliesHtml +
                 '</div>';
@@ -733,7 +805,10 @@
         }
 
         function savePostsState() {
-            try { localStorage.setItem('omnix_posts_data', JSON.stringify(state.posts)); } catch(e){}
+            try { 
+                localStorage.setItem('omnix_posts_data', JSON.stringify(state.posts)); 
+                localStorage.setItem('omnix_saved_posts', JSON.stringify(state.savedPosts)); 
+            } catch(e){}
         }
 
         function toggleGifSearch() { openModal('gif-picker-modal'); }
@@ -749,7 +824,7 @@
                 var data = await res.json();
                 if (data && data.results) {
                     grid.innerHTML = data.results.map(function(g){
-                        return '<div onclick="selectGif(\'' + g.media[0].gif.url + '\')" class="cursor-pointer rounded-2xl overflow-hidden border border-emerald-500/30 hover:border-emerald-400 bg-black h-28 flex items-center justify-center">' +
+                        return '<div onclick="selectGif(\'' + g.media[0].gif.url + '\')" class="cursor-pointer rounded-2xl overflow-hidden border border-white/10 hover:border-sky-400 bg-black h-28 flex items-center justify-center">' +
                             '<img src="' + g.media[0].gif.url + '" class="w-full h-full object-cover">' +
                         '</div>';
                     }).join('');
@@ -798,7 +873,11 @@
                 isVideo: isVideo,
                 caption: caption || "",
                 likes: 0,
+                reposts: 0,
                 liked: false,
+                reposted: false,
+                saved: false,
+                likedFriends: [],
                 comments: []
             });
             savePostsState();
