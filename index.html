@@ -107,8 +107,10 @@
                 <!-- STORIES BAR -->
                 <div class="py-3 px-3 border-b border-zinc-900/60 overflow-x-auto hide-scrollbar flex gap-4 items-center bg-[#050508]">
                     <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer" onclick="openModal('create-story-modal')">
-                        <div class="relative w-15 h-15 rounded-full p-0.5 border-2 border-dashed border-emerald-500/60 flex items-center justify-center">
-                            <img id="my-story-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-full h-full object-cover rounded-full">
+                        <div class="story-ring w-14 h-14 rounded-full flex items-center justify-center relative">
+                            <div id="my-story-avatar-container" class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border-2 border-black">
+                                <i class="fas fa-user text-zinc-500 text-sm"></i>
+                            </div>
                             <div class="absolute bottom-0 right-0 bg-emerald-400 text-black w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold border border-black">
                                 <i class="fas fa-plus"></i>
                             </div>
@@ -133,51 +135,50 @@
         </nav>
     </div>
 
-    <!-- MODALS -->
+    <!-- MODALS (TAM EKRAN UYUMLU) -->
 
     <!-- GELEN KUTUSU MODAL -->
-    <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0f1016] border border-emerald-500/30 w-full max-w-sm rounded-3xl p-4 space-y-4 shadow-neon-lg flex flex-col h-[70vh]">
-            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2">
-                <h3 class="font-bold text-xs tracking-wider uppercase text-emerald-400"><i class="far fa-bell mr-1.5"></i> Gelen Kutusu</h3>
-                <button onclick="closeModal('inbox-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="inbox-list" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
+    <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-[#050508] flex flex-col max-w-md mx-auto">
+        <div class="glass-panel border-b border-zinc-900 px-4 py-3 flex items-center justify-between">
+            <h3 class="font-bold text-sm tracking-wider uppercase text-emerald-400"><i class="far fa-bell mr-1.5"></i> Gelen Kutusu</h3>
+            <button onclick="closeModal('inbox-modal')" class="text-zinc-400 text-base"><i class="fas fa-times"></i></button>
         </div>
+        <div id="inbox-list" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
     <!-- ARAMA MODAL -->
-    <div id="search-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0f1016] border border-emerald-500/30 w-full max-w-sm rounded-3xl p-4 space-y-4 shadow-neon-lg flex flex-col h-[70vh]">
-            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2">
-                <h3 class="font-bold text-xs tracking-wider uppercase text-emerald-400"><i class="fas fa-search mr-1.5"></i> Keşfet & Arama</h3>
-                <button onclick="closeModal('search-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
-            </div>
-            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Video başlığı veya kullanıcı ara..." class="w-full bg-[#050508] border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+    <div id="search-modal" class="hidden fixed inset-0 z-50 bg-[#050508] flex flex-col max-w-md mx-auto">
+        <div class="glass-panel border-b border-zinc-900 px-4 py-3 flex items-center justify-between">
+            <h3 class="font-bold text-sm tracking-wider uppercase text-emerald-400"><i class="fas fa-search mr-1.5"></i> Keşfet & Arama</h3>
+            <button onclick="closeModal('search-modal')" class="text-zinc-400 text-base"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-4 space-y-4 flex-1 flex flex-col">
+            <input type="text" id="video-search-input" oninput="searchVideosAndPosts(this.value)" placeholder="Video başlığı veya kullanıcı ara..." class="w-full bg-[#0f1016] border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500">
             <div id="search-results" class="flex-1 overflow-y-auto space-y-3 pr-1">
-                <p class="text-center text-xs text-zinc-500 py-8">Kullanıcı veya video başlığı yazın...</p>
+                <p class="text-center text-xs text-zinc-500 py-12">Kullanıcı veya video başlığı yazın...</p>
             </div>
         </div>
     </div>
 
     <!-- DM MESAJLAR MODAL -->
-    <div id="dm-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-[#0f1016] border border-emerald-500/30 w-full max-w-sm rounded-3xl p-4 space-y-4 shadow-neon-lg flex flex-col h-[75vh]">
-            <div class="flex justify-between items-center border-b border-zinc-800/80 pb-2">
-                <h3 class="font-bold text-xs tracking-wider uppercase text-emerald-400"><i class="far fa-paper-plane mr-1.5"></i> Direkt Mesajlar</h3>
-                <button onclick="closeModal('dm-modal')" class="text-zinc-500 text-sm"><i class="fas fa-times"></i></button>
-            </div>
-            <div id="chat-list" class="flex-1 overflow-y-auto space-y-2"></div>
-            <div id="chat-active-view" class="hidden flex-1 flex flex-col space-y-2 border-t border-zinc-800/80 pt-2">
-                <div class="flex justify-between items-center border-b border-zinc-800/60 pb-1.5">
+    <div id="dm-modal" class="hidden fixed inset-0 z-50 bg-[#050508] flex flex-col max-w-md mx-auto">
+        <div class="glass-panel border-b border-zinc-900 px-4 py-3 flex items-center justify-between">
+            <h3 class="font-bold text-sm tracking-wider uppercase text-emerald-400"><i class="far fa-paper-plane mr-1.5"></i> Direkt Mesajlar</h3>
+            <button onclick="closeModal('dm-modal')" class="text-zinc-400 text-base"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chat-list" class="flex-1 overflow-y-auto p-4 space-y-2.5"></div>
+        <div id="chat-active-view" class="hidden flex-1 flex flex-col p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-zinc-900 pb-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs"><i class="fas fa-user"></i></div>
                     <span id="chat-target-name" class="text-xs font-bold text-emerald-400">Sohbet</span>
-                    <button onclick="closeActiveChat()" class="text-[10px] text-zinc-400 hover:text-white">Geri</button>
                 </div>
-                <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
-                <div class="flex gap-2 pt-1">
-                    <input type="text" id="chat-input" placeholder="Mesaj gönder..." class="flex-1 bg-[#050508] border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                    <button onclick="sendMessage()" class="bg-emerald-400 text-black px-3.5 py-2 rounded-xl text-xs font-bold shadow-neon"><i class="fas fa-arrow-right"></i></button>
-                </div>
+                <button onclick="closeActiveChat()" class="text-xs text-zinc-400 hover:text-white bg-zinc-900 px-2.5 py-1 rounded-lg">Geri Dön</button>
+            </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
+            <div class="flex gap-2 pt-2 border-t border-zinc-900">
+                <input type="text" id="chat-input" placeholder="Mesaj gönder..." class="flex-1 bg-[#0f1016] border border-zinc-800 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <button onclick="sendMessage()" class="bg-emerald-400 text-black px-4 py-3 rounded-xl text-xs font-bold shadow-neon"><i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
     </div>
@@ -251,7 +252,7 @@
     <div id="view-story-modal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4 max-w-md mx-auto">
         <div class="flex items-center justify-between py-2 border-b border-zinc-800">
             <div class="flex items-center gap-2">
-                <img id="story-user-avatar" src="" class="w-8 h-8 rounded-full border border-emerald-400 object-cover">
+                <div id="story-user-avatar-view" class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-xs overflow-hidden"><i class="fas fa-user"></i></div>
                 <span id="story-user-name" class="font-bold text-xs text-white"></span>
             </div>
             <button onclick="closeStoryView()" class="text-white text-base"><i class="fas fa-times"></i></button>
@@ -283,14 +284,14 @@
                 { id: 2, type: "like", user: "can_tech", text: "gönderini beğendi.", time: "1sa önce" }
             ],
             stories: [
-                { id: 1, user: "can_tech", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false },
-                { id: 2, user: "ebru.art", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150", url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500", isVideo: false }
+                { id: 1, user: "can_tech", avatar: "", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500", isVideo: false },
+                { id: 2, user: "ebru.art", avatar: "", url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500", isVideo: false }
             ],
             posts: [
                 {
                     id: 101,
                     user: "Can_Tech",
-                    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+                    avatar: "",
                     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
                     isVideo: true,
                     caption: "OMNI X dünyasında harika bir doğa videosu! 🏔️✨",
@@ -342,7 +343,7 @@
                 username: email.split('@')[0],
                 name: fullname || email.split('@')[0],
                 email: email,
-                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+                avatar: "" // Varsayılan anonim
             };
             localStorage.setItem('omnix_active_user', JSON.stringify(state.currentUser));
             document.getElementById('signup-screen').classList.add('hidden');
@@ -352,7 +353,8 @@
 
         function initMainApp() {
             if (state.currentUser) {
-                document.getElementById('my-story-avatar').src = state.currentUser.avatar;
+                var container = document.getElementById('my-story-avatar-container');
+                container.innerHTML = '<i class="fas fa-user text-zinc-400 text-sm"></i>';
             }
             renderStories();
             renderPosts();
@@ -364,9 +366,9 @@
             var list = document.getElementById('inbox-list');
             list.innerHTML = state.notifications.map(function(n) {
                 var icon = n.type === 'follow' ? '<i class="fas fa-user-plus"></i>' : '<i class="fas fa-heart"></i>';
-                return '<div class="flex items-center justify-between p-3 rounded-2xl bg-[#050508] border border-zinc-800/80">' +
+                return '<div class="flex items-center justify-between p-3.5 rounded-2xl bg-[#0f1016] border border-zinc-800/80">' +
                     '<div class="flex items-center gap-3">' +
-                        '<div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">' + icon + '</div>' +
+                        '<div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">' + icon + '</div>' +
                         '<div>' +
                             '<p class="text-xs text-white"><span class="font-bold text-emerald-400">' + n.user + '</span> ' + n.text + '</p>' +
                             '<span class="text-[10px] text-zinc-500">' + n.time + '</span>' +
@@ -379,9 +381,10 @@
         function renderStories() {
             var container = document.getElementById('stories-container');
             container.innerHTML = state.stories.map(function(s) {
+                var avContent = s.avatar ? '<img src="' + s.avatar + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-zinc-400 text-xs"></i>';
                 return '<div onclick="openStoryView(\'' + s.user + '\', \'' + s.avatar + '\', \'' + s.url + '\', ' + s.isVideo + ')" class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">' +
                     '<div class="story-ring w-14 h-14 rounded-full flex items-center justify-center">' +
-                        '<img src="' + s.avatar + '" class="w-full h-full object-cover rounded-full border-2 border-black">' +
+                        '<div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border-2 border-black">' + avContent + '</div>' +
                     '</div>' +
                     '<span class="text-[10px] text-zinc-300 truncate w-14 text-center">' + s.user + '</span>' +
                 '</div>';
@@ -397,6 +400,7 @@
                         (isFollowing ? 'Takiptesin' : 'Takip Et') +
                     '</button>' : '';
 
+                var avContent = p.avatar ? '<img src="' + p.avatar + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-zinc-400 text-xs"></i>';
                 var media = p.isVideo ? 
                     '<video src="' + p.url + '" muted playsinline preload="auto" class="w-full max-h-[420px] object-cover"></video>' : 
                     '<img src="' + p.url + '" class="w-full max-h-[420px] object-cover">';
@@ -405,7 +409,7 @@
                     '<div class="flex items-center justify-between p-3">' +
                         '<div class="flex items-center gap-2.5">' +
                             '<div class="story-ring w-8 h-8 rounded-full flex items-center justify-center">' +
-                                '<img src="' + p.avatar + '" class="w-full h-full object-cover rounded-full border border-black">' +
+                                '<div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border border-black">' + avContent + '</div>' +
                             '</div>' +
                             '<span class="font-bold text-xs text-white">' + p.user + '</span>' +
                         '</div>' + followBtn +
@@ -441,7 +445,7 @@
         function searchVideosAndPosts(query) {
             var resultsContainer = document.getElementById('search-results');
             if (!query.trim()) {
-                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-8">Kullanıcı veya video başlığı yazın...</p>';
+                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Kullanıcı veya video başlığı yazın...</p>';
                 return;
             }
 
@@ -450,14 +454,14 @@
             });
 
             if (filtered.length === 0) {
-                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-8">Sonuç bulunamadı.</p>';
+                resultsContainer.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">Sonuç bulunamadı.</p>';
                 return;
             }
 
             resultsContainer.innerHTML = filtered.map(function(p){
                 var media = p.isVideo ? '<video src="' + p.url + '" class="w-full h-full object-cover"></video>' : '<img src="' + p.url + '" class="w-full h-full object-cover">';
-                return '<div class="flex items-center gap-3 p-2.5 rounded-2xl bg-[#050508] border border-zinc-800">' +
-                    '<div class="w-11 h-11 rounded-xl bg-black overflow-hidden shrink-0 flex items-center justify-center">' + media + '</div>' +
+                return '<div class="flex items-center gap-3 p-3 rounded-2xl bg-[#0f1016] border border-zinc-800">' +
+                    '<div class="w-12 h-12 rounded-xl bg-black overflow-hidden shrink-0 flex items-center justify-center">' + media + '</div>' +
                     '<div class="flex-1 truncate">' +
                         '<p class="font-bold text-xs text-white">' + p.user + '</p>' +
                         '<p class="text-[10px] text-zinc-400 truncate">' + p.caption + '</p>' +
@@ -470,9 +474,9 @@
             var list = document.getElementById('chat-list');
             var users = Object.keys(state.chats);
             list.innerHTML = users.map(function(u){
-                return '<div onclick="openChatWith(\'' + u + '\')" class="flex items-center justify-between p-3 rounded-2xl bg-[#050508] border border-zinc-800 cursor-pointer hover:border-emerald-500/40 transition">' +
-                    '<div class="flex items-center gap-2.5">' +
-                        '<div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">' + u[0].toUpperCase() + '</div>' +
+                return '<div onclick="openChatWith(\'' + u + '\')" class="flex items-center justify-between p-3.5 rounded-2xl bg-[#0f1016] border border-zinc-800 cursor-pointer hover:border-emerald-500/40 transition">' +
+                    '<div class="flex items-center gap-3">' +
+                        '<div class="w-9 h-9 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center text-xs"><i class="fas fa-user"></i></div>' +
                         '<span class="text-xs font-bold text-white">' + u + '</span>' +
                     '</div>' +
                     '<i class="fas fa-chevron-right text-xs text-zinc-600"></i>' +
@@ -486,7 +490,6 @@
             document.getElementById('chat-target-name').innerText = '@' + username;
             document.getElementById('chat-list').classList.add('hidden');
             document.getElementById('chat-active-view').classList.remove('hidden');
-            openModal('dm-modal');
             renderMessages();
         }
 
@@ -502,7 +505,7 @@
             container.innerHTML = msgs.map(function(m){
                 var isMe = m.sender === state.currentUser.username;
                 return '<div class="flex flex-col ' + (isMe ? 'items-end' : 'items-start') + '">' +
-                    '<div class="max-w-[80%] p-2.5 rounded-2xl text-xs ' + (isMe ? 'bg-emerald-400 text-black font-bold' : 'bg-[#050508] text-white border border-zinc-800') + '">' + m.text + '</div>' +
+                    '<div class="max-w-[80%] p-3 rounded-2xl text-xs ' + (isMe ? 'bg-emerald-400 text-black font-bold' : 'bg-[#0f1016] text-white border border-zinc-800') + '">' + m.text + '</div>' +
                 '</div>';
             }).join('');
             container.scrollTop = container.scrollHeight;
@@ -710,7 +713,8 @@
 
         function openStoryView(user, avatar, url, isVideo) {
             document.getElementById('story-user-name').innerText = user;
-            document.getElementById('story-user-avatar').src = avatar;
+            var avView = document.getElementById('story-user-avatar-view');
+            avView.innerHTML = avatar ? '<img src="' + avatar + '" class="w-full h-full object-cover">' : '<i class="fas fa-user text-zinc-400 text-xs"></i>';
             document.getElementById('story-media-container').innerHTML = isVideo ? '<video src="' + url + '" autoplay controls class="max-h-full rounded-2xl"></video>' : '<img src="' + url + '" class="max-h-full rounded-2xl object-contain">';
             openModal('view-story-modal');
         }
