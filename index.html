@@ -15,15 +15,14 @@
                         ios: {
                             bg: '#0a0a0c',
                             card: 'rgba(255, 255, 255, 0.05)',
-                            glass: 'rgba(28, 28, 35, 0.65)',
-                            border: 'rgba(255, 255, 255, 0.12)',
+                            glass: 'rgba(24, 24, 32, 0.75)',
+                            border: 'rgba(255, 255, 255, 0.1)',
                             accent: '#38bdf8',
-                            blue: '#0a84ff',
-                            heart: '#ff375f'
+                            online: '#10b981'
                         }
                     },
                     boxShadow: {
-                        'ios-glass': '0 10px 30px rgba(0, 0, 0, 0.5)'
+                        'ios-glass': '0 10px 30px rgba(0, 0, 0, 0.6)'
                     }
                 }
             }
@@ -46,7 +45,7 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .ios-glass-panel {
-            background: rgba(22, 22, 29, 0.75);
+            background: rgba(22, 22, 29, 0.8);
             backdrop-filter: blur(25px) saturate(190%);
             -webkit-backdrop-filter: blur(25px) saturate(190%);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -58,11 +57,11 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .ios-nav {
-            background: rgba(18, 18, 24, 0.8);
+            background: rgba(16, 16, 22, 0.85);
             backdrop-filter: blur(30px) saturate(200%);
             -webkit-backdrop-filter: blur(30px) saturate(200%);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
         .story-ring {
             background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
@@ -72,7 +71,7 @@
 </head>
 <body class="bg-[#0a0a0c] text-white h-full min-h-screen pb-28">
 
-    <!-- SIGNUP / LOGIN SCREEN -->
+    <!-- GİRİŞ / KAYIT EKRANI -->
     <div id="signup-screen" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4 max-w-md mx-auto">
         <div class="w-full ios-glass-panel rounded-3xl p-6 space-y-6 shadow-ios-glass">
             <div class="flex justify-between items-center">
@@ -94,7 +93,7 @@
 
             <div class="space-y-1">
                 <h2 id="lbl-welcome" class="text-xl font-bold text-white">Hoş Geldiniz</h2>
-                <p id="lbl-subtitle" class="text-xs text-zinc-400">Yeni nesil minimalist sosyal ağ deneyimi.</p>
+                <p id="lbl-subtitle" class="text-xs text-zinc-400">Yeni nesil sade ve minimalist sosyal ağ deneyimi.</p>
             </div>
 
             <div class="space-y-4">
@@ -113,9 +112,9 @@
         </div>
     </div>
 
-    <!-- MAIN APP WRAPPER -->
+    <!-- ANA UYGULAMA ALANI -->
     <div id="main-app" class="hidden">
-        <!-- TOP HEADER -->
+        <!-- ÜST BAŞLIK -->
         <header class="sticky top-0 z-40 px-4 py-3 max-w-md mx-auto">
             <div class="ios-glass-panel rounded-2xl px-4 py-2.5 flex items-center justify-between">
                 <span class="font-black text-xl tracking-wider text-sky-400">OMNI X</span>
@@ -137,10 +136,10 @@
             </div>
         </header>
 
-        <!-- APP CONTAINER -->
+        <!-- UYGULAMA İÇERİĞİ -->
         <div class="max-w-md mx-auto relative px-2">
             <section id="tab-feed">
-                <!-- STORIES BAR -->
+                <!-- HİKAYELER ÇUBUĞU -->
                 <div class="py-3 px-3 my-2 ios-glass-panel rounded-2xl overflow-x-auto hide-scrollbar flex gap-4 items-center">
                     <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer" onclick="openModal('create-story-modal')">
                         <div class="story-ring w-14 h-14 rounded-full flex items-center justify-center relative">
@@ -156,12 +155,12 @@
                     <div id="stories-container" class="flex gap-4"></div>
                 </div>
 
-                <!-- FEED POSTS -->
+                <!-- AKIŞ GÖNDERİLERİ -->
                 <div id="posts-container" class="space-y-4 pt-1"></div>
             </section>
         </div>
 
-        <!-- FLOATING BOTTOM NAV BAR -->
+        <!-- SABİT ALT GEZİNME ÇUBUĞU -->
         <div class="fixed bottom-4 left-0 right-0 z-40 max-w-md mx-auto px-4">
             <nav class="ios-nav rounded-3xl px-5 py-3 flex justify-between items-center text-zinc-400">
                 <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="text-sky-400 text-xl hover:scale-110 transition"><i class="fas fa-home"></i></button>
@@ -173,9 +172,9 @@
         </div>
     </div>
 
-    <!-- MODALS -->
+    <!-- PENCERELER (MODALLAR) -->
 
-    <!-- PROFİL MODAL -->
+    <!-- PROFİL PENCERESİ -->
     <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
         <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
             <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="far fa-user mr-1.5"></i> Profilim</h3>
@@ -187,6 +186,7 @@
                     <div id="profile-avatar-container" class="w-20 h-20 rounded-full bg-zinc-800 border-2 border-sky-400 flex items-center justify-center text-2xl text-zinc-400 overflow-hidden shadow-ios-glass">
                         <i class="fas fa-user"></i>
                     </div>
+                    <div class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-black"></div>
                     <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-xs text-white">
                         <i class="fas fa-camera"></i>
                     </div>
@@ -195,6 +195,7 @@
                 <div>
                     <h2 id="profile-display-name" class="font-bold text-base text-white">Kullanıcı</h2>
                     <p id="profile-username" class="text-xs text-zinc-400">@kullanici</p>
+                    <span class="inline-flex items-center gap-1.5 text-[10px] text-emerald-400 mt-1"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Çevrimiçi</span>
                 </div>
                 <button onclick="openEditProfileModal()" class="px-3.5 py-1.5 rounded-xl bg-white/10 text-xs text-sky-400 border border-sky-400/35 hover:bg-white/20 transition font-semibold">
                     Profili Düzenle
@@ -217,17 +218,18 @@
             </div>
 
             <div class="space-y-3 pt-2">
-                <div class="flex border-b border-white/10 text-xs text-zinc-400 font-semibold justify-around pb-2">
+                <div class="flex border-b border-white/10 text-[11px] text-zinc-400 font-semibold justify-between pb-2 px-1">
                     <button id="btn-tab-posts" onclick="switchProfileTab('posts')" class="text-sky-400 border-b-2 border-sky-400 pb-1"><i class="fas fa-th mr-1"></i> Gönderiler</button>
                     <button id="btn-tab-reposts" onclick="switchProfileTab('reposts')" class="hover:text-white pb-1"><i class="fas fa-retweet mr-1"></i> Repostlar</button>
-                    <button id="btn-tab-saved" onclick="switchProfileTab('saved')" class="hover:text-white pb-1"><i class="far fa-bookmark mr-1"></i> Kaydedilenler</button>
+                    <button id="btn-tab-saved" onclick="switchProfileTab('saved')" class="hover:text-white pb-1"><i class="far fa-bookmark mr-1"></i> Kaydedilen</button>
+                    <button id="btn-tab-likes" onclick="switchProfileTab('likes')" class="hover:text-white pb-1"><i class="far fa-heart mr-1"></i> Beğenilen</button>
                 </div>
                 <div id="profile-tab-content" class="space-y-3 min-h-[150px]"></div>
             </div>
         </div>
     </div>
 
-    <!-- PROFİL DÜZENLEME MODAL -->
+    <!-- PROFİL DÜZENLEME PENCERESİ -->
     <div id="edit-profile-modal" class="hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
         <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-5 space-y-4">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -248,7 +250,7 @@
         </div>
     </div>
 
-    <!-- GELEN KUTUSU MODAL -->
+    <!-- BİLDİRİMLER PENCERESİ -->
     <div id="inbox-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
         <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
             <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="far fa-bell mr-1.5"></i> Bildirimler</h3>
@@ -257,7 +259,7 @@
         <div id="inbox-list" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
-    <!-- KAYDEDİLENLER MODAL -->
+    <!-- KAYDEDİLENLER PENCERESİ -->
     <div id="saved-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
         <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
             <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="far fa-bookmark mr-1.5"></i> Kaydedilen Gönderiler</h3>
@@ -266,16 +268,16 @@
         <div id="saved-posts-container" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
     </div>
 
-    <!-- ARAMA VE KEŞFET MODAL (TÜM KULLANICILAR & FİLTRELEME) -->
+    <!-- KEŞFET VE ARAMA PENCERESİ -->
     <div id="search-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
         <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
             <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="fas fa-search mr-1.5"></i> Keşfet & Kullanıcılar</h3>
             <button onclick="closeModal('search-modal')" class="text-zinc-400"><i class="fas fa-times"></i></button>
         </div>
         <div class="p-4 space-y-4 flex-1 flex flex-col">
-            <input type="text" id="global-search-input" oninput="handleGlobalSearch(this.value)" placeholder="Kişi, bot veya video ara..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400">
+            <input type="text" id="global-search-input" oninput="handleGlobalSearch(this.value)" placeholder="Kullanıcı veya video ara..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-sky-400">
             
-            <div class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">Kayıtlı Kullanıcılar & Botlar</div>
+            <div class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider">Kayıtlı Kullanıcılar (Çevrimiçi Durumu)</div>
             <div id="search-users-list" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
 
             <div class="text-[11px] text-zinc-400 font-semibold uppercase tracking-wider pt-2">İçerik Sonuçları</div>
@@ -285,7 +287,7 @@
         </div>
     </div>
 
-    <!-- DM MESAJLAR MODAL -->
+    <!-- MESAJLAR PENCERESİ -->
     <div id="dm-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col max-w-md mx-auto">
         <div class="ios-glass-panel px-4 py-3 flex items-center justify-between border-b border-white/10">
             <h3 class="font-bold text-sm uppercase tracking-wider text-sky-400"><i class="far fa-paper-plane mr-1.5"></i> Mesajlar</h3>
@@ -295,8 +297,14 @@
         <div id="chat-active-view" class="hidden flex-1 flex flex-col p-4 space-y-3">
             <div class="flex items-center justify-between border-b border-white/10 pb-2">
                 <div class="flex items-center gap-2.5">
-                    <img id="chat-target-avatar" src="" class="w-8 h-8 rounded-full object-cover border border-sky-400">
-                    <span id="chat-target-name" class="text-xs font-bold text-sky-400">Sohbet</span>
+                    <div class="relative">
+                        <img id="chat-target-avatar" src="" class="w-8 h-8 rounded-full object-cover border border-sky-400">
+                        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-black"></span>
+                    </div>
+                    <div>
+                        <span id="chat-target-name" class="text-xs font-bold text-sky-400 block">Sohbet</span>
+                        <span class="text-[9px] text-emerald-400 font-medium">Çevrimiçi</span>
+                    </div>
                 </div>
                 <button onclick="closeActiveChat()" class="text-xs text-zinc-300 bg-white/10 px-3 py-1 rounded-xl">Geri Dön</button>
             </div>
@@ -308,7 +316,7 @@
         </div>
     </div>
 
-    <!-- YORUMLAR MODAL -->
+    <!-- YORUMLAR PENCERESİ -->
     <div id="comments-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-end">
         <div class="ios-glass-panel w-full max-w-md mx-auto rounded-t-3xl p-4 space-y-3 flex flex-col h-[55vh]">
             <div class="w-10 h-1 bg-white/20 rounded-full mx-auto mb-1"></div>
@@ -328,7 +336,7 @@
         </div>
     </div>
 
-    <!-- CREATE POST MODAL -->
+    <!-- YENİ PAYLAŞIM PENCERESİ -->
     <div id="create-post-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
         <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-5 space-y-4">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -347,7 +355,7 @@
         </div>
     </div>
 
-    <!-- GIF PICKER MODAL -->
+    <!-- GIF ARAMA PENCERESİ -->
     <div id="gif-picker-modal" class="hidden fixed inset-0 z-[60] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-4">
         <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-4 space-y-3 flex flex-col h-[65vh]">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -361,7 +369,7 @@
         </div>
     </div>
 
-    <!-- CREATE STORY MODAL -->
+    <!-- HİKAYE EKLEME PENCERESİ -->
     <div id="create-story-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
         <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-5 space-y-4">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -373,7 +381,7 @@
         </div>
     </div>
 
-    <!-- VIEW STORY MODAL -->
+    <!-- HİKAYE GÖRÜNTÜLEME PENCERESİ -->
     <div id="view-story-modal" class="hidden fixed inset-0 z-50 bg-black flex flex-col justify-between p-4 max-w-md mx-auto">
         <div class="flex items-center justify-between py-2 border-b border-white/10">
             <div class="flex items-center gap-2.5">
@@ -387,7 +395,7 @@
         <div id="story-media-container" class="flex-1 flex items-center justify-center my-2 overflow-hidden"></div>
     </div>
 
-    <!-- SETTINGS MODAL -->
+    <!-- AYARLAR PENCERESİ -->
     <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
         <div class="ios-glass-panel w-full max-w-sm rounded-3xl p-5 space-y-4">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
@@ -401,13 +409,13 @@
         </div>
     </div>
 
-    <!-- APPLICATION LOGIC -->
+    <!-- UYGULAMA MANTIĞI -->
     <script>
         var BOT_AVATAR = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300";
         var BOT_STORY_MEDIA = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600";
 
         var i18n = {
-            tr: { welcome: "Hoş Geldiniz", subtitle: "Yeni nesil sosyal medya deneyimine katılın.", fullname: "İsim Soyisim", email: "E-posta Adresi", btnLogin: "GİRİŞ YAP / KAYIT OL" },
+            tr: { welcome: "Hoş Geldiniz", subtitle: "Yeni nesil sade ve minimalist sosyal ağ deneyimi.", fullname: "İsim Soyisim", email: "E-posta Adresi", btnLogin: "GİRİŞ YAP / KAYIT OL" },
             en: { welcome: "Welcome", subtitle: "Join the next generation social experience.", fullname: "Full Name", email: "Email Address", btnLogin: "LOGIN / REGISTER" },
             de: { welcome: "Willkommen", subtitle: "Treten Sie der nächsten Social-Media-Generation bei.", fullname: "Vollständiger Name", email: "E-Mail-Adresse", btnLogin: "ANMELDEN / REGISTRIEREN" },
             fr: { welcome: "Bienvenue", subtitle: "Rejoignez l'expérience sociale nouvelle génération.", fullname: "Nom Complet", email: "Adresse E-mail", btnLogin: "SE CONNECTER / S'INSCRIRE" },
@@ -423,7 +431,8 @@
         var state = {
             lang: "tr",
             currentUser: null,
-            allRegisteredUsers: ["Can_Tech", "ebru_art", "ali_dev", "zeynep_x"],
+            allRegisteredUsers: ["Can_Tech"],
+            onlineUsers: { "Can_Tech": true },
             followingUsers: ["Can_Tech"],
             savedPosts: [],
             currentProfileTab: "posts",
@@ -441,15 +450,14 @@
                     avatar: BOT_AVATAR,
                     url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
                     isVideo: true,
-                    caption: "Ben Can_Tech AI! Sorduğun her soruyu anında cevaplayabilirim. DM'den yazabilirsin! 🤖✨",
+                    caption: "Ben Can_Tech AI! Sorduğun her soruyu anında cevaplayabilirim. Mesajlardan yazabilirsin! 🤖✨",
                     likes: 142,
                     reposts: 12,
                     liked: false,
                     reposted: false,
                     saved: false,
                     likedFriends: [
-                        { name: "ebru.art", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" },
-                        { name: "ali_dev", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100" }
+                        { name: "Can_Tech", avatar: BOT_AVATAR }
                     ],
                     comments: [{ id: 1, user: "Can_Tech", text: "Herhangi bir konuda soru sorabilirsin!", replies: [] }]
                 }
@@ -530,6 +538,7 @@
             if (!state.allRegisteredUsers.includes(username)) {
                 state.allRegisteredUsers.push(username);
             }
+            state.onlineUsers[username] = true;
 
             saveDatabaseToStorage();
             document.getElementById('signup-screen').classList.add('hidden');
@@ -558,7 +567,6 @@
             renderSearchUsersList("");
         }
 
-        /* PROFİL İŞLEMLERİ */
         function triggerAvatarUpload() {
             document.getElementById('avatar-upload-input').click();
         }
@@ -599,14 +607,16 @@
             var bPosts = document.getElementById('btn-tab-posts');
             var bReposts = document.getElementById('btn-tab-reposts');
             var bSaved = document.getElementById('btn-tab-saved');
+            var bLikes = document.getElementById('btn-tab-likes');
 
-            [bPosts, bReposts, bSaved].forEach(function(btn){
+            [bPosts, bReposts, bSaved, bLikes].forEach(function(btn){
                 btn.className = "hover:text-white pb-1";
             });
 
             if(tabName === 'posts') bPosts.className = "text-sky-400 border-b-2 border-sky-400 pb-1";
             if(tabName === 'reposts') bReposts.className = "text-sky-400 border-b-2 border-sky-400 pb-1";
             if(tabName === 'saved') bSaved.className = "text-sky-400 border-b-2 border-sky-400 pb-1";
+            if(tabName === 'likes') bLikes.className = "text-sky-400 border-b-2 border-sky-400 pb-1";
 
             renderProfileTabContent();
         }
@@ -621,6 +631,8 @@
                 list = state.posts.filter(function(p){ return p.reposted; });
             } else if(state.currentProfileTab === 'saved') {
                 list = state.savedPosts;
+            } else if(state.currentProfileTab === 'likes') {
+                list = state.posts.filter(function(p){ return p.liked; });
             }
 
             document.getElementById('profile-posts-count').innerText = state.posts.filter(function(p){ return p.user === state.currentUser.username; }).length;
@@ -632,14 +644,26 @@
 
             container.innerHTML = list.map(function(p){
                 var media = p.isVideo ? '<video src="' + p.url + '" class="w-full h-full object-cover"></video>' : '<img src="' + p.url + '" class="w-full h-full object-cover">';
-                return '<div class="flex items-center gap-3 p-3 rounded-2xl ios-card">' +
-                    '<div class="w-12 h-12 rounded-xl bg-black overflow-hidden shrink-0 flex items-center justify-center">' + media + '</div>' +
-                    '<div class="flex-1 truncate">' +
-                        '<p class="font-bold text-xs text-sky-400">' + p.user + '</p>' +
-                        '<p class="text-[10px] text-zinc-300 truncate">' + p.caption + '</p>' +
+                return '<div class="flex items-center justify-between p-3 rounded-2xl ios-card">' +
+                    '<div class="flex items-center gap-3 overflow-hidden">' +
+                        '<div class="w-12 h-12 rounded-xl bg-black overflow-hidden shrink-0 flex items-center justify-center">' + media + '</div>' +
+                        '<div class="truncate">' +
+                            '<p class="font-bold text-xs text-sky-400">' + p.user + '</p>' +
+                            '<p class="text-[10px] text-zinc-300 truncate">' + p.caption + '</p>' +
+                        '</div>' +
                     '</div>' +
+                    (p.user === state.currentUser.username ? '<button onclick="deletePost(' + p.id + ')" class="text-xs text-red-400 hover:text-red-300 p-2"><i class="fas fa-trash"></i></button>' : '') +
                 '</div>';
             }).join('');
+        }
+
+        function deletePost(postId) {
+            state.posts = state.posts.filter(function(p){ return p.id !== postId; });
+            state.savedPosts = state.savedPosts.filter(function(p){ return p.id !== postId; });
+            saveDatabaseToStorage();
+            renderPosts();
+            renderProfileTabContent();
+            renderSavedPosts();
         }
 
         function renderInbox() {
@@ -685,23 +709,14 @@
                     '<video src="' + p.url + '" muted playsinline preload="auto" class="w-full max-h-[420px] object-cover rounded-2xl"></video>' : 
                     '<img src="' + p.url + '" class="w-full max-h-[420px] object-cover rounded-2xl">';
 
-                var friendLikesHtml = '';
-                if (p.likedFriends && p.likedFriends.length > 0) {
-                    var avatars = p.likedFriends.map(function(f){
-                        return '<img src="' + f.avatar + '" class="w-4 h-4 rounded-full border border-black object-cover -ml-1.5 first:ml-0">';
-                    }).join('');
-                    friendLikesHtml = '<div class="flex items-center gap-1.5 text-[11px] text-zinc-400 pt-1">' +
-                        '<div class="flex items-center">' + avatars + '</div>' +
-                        '<span><strong class="text-white">' + p.likedFriends[0].name + '</strong> ve diğer kişiler beğendi</span>' +
-                        '<i class="fas fa-heart text-red-500 text-[10px] ml-0.5"></i>' +
-                    '</div>';
-                }
-
                 return '<article class="post-item ios-glass-panel rounded-3xl overflow-hidden p-3.5 space-y-3">' +
                     '<div class="flex items-center justify-between">' +
                         '<div class="flex items-center gap-2.5">' +
-                            '<div class="story-ring w-8 h-8 rounded-full flex items-center justify-center">' +
-                                '<div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border border-black">' + avContent + '</div>' +
+                            '<div class="relative">' +
+                                '<div class="story-ring w-8 h-8 rounded-full flex items-center justify-center">' +
+                                    '<div class="w-full h-full rounded-full bg-zinc-900 flex items-center justify-center overflow-hidden border border-black">' + avContent + '</div>' +
+                                '</div>' +
+                                '<span class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-black"></span>' +
                             '</div>' +
                             '<span class="font-bold text-xs text-white">' + p.user + '</span>' +
                         '</div>' + followBtn +
@@ -717,7 +732,6 @@
                             '</div>' +
                             '<button onclick="toggleSavePost(' + p.id + ')" class="' + (p.saved ? 'text-sky-400' : 'hover:text-sky-400') + ' transition"><i class="' + (p.saved ? 'fas' : 'far') + ' fa-bookmark"></i></button>' +
                         '</div>' +
-                        friendLikesHtml +
                         '<p class="font-bold text-xs text-sky-400 pt-0.5">' + (p.likes || 0) + ' beğenme</p>' +
                         '<p class="text-xs text-zinc-200"><span class="font-bold mr-1 text-white">' + p.user + '</span>' + p.caption + '</p>' +
                     '</div>' +
@@ -788,7 +802,6 @@
             renderSearchUsersList(document.getElementById('global-search-input').value);
         }
 
-        /* GÜNCELLENMİŞ KİŞİ VE VİDEO ARAMA SİSTEMİ */
         function handleGlobalSearch(query) {
             renderSearchUsersList(query);
             renderVideoSearchResults(query);
@@ -808,12 +821,18 @@
             container.innerHTML = users.map(function(u){
                 var isFollowing = state.followingUsers.includes(u);
                 var avatarHtml = u === "Can_Tech" ? '<img src="' + BOT_AVATAR + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-sky-400"></i>';
-                return '<div class="flex items-center justify-between p-2 rounded-xl ios-card">' +
+                return '<div class="flex items-center justify-between p-2.5 rounded-2xl ios-card">' +
                     '<div class="flex items-center gap-2.5">' +
-                        '<div class="w-8 h-8 rounded-full bg-sky-400/10 text-sky-400 flex items-center justify-center text-xs overflow-hidden border border-sky-400/30">' + avatarHtml + '</div>' +
-                        '<span class="text-xs font-bold text-white">@' + u + '</span>' +
+                        '<div class="relative">' +
+                            '<div class="w-9 h-9 rounded-full bg-sky-400/10 text-sky-400 flex items-center justify-center text-xs overflow-hidden border border-sky-400/30">' + avatarHtml + '</div>' +
+                            '<span class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-black"></span>' +
+                        '</div>' +
+                        '<div>' +
+                            '<span class="text-xs font-bold text-white block">@' + u + '</span>' +
+                            '<span class="text-[9px] text-emerald-400 font-medium">Çevrimiçi</span>' +
+                        '</div>' +
                     '</div>' +
-                    '<button onclick="toggleFollow(\'' + u + '\')" class="text-[10px] px-3 py-1 rounded-full font-semibold transition ' + (isFollowing ? 'bg-white/10 text-zinc-300' : 'bg-sky-400 text-black') + '">' +
+                    '<button onclick="toggleFollow(\'' + u + '\')" class="text-[10px] px-3.5 py-1.5 rounded-full font-semibold transition ' + (isFollowing ? 'bg-white/10 text-zinc-300' : 'bg-sky-400 text-black') + '">' +
                         (isFollowing ? 'Takiptesin' : 'Takip Et') +
                     '</button>' +
                 '</div>';
@@ -860,8 +879,14 @@
                 var avatarHtml = u === "Can_Tech" ? '<img src="' + BOT_AVATAR + '" class="w-full h-full object-cover rounded-full">' : '<i class="fas fa-user text-sky-400"></i>';
                 return '<div onclick="openChatWith(\'' + u + '\')" class="flex items-center justify-between p-3.5 rounded-2xl ios-card cursor-pointer hover:border-sky-400/40 transition">' +
                     '<div class="flex items-center gap-3">' +
-                        '<div class="w-9 h-9 rounded-full bg-sky-400/10 text-sky-400 flex items-center justify-center text-xs overflow-hidden border border-sky-400/30">' + avatarHtml + '</div>' +
-                        '<span class="text-xs font-bold text-white">' + u + '</span>' +
+                        '<div class="relative">' +
+                            '<div class="w-9 h-9 rounded-full bg-sky-400/10 text-sky-400 flex items-center justify-center text-xs overflow-hidden border border-sky-400/30">' + avatarHtml + '</div>' +
+                            '<span class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-black"></span>' +
+                        '</div>' +
+                        '<div>' +
+                            '<span class="text-xs font-bold text-white block">' + u + '</span>' +
+                            '<span class="text-[9px] text-emerald-400 font-medium">Çevrimiçi</span>' +
+                        '</div>' +
                     '</div>' +
                     '<i class="fas fa-chevron-right text-xs text-zinc-500"></i>' +
                 '</div>';
@@ -1030,6 +1055,7 @@
                 post.likes = (post.likes || 0) + (post.liked ? 1 : -1);
                 saveDatabaseToStorage();
                 renderPosts();
+                renderProfileTabContent();
             }
         }
 
@@ -1144,8 +1170,8 @@
         function closeStoryView() { closeModal('view-story-modal'); }
         function logoutAccount() { localStorage.removeItem('omnix_active_user'); location.reload(); }
         function clearAllData() { if (confirm("Önbellek temizlensin mi?")) { localStorage.clear(); location.reload(); } }
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function openModal(id) { document.getElementById(id).classList.add('flex'); document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
     </script>
 </body>
 </html>
