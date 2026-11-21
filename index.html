@@ -191,6 +191,7 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#140726;font-f
   </div>
 </div>
 <script>
+// ===== 1. DÜNYA & DURUM =====
 const WATER_LEVEL_Y = -2.2, ISLAND_SURFACE_Y = 0.7, ROAD_SURFACE_Y = 0.72;
 const WORLD_LAYOUT = {
   eastIsland: { minX: 28, maxX: 142, minZ: -155, maxZ: 155 },
@@ -234,6 +235,7 @@ const carPhysics = { speed: 0, maxSpeed: 42, nitroMaxSpeed: 64, reverseMax: -16,
 const charPhysics = { velocityY: 0, isGrounded: true, heading: 0, walkCycle: 0, swimCycle: 0, punchTimer: 0 };
 const $ = id => document.getElementById(id);
 
+// ===== 2. SES & HATA =====
 let audioCtx;
 function initAudio() {
   if (audioCtx) return;
@@ -267,6 +269,7 @@ function showOverlay(text, color) {
   overlayTimer = setTimeout(() => { el.classList.remove('show'); $('game-canvas').classList.remove('wasted'); }, 3000);
 }
 
+// ===== 3. DOKULAR & DÜNYA =====
 function makeCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
 function createRoadTexture(vertical) {
   const c = makeCanvas(128, 128), ctx = c.getContext('2d');
@@ -350,7 +353,7 @@ function buildViceCityWorld() {
   WORLD_LAYOUT.roadX.forEach(rx => { const r = new THREE.Mesh(new THREE.PlaneGeometry(11, 296), new THREE.MeshLambertMaterial({ map: rtV })); r.rotation.x = -Math.PI / 2; r.position.set(rx, ROAD_SURFACE_Y, 0); scene.add(r); });
   WORLD_LAYOUT.roadZ.forEach(rz => { const r = new THREE.Mesh(new THREE.PlaneGeometry(286, 11), new THREE.MeshLambertMaterial({ map: rtH })); r.rotation.x = -Math.PI / 2; r.position.set(-6, ROAD_SURFACE_Y + 0.01, rz); scene.add(r); });
   for (let z = -140; z <= 140; z += 24) {
-    if (WORLD_LAYOUT.roadZ.some(rz => Math.abs(z - rz) < 8)) continue;
+    if (WORLD_LAYOUT.roadZ.some(rz => Math.abs(z - rz) < 8)) continue; // yol üstüne ağaç/lamba koyma
     createPalmTree(110, z); createPalmTree(48, z); createPalmTree(-48, z); createStreetLamp(66.5, z); createStreetLamp(-53.5, z);
   }
   [
@@ -427,8 +430,8 @@ function buildInteriorFurniture(g, spec, floorH, totalH) {
   } else if (spec.type === 'police') {
     const x0 = -7.8, x1 = -1.8, z0 = -8.5, z1 = -2.5, cw = x1 - x0, cd = z1 - z0, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, wm = lam(0x1e3a8a);
     box(cw, 3.0, 0.25, wm, cx, 1.5, z0, g); box(0.25, 3.0, cd, wm, x0, 1.5, cz, g);
-    box(0.25, 3.0, cd, wm, x1, 1.5, cz, g);
-    box(cw, 0.2, cd, barMat, cx, 3.05, cz, g);
+    box(0.25, 3.0, cd, wm, x1, 1.5, cz, g);          // sağ duvar (kapalı hücre)
+    box(cw, 0.2, cd, barMat, cx, 3.05, cz, g);       // tavan
     for (let bx = x0 + 0.5; bx <= x1 - 0.5; bx += 0.75) { const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.9, 6), barMat); bar.position.set(bx, 1.45, z1); g.add(bar); }
     box(2.2, 0.5, 0.7, wood, cx, 0.28, z0 + 0.9, g);
   }
@@ -468,6 +471,7 @@ function createEnterableBuilding(spec) {
   buildings.push({ name: spec.name, type: spec.type, x: spec.x, z: spec.z, w: spec.w, d: spec.d, minX, maxX, minZ, maxZ, floors: spec.floors, floorH, doorW, doorH, doorOpen: false, doorAngle: 0, doorPivot, doorPos: new THREE.Vector3(spec.x, ISLAND_SURFACE_Y, maxZ + 0.5), stairs, floorSlabs });
 }
 
+// ===== 4. KARAKTER, ARAÇLAR =====
 function createWeaponModels() {
   const gm = lam(0x1e293b), ds = lam(0x0f172a);
   const pistol = new THREE.Group(); box(0.07, 0.08, 0.30, gm, 0, -0.04, 0.14, pistol);
@@ -555,7 +559,7 @@ function spawnSeaShips(count) {
     ship.position.set(sp.x, 0, sp.z); ship.rotation.y = sp.h; scene.add(ship); seaShips.push({ mesh: ship, speed: sp.s, heading: sp.h });
   }
 }
-function newPed(rig, hp) { return { rig, hp, maxHp: hp, angle: 0, isAggressive: false, downTimer: 0, stunTimer: 0, attackCooldown: 0, walkTimer: 999, walkPhase: 0, fleeTimer: 0, returnToCar: false, ownCar: null, gone: false }; }
+function newPed(rig, hp) { return { rig, hp, maxHp: hp, angle: 0, isAggressive: false, downTimer: 0, stunTimer: 0, attackCooldown: 0, walkTimer: 999, walkPhase: 0 }; }
 function spawnPedestrians(count) {
   const shirts = [0xff006e, 0x3a86ff, 0xfb8500, 0x10b981, 0xa855f7];
   for (let i = 0; i < count; i++) {
@@ -573,6 +577,7 @@ function spawnPolice(count) {
   }
 }
 
+// ===== 5. SAVAŞ, HASTANE, NEZARETHANE =====
 function spawnHitSpark(pos, color = 0xffd000) {
   for (let i = 0; i < 6; i++) {
     const p = box(0.14, 0.14, 0.14, bas(color), 0, 0, 0, scene); p.position.copy(pos).add(new THREE.Vector3(0, 1.1, 0));
@@ -593,7 +598,7 @@ function updateCrosshairVisuals() {
 function getAimDirectionXZ() {
   const a = state.cameraMode === 1 ? state.camYaw : charPhysics.heading; return new THREE.Vector3(Math.sin(a), 0, Math.cos(a)).normalize();
 }
-function stunPose(rig, t) {
+function stunPose(rig, t) { // yumruk yiyen yere düşer, sonra kalkar
   const target = t > 0.45 ? -Math.PI / 2 : 0;
   rig.rotation.x = t <= 0 ? 0 : rig.rotation.x + (target - rig.rotation.x) * 0.25;
 }
@@ -657,7 +662,7 @@ function resetPlayerCar() {
   if (playerCar) { playerCar.position.set(60, ROAD_SURFACE_Y, 32); playerCar.rotation.set(0, 0, 0); }
   state.carSunk = false; state.sinkDepth = 0; carPhysics.speed = 0; carPhysics.heading = 0; carPhysics.roll = 0; carPhysics.pitch = 0;
 }
-function respawnAtHospital(cause) {
+function respawnAtHospital(cause) { // öldün veya boğuldun: hastanede uyan
   state.health = 100; state.armor = 0; state.wanted = 0; state.wantedTimer = 0; state.oxygen = 100;
   state.tankSpawned = false; if (policeTank) policeTank.visible = false;
   const fee = Math.min(state.money, 100); state.money -= fee;
@@ -690,7 +695,7 @@ function updateJailTimerText() {
   const el = $('jail-timer-text'); if (!el) return; const t = Math.max(0, Math.ceil(state.jailTimeLeft));
   el.textContent = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 }
-function jailWalk(dt) {
+function jailWalk(dt) { // hücrenin içinde yürü, dışarı çıkamazsın
   const jb = state.jailBounds, u = playerRig.userData; let mx = state.input.joyX, mz = state.input.joyY;
   if (state.input.left) mx = -1; if (state.input.right) mx = 1; if (state.input.gas) mz = -1; if (state.input.brake) mz = 1;
   if (Math.hypot(mx, mz) > 0.1) {
@@ -741,7 +746,7 @@ function toggleNearestDoor() {
 }
 function setPlatformMode(mode) {
   state.platformMode = mode; $('btn-mode-desktop')?.classList.toggle('active', mode === 'desktop'); $('btn-mode-mobile')?.classList.toggle('active', mode === 'mobile');
-  const w = $('mobile-orientation-warning'); if (w) { w.style.borderColor = mode === 'mobile' ? '#ff2a85' : '#ffd000'; w.textContent = mode === 'mobile' ? '📱 Ekranı yan tutarak oyna. (Dokunmatik kontroller aktif olacak)' : '📱 Eğer mobilde iseniz ekranı yan tutarak daha rahat oynabilirsiniz.'; }
+  const w = $('mobile-orientation-warning'); if (w) { w.style.borderColor = mode === 'mobile' ? '#ff2a85' : '#ffd000'; w.textContent = mode === 'mobile' ? '📱 Ekranı yan tutarak oyna. (Dokunmatik kontroller aktif olacak)' : '📱 Eğer mobilde iseniz ekranı yan tutarak daha rahat oynayabilirsiniz.'; }
 }
 function toggleStoryMode() {
   state.storyEnabled = !state.storyEnabled; const btn = $('btn-toggle-story'), banner = $('mission-banner');
@@ -752,6 +757,7 @@ function toggleStoryMode() {
   } else { banner.textContent = '🌴 SERBEST GEZİ • İSTEĞE BAĞLI HİKAYE & İŞLER'; showToast('SERBEST GEZİ MODUNA DÖNÜLDÜ'); }
 }
 
+// ===== 6. KONTROLLER =====
 function openFullMap() { if (!state.started) return; $('full-map-modal').classList.remove('hidden'); drawFullMap(); }
 function closeFullMap() { $('full-map-modal').classList.add('hidden'); }
 function startGame() {
@@ -823,6 +829,7 @@ function setupControls() {
 }
 function toggleCameraMode() { state.cameraMode = state.cameraMode === 3 ? 1 : 3; $('btn-toggle-cam').textContent = `🎥 ${state.cameraMode}. ŞAHIS`; showToast(`${state.cameraMode}. ŞAHIS KAMERA`); }
 
+// Araç çalma
 function findNearbyCar(pos, maxD) {
   let best = null, bd = maxD; const c = [...parkedCars, ...trafficCars.map(t => t.mesh)]; if (!state.carSunk) c.push(playerCar);
   c.forEach(m => { const d = pos.distanceTo(m.position); if (d < bd) { bd = d; best = m; } }); return best;
@@ -833,7 +840,7 @@ function enterCar(car) {
   if (state.carSunk) { old.position.set(60, ROAD_SURFACE_Y, 32); old.rotation.set(0, 0, 0); }
   if (!parkedCars.includes(old)) parkedCars.push(old);
   const ti = trafficCars.findIndex(t => t.mesh === car);
-  if (ti >= 0) {
+  if (ti >= 0) { // sürücü arabadan çıkar: saldırır ya da kaçar
     trafficCars.splice(ti, 1); const h = car.rotation.y;
     const rig = createHumanoidRig({ role: 'npc', shirtColor: [0xff006e, 0x3a86ff, 0xfb8500, 0x10b981][ti % 4] });
     rig.position.set(car.position.x + Math.cos(h) * 2.3, ISLAND_SURFACE_Y, car.position.z - Math.sin(h) * 2.3);
@@ -900,13 +907,14 @@ function updateHUD() {
   document.querySelectorAll('#hud-stars .star').forEach((s, i) => s.classList.toggle('active', i < state.wanted));
 }
 
+// ===== 7. ZEMİN, MERDİVEN, ÇARPIŞMA =====
 function stairTopAt(st, x, z) {
   if (x < st.minX || x > st.maxX) return null;
   const hi = Math.max(st.zStart, st.zEnd), lo = Math.min(st.zStart, st.zEnd); if (z < lo - 0.3 || z > hi + 0.3) return null;
   const t = THREE.MathUtils.clamp((st.zStart - z) / (st.zStart - st.zEnd), 0, 0.999);
   return st.yStart + (Math.floor(t * st.stepCount) + 1) * (st.yEnd - st.yStart) / st.stepCount;
 }
-function stairBlocked(x, y, z) {
+function stairBlocked(x, y, z) { // basamağın içinden geçmeyi engelle
   for (const b of buildings) {
     if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) continue;
     for (const st of b.stairs) { const top = stairTopAt(st, x, z); if (top !== null && y + 1.8 > st.yStart && y < top - 0.65) return true; }
@@ -953,6 +961,7 @@ function resolveBuildingWallCollision(pos, radius, isCar) {
   }
 }
 
+// ===== 8. HARİTA =====
 function drawMapBase(ctx, ox, oy, s) {
   const rect = (r, c) => { ctx.fillStyle = c; ctx.fillRect(ox + r.minX * s, oy + r.minZ * s, (r.maxX - r.minX) * s, (r.maxZ - r.minZ) * s); };
   rect(WORLD_LAYOUT.eastIsland, '#cbd5e1'); rect(WORLD_LAYOUT.beachStrip, '#fde047'); rect(WORLD_LAYOUT.westIsland, '#b8c4d4');
@@ -977,13 +986,14 @@ function drawFullMap() {
     ctx.fillStyle = b.type === 'hospital' ? '#fff' : '#ff6b9d'; ctx.fillRect(cx + b.minX * s, cy + b.minZ * s, b.w * s, b.d * s); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.strokeRect(cx + b.minX * s, cy + b.minZ * s, b.w * s, b.d * s);
     if (b.type === 'hospital') { ctx.fillStyle = '#ef4444'; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('✚', cx + b.x * s, cy + b.z * s); }
   });
-  pedestrians.forEach(p => { if (!p.gone && p.downTimer <= 0) { ctx.fillStyle = p.isAggressive ? '#f97316' : '#facc15'; ctx.fillRect(cx + p.rig.position.x * s - 2, cy + p.rig.position.z * s - 2, 4, 4); } });
+  pedestrians.forEach(p => { if (p.downTimer <= 0) { ctx.fillStyle = p.isAggressive ? '#f97316' : '#facc15'; ctx.fillRect(cx + p.rig.position.x * s - 2, cy + p.rig.position.z * s - 2, 4, 4); } });
   policeOfficers.forEach(p => { if (p.downTimer <= 0) { ctx.fillStyle = '#ef4444'; ctx.fillRect(cx + p.rig.position.x * s - 2.5, cy + p.rig.position.z * s - 2.5, 5, 5); } });
   if (state.tankSpawned && policeTank.visible) { ctx.fillStyle = '#dc2626'; ctx.beginPath(); ctx.arc(cx + policeTank.position.x * s, cy + policeTank.position.z * s, 7, 0, 6.283); ctx.fill(); }
   ctx.fillStyle = '#ff2a85'; ctx.beginPath(); ctx.arc(cx + checkpointPos.x * s, cy + checkpointPos.z * s, 7, 0, 6.283); ctx.fill();
   const p = currentPos(); ctx.fillStyle = '#00f0ff'; ctx.beginPath(); ctx.arc(cx + p.x * s, cy + p.z * s, 6.5, 0, 6.283); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
 }
 
+// ===== 9. FİZİK, YAPAY ZEKA, DÖNGÜ =====
 function legs(rig, phase, amp) { rig.userData.leftLeg.rotation.x = Math.sin(phase) * amp; rig.userData.rightLeg.rotation.x = -Math.sin(phase) * amp; }
 function updatePhysics(dt) {
   if (!playerCar || !playerRig || !scene) return;
@@ -1081,6 +1091,7 @@ function updatePhysics(dt) {
     if (stairBlocked(playerRig.position.x, playerRig.position.y, playerRig.position.z)) { playerRig.position.x = prevX; playerRig.position.z = prevZ; }
   }
 
+  // Boğulma
   const under = state.isSwimming || (state.inCar && state.carSunk), ow = $('oxygen-wrap');
   if (under) {
     state.oxygen -= dt * 4.5; ow.style.display = 'block'; $('oxygen-fill').style.width = Math.max(0, state.oxygen) + '%';
@@ -1088,6 +1099,7 @@ function updatePhysics(dt) {
     if (state.oxygen <= 0) { respawnAtHospital('drown'); return; }
   } else { state.oxygen = Math.min(100, state.oxygen + dt * 30); if (state.oxygen >= 100) ow.style.display = 'none'; else $('oxygen-fill').style.width = state.oxygen + '%'; }
 
+  // Görev halkası
   checkpointRing.rotation.z += dt * 2.5;
   if (playerPos.distanceTo(checkpointPos) < 3.6) {
     if (state.courierActive) { state.courierActive = false; state.money += 350; if (state.storyEnabled) state.storyStep++; playSfx('pickup'); showToast('🛵 KURYE SİPARİŞİ TESLİM EDİLDİ! +$350'); }
@@ -1101,6 +1113,7 @@ function updatePhysics(dt) {
     sh.mesh.position.x += Math.sin(sh.heading) * sh.speed * dt; sh.mesh.position.z += Math.cos(sh.heading) * sh.speed * dt;
     if (Math.abs(sh.mesh.position.x) > 250 || Math.abs(sh.mesh.position.z) > 250) { sh.heading += Math.PI; sh.mesh.rotation.y = sh.heading; }
   });
+  // Tank
   if (state.tankSpawned && policeTank.visible) {
     const to = playerPos.clone().sub(policeTank.position); to.y = 0; const dist = to.length(), ang = Math.atan2(to.x, to.z); policeTank.rotation.y = ang;
     if (dist > 16) { policeTank.position.x += Math.sin(ang) * 7.5 * dt; policeTank.position.z += Math.cos(ang) * 7.5 * dt; }
@@ -1126,6 +1139,7 @@ function updatePhysics(dt) {
       updateHUD();
     }
   });
+  // Trafik
   trafficCars.forEach(tc => {
     if (tc.mesh.position.distanceTo(playerPos) < 7.5) return;
     tc.mesh.position.x += Math.sin(tc.heading) * tc.speed * dt; tc.mesh.position.z += Math.cos(tc.heading) * tc.speed * dt; tc.mesh.position.y = ROAD_SURFACE_Y;
@@ -1138,170 +1152,7 @@ function updatePhysics(dt) {
     const p = tc.mesh.position;
     if (p.x > 106 || p.x < -130 || p.z > 135 || p.z < -135) { tc.heading += Math.PI; tc.mesh.rotation.y = tc.heading; p.x += Math.sin(tc.heading) * 3; p.z += Math.cos(tc.heading) * 3; }
   });
-
+  // Yayalar
   pedestrians.forEach(ped => {
     if (ped.gone) return;
-    if (ped.downTimer > 0) {
-      ped.downTimer -= dt;
-      if (ped.downTimer <= 0) {
-        ped.hp = ped.maxHp; ped.rig.rotation.x = 0;
-        ped.rig.position.y = getGroundHeightAt(ped.rig.position.x, ped.rig.position.y, ped.rig.position.z);
-      }
-      return;
-    }
-    if (ped.stunTimer > 0) {
-      ped.stunTimer -= dt; stunPose(ped.rig, ped.stunTimer); return;
-    }
-    ped.rig.rotation.x = 0;
-    const u = ped.rig.userData;
-    if (ped.returnToCar && ped.ownCar) {
-      const toC = ped.ownCar.position.clone().sub(ped.rig.position); toC.y = 0;
-      const dC = toC.length();
-      if (dC < 2.4) {
-        scene.remove(ped.rig); ped.gone = true;
-        trafficCars.push({ mesh: ped.ownCar, speed: 12, heading: ped.ownCar.rotation.y, turnCooldown: 2 });
-        return;
-      }
-      ped.angle = Math.atan2(toC.x, toC.z); ped.rig.rotation.y = ped.angle;
-      ped.rig.position.x += Math.sin(ped.angle) * 6.2 * dt; ped.rig.position.z += Math.cos(ped.angle) * 6.2 * dt;
-      ped.walkPhase += dt * 9; legs(ped.rig, ped.walkPhase, 0.6); u.leftArm.sPivot.rotation.x = -Math.sin(ped.walkPhase) * 0.5; u.rightArm.sPivot.rotation.x = Math.sin(ped.walkPhase) * 0.5;
-    } else if (ped.isAggressive && !state.inJail) {
-      const toP = playerPos.clone().sub(ped.rig.position); toP.y = 0;
-      const dP = toP.length();
-      if (dP > 0.01) { ped.angle = Math.atan2(toP.x, toP.z); ped.rig.rotation.y = ped.angle; }
-      if (dP > 1.5 && dP < 35) {
-        ped.rig.position.x += Math.sin(ped.angle) * 5.2 * dt; ped.rig.position.z += Math.cos(ped.angle) * 5.2 * dt;
-        ped.walkPhase += dt * 8; legs(ped.rig, ped.walkPhase, 0.6); u.leftArm.sPivot.rotation.x = -Math.sin(ped.walkPhase) * 0.5; u.rightArm.sPivot.rotation.x = -1.1;
-      } else {
-        legs(ped.rig, 0, 0);
-      }
-      ped.attackCooldown -= dt;
-      if (dP < 2.2 && ped.attackCooldown <= 0) {
-        ped.attackCooldown = 1.25; u.rightArm.sPivot.rotation.x = -1.6;
-        spawnHitSpark(playerPos, 0xff9f1c); damagePlayer(8);
-      }
-    } else if (ped.fleeTimer > 0) {
-      ped.fleeTimer -= dt;
-      const away = ped.rig.position.clone().sub(playerPos); away.y = 0;
-      if (away.length() > 0.01) { ped.angle = Math.atan2(away.x, away.z); ped.rig.rotation.y = ped.angle; }
-      ped.rig.position.x += Math.sin(ped.angle) * 6.4 * dt; ped.rig.position.z += Math.cos(ped.angle) * 6.4 * dt;
-      ped.walkPhase += dt * 10; legs(ped.rig, ped.walkPhase, 0.65); u.leftArm.sPivot.rotation.x = -Math.sin(ped.walkPhase) * 0.5; u.rightArm.sPivot.rotation.x = Math.sin(ped.walkPhase) * 0.5;
-    } else if (ped.walkTimer < 900) {
-      ped.walkTimer -= dt;
-      if (ped.walkTimer <= 0) { ped.angle += (Math.random() - 0.5) * 2.2; ped.walkTimer = 2.5 + Math.random() * 3; }
-      ped.rig.position.x += Math.sin(ped.angle) * 2.1 * dt; ped.rig.position.z += Math.cos(ped.angle) * 2.1 * dt;
-      ped.rig.rotation.y = ped.angle; ped.walkPhase += dt * 4.5;
-      legs(ped.rig, ped.walkPhase, 0.45); u.leftArm.sPivot.rotation.x = -Math.sin(ped.walkPhase) * 0.35; u.rightArm.sPivot.rotation.x = Math.sin(ped.walkPhase) * 0.35;
-      if (ped.rig.position.x > 108 || ped.rig.position.x < -132 || ped.rig.position.z > 138 || ped.rig.position.z < -138) ped.angle += Math.PI;
-    }
-    resolveBuildingWallCollision(ped.rig.position, 0.45, false);
-    const py = getGroundHeightAt(ped.rig.position.x, ped.rig.position.y, ped.rig.position.z);
-    ped.rig.position.y += (py - ped.rig.position.y) * Math.min(1, dt * 12);
-  });
-
-  policeOfficers.forEach(cop => {
-    if (cop.downTimer > 0) {
-      cop.downTimer -= dt;
-      if (cop.downTimer <= 0) { cop.hp = cop.maxHp; cop.rig.rotation.x = 0; cop.rig.position.y = getGroundHeightAt(cop.rig.position.x, cop.rig.position.y, cop.rig.position.z); }
-      return;
-    }
-    if (cop.stunTimer > 0) { cop.stunTimer -= dt; stunPose(cop.rig, cop.stunTimer); return; }
-    cop.rig.rotation.x = 0;
-    const u = cop.rig.userData;
-    if (state.wanted > 0 && !state.inJail) {
-      const toP = playerPos.clone().sub(cop.rig.position); toP.y = 0; const dP = toP.length();
-      if (dP > 0.01) { cop.angle = Math.atan2(toP.x, toP.z); cop.rig.rotation.y = cop.angle; }
-      if (dP > 7.5 && dP < 65) {
-        cop.rig.position.x += Math.sin(cop.angle) * 5.6 * dt; cop.rig.position.z += Math.cos(cop.angle) * 5.6 * dt;
-        cop.walkPhase += dt * 8; legs(cop.rig, cop.walkPhase, 0.6); u.leftArm.sPivot.rotation.x = -Math.sin(cop.walkPhase) * 0.4; u.rightArm.sPivot.rotation.x = -1.25;
-      } else {
-        legs(cop.rig, 0, 0); u.rightArm.sPivot.rotation.x = -1.35;
-      }
-      cop.shootCD -= dt;
-      if (dP < 34 && cop.shootCD <= 0) {
-        cop.shootCD = 1.35; playSfx('gun');
-        if (u.muzzleFlash) { u.muzzleFlash.visible = true; setTimeout(() => { u.muzzleFlash.visible = false; }, 60); }
-        if (Math.random() < 0.58) { spawnHitSpark(playerPos, 0xff2a85); damagePlayer(6 + state.wanted * 2); }
-      }
-    } else {
-      legs(cop.rig, 0, 0); u.rightArm.sPivot.rotation.x = -0.35;
-    }
-    resolveBuildingWallCollision(cop.rig.position, 0.45, false);
-    cop.rig.position.y += (getGroundHeightAt(cop.rig.position.x, cop.rig.position.y, cop.rig.position.z) - cop.rig.position.y) * Math.min(1, dt * 12);
-  });
-
-  for (let i = hitParticles.length - 1; i >= 0; i--) {
-    const pt = hitParticles[i]; pt.life -= dt; pt.vel.y -= 14 * dt; pt.mesh.position.addScaledVector(pt.vel, dt);
-    if (pt.life <= 0) { scene.remove(pt.mesh); hitParticles.splice(i, 1); }
-  }
-}
-
-function updateCamera(dt) {
-  if (!camera || !playerCar || !playerRig) return;
-  const target = currentPos();
-  if (state.cameraMode === 1 && !state.inCar && !state.inMotorcycle) {
-    const eye = target.clone().add(new THREE.Vector3(0, state.isSwimming ? 0.65 : 1.65, 0));
-    camera.position.copy(eye);
-    const lookTarget = eye.clone().add(new THREE.Vector3(
-      Math.sin(state.camYaw) * Math.cos(state.camPitch) * 12,
-      Math.sin(state.camPitch) * 12,
-      Math.cos(state.camYaw) * Math.cos(state.camPitch) * 12
-    ));
-    camera.lookAt(lookTarget);
-    return;
-  }
-  const dist = state.inCar ? 8.8 : (state.inMotorcycle ? 7.2 : 5.6);
-  const height = state.inCar ? 3.8 : (state.inMotorcycle ? 3.1 : 2.55);
-  const yaw = (state.inCar || state.inMotorcycle) ? (state.camYaw || carPhysics.heading) : state.camYaw;
-  const desired = new THREE.Vector3(
-    target.x - Math.sin(yaw) * dist * Math.cos(state.camPitch),
-    target.y + height + Math.sin(state.camPitch) * dist * 0.45,
-    target.z - Math.cos(yaw) * dist * Math.cos(state.camPitch)
-  );
-  camera.position.lerp(desired, Math.min(1, dt * 10));
-  camera.lookAt(target.x, target.y + (state.inCar ? 1.15 : 1.25), target.z);
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-  try {
-    const dt = Math.min(0.05, clock.getDelta() || 0.016);
-    if (state.started) {
-      updatePhysics(dt);
-      updateCamera(dt);
-      drawMinimap();
-      if (!$('full-map-modal')?.classList.contains('hidden')) drawFullMap();
-    } else if (scene && camera) {
-      camera.position.set(60, 7, 22);
-      camera.lookAt(60, 2, 32);
-    }
-    if (renderer && scene && camera) renderer.render(scene, camera);
-  } catch (err) {
-    console.error(err);
-    showFatalError(err);
-  }
-}
-
-function init() {
-  try {
-    setupControls();
-    initScene();
-    updateHUD();
-    updateFuelHUD();
-    updateWeaponHUD();
-    updateContextButtons();
-    animate();
-  } catch (err) {
-    console.error(err);
-    showFatalError(err);
-  }
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-</script>
-</body>
-</html>
+    if (ped.downTimer >
