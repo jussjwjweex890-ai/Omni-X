@@ -231,7 +231,7 @@ let buildings = [], cityHouses = [], trafficCars = [], parkedCars = [], seaShips
 let checkpointMesh, checkpointRing, overlayTimer, toastTimer;
 let checkpointPos = new THREE.Vector3(60, ROAD_SURFACE_Y, 20);
 const clock = new THREE.Clock();
-const carPhysics = { speed: 0, maxSpeed: 42, nitroMaxSpeed: 64, reverseMax: -16, accel: 30, brakeForce: 40, friction: 14, turnSpeed: 2.5, heading: 0, roll: 0, pitch: 0, bounceY: 0, bounceVelY: 0 };
+const carPhysics = { speed: 0, maxSpeed: 46, nitroMaxSpeed: 68, reverseMax: -18, accel: 36, brakeForce: 44, friction: 12, turnSpeed: 2.5, heading: 0, roll: 0, pitch: 0, bounceY: 0, bounceVelY: 0, smoothShake: 0, shakePhase: 0 };
 const charPhysics = { velocityY: 0, isGrounded: true, heading: 0, walkCycle: 0, swimCycle: 0, punchTimer: 0 };
 const $ = id => document.getElementById(id);
 
@@ -271,8 +271,11 @@ function showOverlay(text, color) {
 function makeCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
 function createRoadTexture(vertical) {
   const c = makeCanvas(128, 128), ctx = c.getContext('2d');
-  ctx.fillStyle = '#334155'; ctx.fillRect(0, 0, 128, 128); ctx.fillStyle = '#facc15';
+  ctx.fillStyle = '#334155'; ctx.fillRect(0, 0, 128, 128);
+  ctx.fillStyle = '#facc15';
   if (vertical) { ctx.fillRect(61, 0, 2, 52); ctx.fillRect(65, 76, 2, 52); } else { ctx.fillRect(0, 61, 52, 2); ctx.fillRect(76, 65, 52, 2); }
+  ctx.fillStyle = 'rgba(248, 250, 252, 0.22)';
+  if (vertical) { ctx.fillRect(14, 0, 2, 128); ctx.fillRect(112, 0, 2, 128); } else { ctx.fillRect(0, 14, 128, 2); ctx.fillRect(0, 112, 128, 2); }
   const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1, 24); tex.encoding = THREE.sRGBEncoding; return tex;
 }
 function createWindowFacadeTexture(base, accent) {
@@ -350,8 +353,8 @@ function buildViceCityWorld() {
   const rtV = createRoadTexture(true), rtH = createRoadTexture(false);
   WORLD_LAYOUT.roadX.forEach(rx => { const r = new THREE.Mesh(new THREE.PlaneGeometry(11, 296), new THREE.MeshLambertMaterial({ map: rtV })); r.rotation.x = -Math.PI / 2; r.position.set(rx, ROAD_SURFACE_Y, 0); scene.add(r); });
   WORLD_LAYOUT.roadZ.forEach(rz => { const r = new THREE.Mesh(new THREE.PlaneGeometry(286, 11), new THREE.MeshLambertMaterial({ map: rtH })); r.rotation.x = -Math.PI / 2; r.position.set(-6, ROAD_SURFACE_Y + 0.01, rz); scene.add(r); });
-  for (let z = -140; z <= 140; z += 24) {
-    if (WORLD_LAYOUT.roadZ.some(rz => Math.abs(z - rz) < 8)) continue;
+  for (let z = -140; z <= 140; z += 18) {
+    if (WORLD_LAYOUT.roadZ.some(rz => Math.abs(z - rz) < 7)) continue;
     createPalmTree(110, z); createPalmTree(48, z); createPalmTree(-48, z); createStreetLamp(66.5, z); createStreetLamp(-53.5, z);
   }
   [
@@ -656,7 +659,7 @@ function setOnFootUI(on) {
 }
 function resetPlayerCar() {
   if (playerCar) { playerCar.position.set(60, ROAD_SURFACE_Y, 32); playerCar.rotation.set(0, 0, 0); }
-  state.carSunk = false; state.sinkDepth = 0; carPhysics.speed = 0; carPhysics.heading = 0; carPhysics.roll = 0; carPhysics.pitch = 0;
+  state.carSunk = false; state.sinkDepth = 0; carPhysics.speed = 0; carPhysics.heading = 0; carPhysics.roll = 0; carPhysics.pitch = 0; carPhysics.smoothShake = 0;
 }
 function respawnAtHospital(cause) {
   state.health = 100; state.armor = 0; state.wanted = 0; state.wantedTimer = 0; state.oxygen = 100;
@@ -1011,14 +1014,14 @@ function updatePhysics(dt) {
     const veh = state.inMotorcycle ? playerMoto : playerCar, moto = state.inMotorcycle;
     const gY = getGroundHeightAt(veh.position.x, veh.position.y, veh.position.z), inWater = gY <= WATER_LEVEL_Y + 0.25;
     if (inWater && !moto) {
-      state.carSunk = true; state.sinkDepth = Math.min(2.8, state.sinkDepth + dt * 1.1); carPhysics.speed *= Math.pow(0.08, dt);
+      state.carSunk = true; state.sinkDepth = Math.min(2.8, state.sinkDepth + dt * 1.1); carPhysics.speed *= Math.pow(0.08, dt); carPhysics.smoothShake *= Math.pow(0.05, dt);
       carPhysics.pitch += (0.14 - carPhysics.pitch) * Math.min(1, dt * 4); playerCar.position.y = WATER_LEVEL_Y - state.sinkDepth;
       playerCar.rotation.order = 'YXZ'; playerCar.rotation.set(carPhysics.pitch, carPhysics.heading, carPhysics.roll); $('speed-value').textContent = '0';
       if (state.sinkDepth > 0.6 && Math.random() < 0.04) showToast('⚓ ARAÇ BATIYOR! [F] İLE ÇIK VEYA YÜZ');
     } else {
       const hasFuel = moto || state.fuel > 0.05, nitro = hasFuel && state.input.nitro && state.input.gas;
-      const baseA = moto ? carPhysics.accel * 1.28 : carPhysics.accel, baseM = moto ? carPhysics.maxSpeed * 1.18 : carPhysics.maxSpeed;
-      const acc = nitro ? baseA * 1.75 : baseA, mx = nitro ? carPhysics.nitroMaxSpeed * (moto ? 1.12 : 1) : baseM;
+      const baseA = moto ? carPhysics.accel * 1.32 : carPhysics.accel, baseM = moto ? carPhysics.maxSpeed * 1.22 : carPhysics.maxSpeed;
+      const acc = nitro ? baseA * 2.0 : baseA, mx = nitro ? carPhysics.nitroMaxSpeed * (moto ? 1.14 : 1) : baseM;
       if (hasFuel && state.input.gas) {
         carPhysics.speed += acc * dt;
         if (!moto) { state.fuel = Math.max(0, state.fuel - (nitro ? 2.4 : 0.85) * dt); updateFuelHUD(); if (state.fuel <= 0.05) showToast('⛽ BENZİN BİTTİ! BENZİNLİĞE GİT'); }
@@ -1026,18 +1029,23 @@ function updatePhysics(dt) {
       else if (Math.abs(carPhysics.speed) < 0.3) carPhysics.speed = 0; else carPhysics.speed -= Math.sign(carPhysics.speed) * carPhysics.friction * dt;
       carPhysics.speed = THREE.MathUtils.clamp(carPhysics.speed, carPhysics.reverseMax, mx);
       if (!moto && playerCar.userData.nitroFlames) playerCar.userData.nitroFlames.forEach(f => { f.visible = nitro; if (nitro) f.scale.y = 0.8 + Math.random() * 0.6; });
-      $('speed-value').textContent = Math.round(Math.abs(carPhysics.speed) * 3.4);
+      const absSpd = Math.abs(carPhysics.speed);
+      const kmh = Math.round(absSpd * 3.85);
+      $('speed-value').textContent = kmh;
+      const targetShake = THREE.MathUtils.clamp((absSpd - 24) / 44, 0, 1) * (nitro ? 1.35 : 0.72);
+      carPhysics.smoothShake += (targetShake - carPhysics.smoothShake) * Math.min(1, dt * 8);
+      carPhysics.shakePhase += dt * (11 + absSpd * 0.24);
       const steer = (state.input.left ? 1 : 0) - (state.input.right ? 1 : 0), tm = state.input.drift ? 1.45 : (moto ? 1.25 : 1);
       if (Math.abs(carPhysics.speed) > 0.5) {
         const prev = carPhysics.heading; carPhysics.heading += steer * carPhysics.turnSpeed * tm * dt * (carPhysics.speed >= 0 ? 1 : -1);
         const lim = moto ? 0.34 : 0.14, tr = THREE.MathUtils.clamp(-(carPhysics.heading - prev) * (moto ? 22 : 14), -lim, lim); carPhysics.roll += (tr - carPhysics.roll) * Math.min(1, dt * 11);
       } else carPhysics.roll *= Math.pow(0.05, dt);
-      carPhysics.pitch += (((hasFuel && state.input.gas) ? -0.035 : (state.input.brake ? 0.04 : 0)) - carPhysics.pitch) * Math.min(1, dt * 9);
+      carPhysics.pitch += (((hasFuel && state.input.gas) ? -0.042 : (state.input.brake ? 0.045 : 0)) - carPhysics.pitch) * Math.min(1, dt * 9);
       carPhysics.bounceVelY += (-carPhysics.bounceY * 95 - carPhysics.bounceVelY * 12) * dt; carPhysics.bounceY += carPhysics.bounceVelY * dt;
       veh.rotation.order = 'YXZ'; veh.rotation.set(carPhysics.pitch, carPhysics.heading, carPhysics.roll);
       veh.position.x += Math.sin(carPhysics.heading) * carPhysics.speed * dt; veh.position.z += Math.cos(carPhysics.heading) * carPhysics.speed * dt;
       resolveBuildingWallCollision(veh.position, moto ? 1.15 : 2.1, true);
-      if (veh.userData.wheels) veh.userData.wheels.forEach(w => { w.rotation.x += carPhysics.speed * dt * 1.5; });
+      if (veh.userData.wheels) veh.userData.wheels.forEach(w => { w.rotation.x += carPhysics.speed * dt * 1.9; });
       veh.position.y += ((moto && inWater ? WATER_LEVEL_Y - 0.1 : gY) + carPhysics.bounceY - veh.position.y) * Math.min(1, dt * 16);
       if (moto) placeMotoRider(); else playerRig.visible = false;
       const dp = Math.hypot(veh.position.x - state.gasStationPos.x, veh.position.z - state.gasStationPos.z);
@@ -1046,6 +1054,7 @@ function updatePhysics(dt) {
       } else state.inRefuelZone = false;
     }
   } else {
+    carPhysics.smoothShake *= Math.pow(0.04, dt);
     if (state.input.fire && !state.isSwimming) firePlayerWeapon();
     const prevX = playerRig.position.x, prevZ = playerRig.position.z, u = playerRig.userData;
     let mx = state.input.joyX, mz = state.input.joyY;
@@ -1239,8 +1248,15 @@ function updatePhysics(dt) {
 
 function updateCamera(dt) {
   if (!camera || !playerCar || !playerRig) return;
+  const isVeh = state.inCar || state.inMotorcycle;
+  const speedRatio = isVeh ? THREE.MathUtils.clamp(Math.abs(carPhysics.speed) / carPhysics.nitroMaxSpeed, 0, 1) : 0;
+  const targetFov = isVeh ? (67 + speedRatio * 14) : 65;
+  if (Math.abs(camera.fov - targetFov) > 0.05) {
+    camera.fov += (targetFov - camera.fov) * Math.min(1, dt * 8);
+    camera.updateProjectionMatrix();
+  }
   const target = currentPos();
-  if (state.cameraMode === 1 && !state.inCar && !state.inMotorcycle) {
+  if (state.cameraMode === 1 && !isVeh) {
     const eye = target.clone().add(new THREE.Vector3(0, state.isSwimming ? 0.65 : 1.65, 0));
     camera.position.copy(eye);
     const lookTarget = eye.clone().add(new THREE.Vector3(
@@ -1251,15 +1267,18 @@ function updateCamera(dt) {
     camera.lookAt(lookTarget);
     return;
   }
-  const dist = state.inCar ? 8.8 : (state.inMotorcycle ? 7.2 : 5.6);
-  const height = state.inCar ? 3.8 : (state.inMotorcycle ? 3.1 : 2.55);
-  const yaw = (state.inCar || state.inMotorcycle) ? (state.camYaw || carPhysics.heading) : state.camYaw;
+  const dist = state.inCar ? (9.1 - speedRatio * 0.7) : (state.inMotorcycle ? 7.4 : 5.6);
+  const height = state.inCar ? 3.85 : (state.inMotorcycle ? 3.15 : 2.55);
+  const yaw = isVeh ? (state.camYaw || carPhysics.heading) : state.camYaw;
+  const shakeAmp = isVeh ? carPhysics.smoothShake * 0.055 : 0;
+  const shakeX = Math.sin(carPhysics.shakePhase) * shakeAmp;
+  const shakeY = Math.cos(carPhysics.shakePhase * 1.45) * shakeAmp * 0.65;
   const desired = new THREE.Vector3(
-    target.x - Math.sin(yaw) * dist * Math.cos(state.camPitch),
-    target.y + height + Math.sin(state.camPitch) * dist * 0.45,
+    target.x - Math.sin(yaw) * dist * Math.cos(state.camPitch) + shakeX,
+    target.y + height + Math.sin(state.camPitch) * dist * 0.45 + shakeY,
     target.z - Math.cos(yaw) * dist * Math.cos(state.camPitch)
   );
-  camera.position.lerp(desired, Math.min(1, dt * 10));
+  camera.position.lerp(desired, Math.min(1, dt * 11));
   camera.lookAt(target.x, target.y + (state.inCar ? 1.15 : 1.25), target.z);
 }
 
