@@ -67,6 +67,7 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#140726;font-f
 #context-actions{position:absolute;inset:0;z-index:25;pointer-events:none}
 .context-btn{position:fixed;bottom:125px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff2a85,#ff7b00);color:#fff;border:2.5px solid #fff;border-radius:28px;padding:10px 20px;font-size:.86rem;font-weight:800;letter-spacing:.5px;cursor:pointer;box-shadow:0 6px 20px rgba(255,42,133,.65);animation:pulsePop 1.2s infinite alternate;white-space:nowrap;pointer-events:auto}
 .context-btn.car-btn{bottom:18px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00b4d8,#3a86ff);box-shadow:0 6px 20px rgba(0,180,216,.65);animation:none}
+.context-btn.car-btn.steal-btn{background:linear-gradient(135deg,#ef4444,#f97316);box-shadow:0 6px 20px rgba(239,68,68,.75);animation:pulsePop 1s infinite alternate}
 .context-btn.car-btn:active{transform:translateX(-50%) scale(.95)}
 @keyframes pulsePop{from{transform:translateX(-50%) scale(1)}to{transform:translateX(-50%) scale(1.05)}}
 #full-map-modal{position:fixed;inset:0;z-index:200;background:rgba(10,6,20,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);pointer-events:auto}
@@ -121,7 +122,7 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#140726;font-f
   <div class="mobile-orientation-notice" id="mobile-orientation-warning">📱 Eğer mobilde iseniz ekranı yan tutarak daha rahat oynayabilirsiniz.</div>
   <div class="pre-play-info"><strong>Oyuna Başlamadan Önce:</strong> Leonida açık dünyasında seni hiçbir göreve zorlamayız. İstersen serbest gezebilir, isteğe bağlı <strong>Hikaye</strong> modunu açabilir, banka kasasını soyup 5 yıldızda tanklarla çatışabilir, taksicilik/kuryecilik yapabilir, trafikteki araçları çalabilir veya motosiklet sürebilirsin. Ölürsen ya da boğulursan <strong>Hastane</strong>de uyanırsın.</div>
   <button class="play-btn" id="btn-start" type="button">OYNA</button>
-  <div class="controls-hint" id="controls-hint-text"><strong>Kontroller:</strong> WASD / Ok Tuşları (Hareket), <strong>Shift</strong> (Nitro / Koş), <strong>Space</strong> (Zıpla / Drift), <strong>E</strong> (Kapı / Kasa / İş), <strong>F</strong> (Araca veya Motosiklete Bin/İn), <strong>Q</strong> (Silah), <strong>R</strong> (Vur/Ateş), <strong>M / ESC</strong> (Harita), <strong>V</strong> (Kamera), Fare sürükle (Bakış).</div>
+  <div class="controls-hint" id="controls-hint-text"><strong>Kontroller:</strong> WASD / Ok Tuşları (Hareket), <strong>Shift</strong> (Nitro / Koş), <strong>Space</strong> (Zıpla / Drift), <strong>E</strong> (Kapı / Kasa / İş), <strong>F</strong> (Araca veya Motosiklete Bin/İn / Araba Çal), <strong>Q</strong> (Silah), <strong>R</strong> (Vur/Ateş), <strong>M / ESC</strong> (Harita), <strong>V</strong> (Kamera), Fare sürükle (Bakış).</div>
 </div>
 <div id="jail-modal" class="hidden">
   <div class="jail-card">
@@ -314,7 +315,7 @@ function initScene() {
   const sun = new THREE.DirectionalLight(0xffa96b, 0.96); sun.position.set(85, 95, 65); scene.add(sun);
   const fill = new THREE.DirectionalLight(0x38bdf8, 0.36); fill.position.set(-80, 50, -70); scene.add(fill);
   buildViceCityWorld(); createPlayerCar(); homeCar = playerCar; createPlayerMotorcycle(); createPoliceTank(); createPlayerCharacter(); createCheckpoint();
-  spawnTraffic(12); spawnSeaShips(5); spawnPedestrians(34); spawnPolice(5);
+  spawnTraffic(14); spawnSeaShips(5); spawnPedestrians(34); spawnPolice(5);
   window.addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 }
 
@@ -542,11 +543,23 @@ function createCheckpoint() {
   checkpointMesh.add(checkpointRing); checkpointMesh.position.copy(checkpointPos); scene.add(checkpointMesh);
 }
 function spawnTraffic(count) {
-  const cols = [0xffbe0b, 0x3a86ff, 0x8338ec, 0x06d6a0, 0xfb7185];
+  const cols = [0xffbe0b, 0x3a86ff, 0x8338ec, 0x06d6a0, 0xfb7185, 0xf97316, 0x22d3ee];
   for (let i = 0; i < count; i++) {
-    const car = createCarMesh(cols[i % cols.length]), heading = i % 2 === 0 ? 0 : Math.PI / 2;
-    car.position.set(WORLD_LAYOUT.roadX[i % 4], ROAD_SURFACE_Y, WORLD_LAYOUT.roadZ[(i * 2) % 4]); car.rotation.y = heading; scene.add(car);
-    trafficCars.push({ mesh: car, speed: 11 + (i % 4) * 2.2, heading, turnCooldown: 2 + (i % 3) });
+    const col = cols[i % cols.length];
+    const car = createCarMesh(col), heading = i % 2 === 0 ? 0 : Math.PI / 2;
+    car.position.set(WORLD_LAYOUT.roadX[i % 4], ROAD_SURFACE_Y, WORLD_LAYOUT.roadZ[(i * 2) % 4]);
+    car.rotation.y = heading;
+    // Aracın içinde sürücü bot figürü (kafa ve omuzlar camdan görünür)
+    const driver = new THREE.Group();
+    const dShirt = lam([0xff006e, 0x3a86ff, 0xfb8500, 0x10b981, 0xa855f7][i % 5]);
+    const dSkin = lam(0xf1c27d);
+    box(0.44, 0.34, 0.24, dShirt, -0.34, 1.02, 0.05, driver);
+    box(0.28, 0.28, 0.28, dSkin, -0.34, 1.32, 0.05, driver);
+    car.add(driver);
+    car.userData.driverDummy = driver;
+    car.userData.driverColor = [0xff006e, 0x3a86ff, 0xfb8500, 0x10b981, 0xa855f7][i % 5];
+    scene.add(car);
+    trafficCars.push({ mesh: car, speed: 11 + (i % 4) * 2.2, heading, turnCooldown: 2 + (i % 3), stopTimer: 0 });
   }
 }
 function spawnSeaShips(count) {
@@ -639,7 +652,8 @@ function firePlayerWeapon() {
   else { triggerCrosshairFeedback(false); spawnHitSpark(playerRig.position.clone().addScaledVector(aim, Math.min(w.range, 16)), 0xffd000); }
 }
 function damagePed(ped, dmg) {
-  ped.hp -= dmg; ped.isAggressive = true; ped.fleeTimer = 0;
+  ped.hp -= dmg;
+  if (ped.fleeTimer <= 0) ped.isAggressive = true;
   ped.rig.userData.barGroup.visible = true; ped.rig.userData.barFill.scale.x = Math.max(0.01, ped.hp / ped.maxHp); increaseWanted(1);
   if (ped.hp <= 0) {
     ped.downTimer = 10; ped.stunTimer = 0; ped.isAggressive = false; ped.rig.userData.barGroup.visible = false;
@@ -828,8 +842,17 @@ function setupControls() {
 function toggleCameraMode() { state.cameraMode = state.cameraMode === 3 ? 1 : 3; $('btn-toggle-cam').textContent = `🎥 ${state.cameraMode}. ŞAHIS`; showToast(`${state.cameraMode}. ŞAHIS KAMERA`); }
 
 function findNearbyCar(pos, maxD) {
-  let best = null, bd = maxD; const c = [...parkedCars, ...trafficCars.map(t => t.mesh)]; if (!state.carSunk) c.push(playerCar);
-  c.forEach(m => { const d = pos.distanceTo(m.position); if (d < bd) { bd = d; best = m; } }); return best;
+  let best = null, bd = maxD;
+  const c = [...parkedCars, ...trafficCars.map(t => t.mesh)];
+  if (!state.carSunk) c.push(playerCar);
+  c.forEach(m => {
+    const d = pos.distanceTo(m.position);
+    if (d < bd) { bd = d; best = m; }
+  });
+  return best;
+}
+function isTrafficCar(car) {
+  return trafficCars.some(t => t.mesh === car);
 }
 function enterCar(car) {
   if (car === playerCar) return;
@@ -838,12 +861,30 @@ function enterCar(car) {
   if (!parkedCars.includes(old)) parkedCars.push(old);
   const ti = trafficCars.findIndex(t => t.mesh === car);
   if (ti >= 0) {
-    trafficCars.splice(ti, 1); const h = car.rotation.y;
-    const rig = createHumanoidRig({ role: 'npc', shirtColor: [0xff006e, 0x3a86ff, 0xfb8500, 0x10b981][ti % 4] });
-    rig.position.set(car.position.x + Math.cos(h) * 2.3, ISLAND_SURFACE_Y, car.position.z - Math.sin(h) * 2.3);
-    rig.rotation.y = Math.atan2(playerRig.position.x - rig.position.x, playerRig.position.z - rig.position.z); scene.add(rig);
-    const aggressive = Math.random() < 0.55, p = newPed(rig, 65); p.isAggressive = aggressive; p.attackCooldown = 0.8; p.walkTimer = 4; p.ownCar = car; p.fleeTimer = aggressive ? 0 : 9; pedestrians.push(p);
-    increaseWanted(1); showToast(aggressive ? '😡 SÜRÜCÜ SANA SALDIRIYOR!' : '😱 SÜRÜCÜ KAÇIYOR!');
+    trafficCars.splice(ti, 1);
+    const h = car.rotation.y;
+    // Arabanın içindeki sürücü maketini gizle (artık canlı bot olarak dışarı çıkıyor)
+    if (car.userData.driverDummy) car.userData.driverDummy.visible = false;
+    const driverCol = car.userData.driverColor || [0xff006e, 0x3a86ff, 0xfb8500, 0x10b981][ti % 4];
+    const rig = createHumanoidRig({ role: 'npc', shirtColor: driverCol });
+    // Sol kapı tarafından (sürücü koltuğu) dışarı çıkar
+    const exitOffsetX = -Math.cos(h) * 2.1;
+    const exitOffsetZ = Math.sin(h) * 2.1;
+    rig.position.set(car.position.x + exitOffsetX, ISLAND_SURFACE_Y, car.position.z + exitOffsetZ);
+    // Oyuncudan uzağa doğru dönüp koşarak kaçsın
+    const fleeAngle = Math.atan2(rig.position.x - playerRig.position.x, rig.position.z - playerRig.position.z);
+    rig.rotation.y = fleeAngle;
+    scene.add(rig);
+    const p = newPed(rig, 65);
+    p.isAggressive = false;
+    p.fleeTimer = 18;
+    p.angle = fleeAngle;
+    p.walkTimer = 18;
+    p.ownCar = car;
+    pedestrians.push(p);
+    playSfx('door');
+    increaseWanted(1);
+    showToast('🚨 ARABA ÇALINDI! SÜRÜCÜ KORKUP KAÇIYOR!');
   }
   playerCar = car; carPhysics.heading = car.rotation.y; carPhysics.speed = 0; carPhysics.roll = 0; carPhysics.pitch = 0; state.carSunk = false; state.sinkDepth = 0;
 }
@@ -869,10 +910,12 @@ function toggleVehicle() {
     state.inMotorcycle = true; state.inCar = false; state.isSwimming = false; carPhysics.heading = playerMoto.rotation.y; carPhysics.speed = 0;
     setOnFootUI(false); updateContextButtons(); updateCrosshairVisuals(); showToast('🏍️ MOTOSİKLETE BİNDİN!'); return;
   }
-  const near = findNearbyCar(playerRig.position, 6.5);
+  const near = findNearbyCar(playerRig.position, 7.2);
   if (!near) { showToast(state.carSunk ? '⚓ ARAÇ DENİZE BATTI, YENİ ARAÇ İÇİN DÜZELT’E BAS' : 'ARACA VEYA MOTOSİKLETE YAKLAŞ!'); return; }
+  const stolen = isTrafficCar(near);
   enterCar(near); state.inCar = true; state.inMotorcycle = false; state.isSwimming = false; playerRig.rotation.set(0, 0, 0); playerRig.visible = false;
-  setOnFootUI(false); updateFuelHUD(); updateContextButtons(); updateCrosshairVisuals(); showToast('ARACA BİNDİN');
+  setOnFootUI(false); updateFuelHUD(); updateContextButtons(); updateCrosshairVisuals();
+  if (!stolen) showToast('ARACA BİNDİN');
 }
 function cycleWeapon() { state.weaponIndex = (state.weaponIndex + 1) % WEAPONS.length; updateWeaponHUD(); const w = WEAPONS[state.weaponIndex]; showToast(`${w.icon} ${w.name}`); }
 function updateWeaponHUD() {
@@ -892,11 +935,24 @@ function updateContextButtons() {
     } else door.classList.add('hidden');
   }
   if (car) {
+    car.classList.remove('steal-btn');
     if (state.inJail) car.classList.add('hidden');
     else if (!onFoot) { car.classList.remove('hidden'); car.textContent = state.inMotorcycle ? '🚶 MOTOSİKLETTEN İN' : '🚶 ARABADAN İN'; }
     else if (playerMoto && playerRig.position.distanceTo(playerMoto.position) < 5.5) { car.classList.remove('hidden'); car.textContent = '🏍️ MOTOSİKLETE BİN'; }
-    else if (findNearbyCar(playerRig.position, 6.5)) { car.classList.remove('hidden'); car.textContent = '🚗 ARACA BİN'; }
-    else car.classList.add('hidden');
+    else {
+      const nearCar = findNearbyCar(playerRig.position, 7.2);
+      if (nearCar) {
+        car.classList.remove('hidden');
+        if (isTrafficCar(nearCar)) {
+          car.classList.add('steal-btn');
+          car.textContent = '🚨 ARABAYI ÇAL [F]';
+        } else {
+          car.textContent = '🚗 ARACA BİN';
+        }
+      } else {
+        car.classList.add('hidden');
+      }
+    }
   }
 }
 function updateHUD() {
@@ -1006,6 +1062,7 @@ function updatePhysics(dt) {
   });
   cityHouses.forEach(h => { h.doorAngle += ((h.doorOpen ? -Math.PI * 0.45 : 0) - h.doorAngle) * Math.min(1, dt * 8); h.doorPivot.rotation.y = h.doorAngle; });
   if (closest !== state.nearestBuilding) { state.nearestBuilding = closest; updateContextButtons(); }
+  if (!state.inCar && !state.inMotorcycle) updateContextButtons();
   const loc = $('location-badge'), inside = buildings.find(b => playerPos.x >= b.minX && playerPos.x <= b.maxX && playerPos.z >= b.minZ && playerPos.z <= b.maxZ);
   if (inside) { const f = Math.min(inside.floors, Math.max(0, Math.floor((playerPos.y - ISLAND_SURFACE_Y + 0.5) / inside.floorH))); loc.textContent = `🏢 ${inside.name} - ${f === inside.floors ? 'ÇATI KATI' : (f + 1) + '. KAT'}`; }
   else if (state.isSwimming) loc.textContent = '🏊 LEONIDA DENİZİ - YÜZÜYOR'; else loc.textContent = playerPos.x > 25 ? '🌴 VICE BEACH - LEONIDA' : '🌆 DOWNTOWN - LEONIDA';
@@ -1137,7 +1194,8 @@ function updatePhysics(dt) {
     }
   });
   trafficCars.forEach(tc => {
-    if (tc.mesh.position.distanceTo(playerPos) < 7.5) return;
+    // Oyuncu arabaya yaklaştığında trafikteki araç yavaşlayıp durur ki çalınabilsin
+    if (tc.mesh.position.distanceTo(playerPos) < 8.5) return;
     tc.mesh.position.x += Math.sin(tc.heading) * tc.speed * dt; tc.mesh.position.z += Math.cos(tc.heading) * tc.speed * dt; tc.mesh.position.y = ROAD_SURFACE_Y;
     tc.mesh.userData.wheels.forEach(w => { w.rotation.x += tc.speed * dt * 1.4; });
     tc.turnCooldown -= dt;
@@ -1169,6 +1227,7 @@ function updatePhysics(dt) {
       const dC = toC.length();
       if (dC < 2.4) {
         scene.remove(ped.rig); ped.gone = true;
+        if (ped.ownCar.userData.driverDummy) ped.ownCar.userData.driverDummy.visible = true;
         trafficCars.push({ mesh: ped.ownCar, speed: 12, heading: ped.ownCar.rotation.y, turnCooldown: 2 });
         return;
       }
@@ -1193,9 +1252,20 @@ function updatePhysics(dt) {
     } else if (ped.fleeTimer > 0) {
       ped.fleeTimer -= dt;
       const away = ped.rig.position.clone().sub(playerPos); away.y = 0;
-      if (away.length() > 0.01) { ped.angle = Math.atan2(away.x, away.z); ped.rig.rotation.y = ped.angle; }
-      ped.rig.position.x += Math.sin(ped.angle) * 6.4 * dt; ped.rig.position.z += Math.cos(ped.angle) * 6.4 * dt;
-      ped.walkPhase += dt * 10; legs(ped.rig, ped.walkPhase, 0.65); u.leftArm.sPivot.rotation.x = -Math.sin(ped.walkPhase) * 0.5; u.rightArm.sPivot.rotation.x = Math.sin(ped.walkPhase) * 0.5;
+      if (away.length() > 0.01) {
+        ped.angle = Math.atan2(away.x, away.z);
+        ped.rig.rotation.y = ped.angle;
+      }
+      // Panikle kollarını kaldırarak hızlıca koşup kaçar
+      ped.rig.position.x += Math.sin(ped.angle) * 7.6 * dt;
+      ped.rig.position.z += Math.cos(ped.angle) * 7.6 * dt;
+      ped.walkPhase += dt * 13;
+      legs(ped.rig, ped.walkPhase, 0.78);
+      u.leftArm.sPivot.rotation.x = -2.4 + Math.sin(ped.walkPhase) * 0.35;
+      u.rightArm.sPivot.rotation.x = -2.4 - Math.sin(ped.walkPhase) * 0.35;
+      if (ped.rig.position.x > 108 || ped.rig.position.x < -132 || ped.rig.position.z > 138 || ped.rig.position.z < -138) {
+        ped.angle += Math.PI * 0.7;
+      }
     } else if (ped.walkTimer < 900) {
       ped.walkTimer -= dt;
       if (ped.walkTimer <= 0) { ped.angle += (Math.random() - 0.5) * 2.2; ped.walkTimer = 2.5 + Math.random() * 3; }
