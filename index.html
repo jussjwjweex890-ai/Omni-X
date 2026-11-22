@@ -8,11 +8,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
+/* Temel sayfa düzeni ve dokunmatik kaydırma kilidi */
 *{box-sizing:border-box;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;margin:0;padding:0}
 body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-family:'Inter',sans-serif;touch-action:none}
 #game-canvas{display:block;width:100%;height:100%;position:absolute;top:0;left:0;z-index:1}
 #game-canvas.wasted{filter:grayscale(1) contrast(1.1)}
 :root{--vc-pink:#ff2a85;--vc-cyan:#00e5ff;--vc-yellow:#ffd000;--vc-dark:rgba(12,20,38,.86)}
+
+/* Başlangıç menüsü */
 #start-screen{position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,rgba(14,78,158,.94),rgba(2,132,199,.88),rgba(234,88,12,.82));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center;backdrop-filter:blur(8px);overflow-y:auto;pointer-events:auto}
 .game-logo{font-family:'Bebas Neue',cursive;font-size:clamp(3.4rem,10.5vw,6.4rem);line-height:.9;color:#fff;text-shadow:0 0 24px rgba(0,229,255,.65),4px 4px 0 #090d16;letter-spacing:4px;margin-bottom:4px}
 .game-subtitle{font-family:'Bebas Neue',cursive;font-size:clamp(1.05rem,3.1vw,1.75rem);color:#fef08a;text-shadow:2px 2px 0 #090d16;letter-spacing:2.5px;margin-bottom:12px}
@@ -26,6 +29,8 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 .story-start-btn{background:linear-gradient(90deg,#0284c7,#00e5ff);color:#061326;border:3px solid #fff;border-radius:50px;padding:12px 34px;font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:2.5px;cursor:pointer;box-shadow:0 10px 26px rgba(0,229,255,.6);transition:transform .14s ease;touch-action:manipulation;pointer-events:auto}
 .play-btn:active,.story-start-btn:active{transform:scale(.94)}
 .controls-hint{margin-top:14px;color:rgba(255,255,255,.95);font-size:.78rem;max-width:640px;background:rgba(8,14,28,.68);padding:10px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.25);line-height:1.55}
+
+/* Nişangah */
 #crosshair{position:fixed;top:50%;left:50%;width:26px;height:26px;transform:translate(-50%,-50%) scale(1);z-index:35;pointer-events:none;display:none;transition:transform .07s ease-out}
 #crosshair .ch-dot{position:absolute;top:50%;left:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--vc-yellow);box-shadow:0 0 6px var(--vc-yellow)}
 #crosshair .ch-line{position:absolute;background:var(--vc-cyan);box-shadow:0 0 6px rgba(0,229,255,.85);transition:transform .07s ease-out,background-color .12s ease}
@@ -34,6 +39,8 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 #crosshair.recoil .ch-top{transform:translateY(-5px)}#crosshair.recoil .ch-bottom{transform:translateY(5px)}
 #crosshair.recoil .ch-left{transform:translateX(-5px)}#crosshair.recoil .ch-right{transform:translateX(5px)}
 #crosshair.hit .ch-line{background:#ff2a85;box-shadow:0 0 10px #ff2a85}
+
+/* HUD katmanları */
 #hud-top-left{position:absolute;top:12px;left:12px;z-index:20;display:flex;align-items:flex-start;gap:10px;pointer-events:none}
 #minimap-container{position:relative;width:106px;height:106px;border-radius:50%;border:3px solid #fff;background:#0284c7;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.6),0 0 12px rgba(0,229,255,.5);cursor:pointer;pointer-events:auto;flex-shrink:0}
 #minimap-canvas{width:100%;height:100%;display:block}
@@ -60,6 +67,8 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 .mini-pill-btn{background:rgba(12,18,36,.88);color:#fff;border:1.5px solid rgba(255,255,255,.75);border-radius:14px;padding:6px 10px;font-size:.69rem;font-weight:800;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.45);backdrop-filter:blur(4px);white-space:nowrap;touch-action:manipulation}
 .mini-pill-btn:active{transform:scale(.92);border-color:var(--vc-cyan)}
 .mini-pill-btn.active-mode{border-color:var(--vc-yellow);color:var(--vc-yellow);background:rgba(2,132,199,.45)}
+
+/* Hız ve benzin göstergeleri */
 #speedometer-box{position:absolute;bottom:112px;right:18px;z-index:18;background:var(--vc-dark);border:1.5px solid var(--vc-pink);border-radius:14px;padding:6px 14px;text-align:right;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 #speed-value{font-family:'Bebas Neue',cursive;font-size:1.85rem;color:var(--vc-cyan);line-height:1;letter-spacing:1px}
 #speed-unit{font-size:.62rem;font-weight:800;color:#cbd5e1}
@@ -67,12 +76,16 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 .fuel-label{display:flex;justify-content:space-between;font-size:.65rem;font-weight:800;color:var(--vc-yellow);margin-bottom:4px}
 .fuel-track{width:100%;height:8px;background:rgba(255,255,255,.16);border-radius:6px;overflow:hidden}
 #fuel-fill{width:100%;height:100%;background:linear-gradient(90deg,#f97316,#ffd000);transition:width .15s ease}
+
+/* Bağlamsal eylem butonları */
 #context-actions{position:absolute;inset:0;z-index:25;pointer-events:none}
 .context-btn{position:fixed;bottom:125px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff2a85,#ff7b00);color:#fff;border:2.5px solid #fff;border-radius:28px;padding:10px 20px;font-size:.84rem;font-weight:800;letter-spacing:.5px;cursor:pointer;box-shadow:0 6px 20px rgba(255,42,133,.65);animation:pulsePop 1.2s infinite alternate;white-space:nowrap;pointer-events:auto;touch-action:manipulation}
 .context-btn.car-btn{bottom:18px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00b4d8,#3a86ff);box-shadow:0 6px 20px rgba(0,180,216,.65);animation:none}
 .context-btn.car-btn.steal-btn{background:linear-gradient(135deg,#ef4444,#f97316);box-shadow:0 6px 20px rgba(239,68,68,.75);animation:pulsePop 1s infinite alternate}
 .context-btn.car-btn:active{transform:translateX(-50%) scale(.95)}
 @keyframes pulsePop{from{transform:translateX(-50%) scale(1)}to{transform:translateX(-50%) scale(1.05)}}
+
+/* Sinematik ara sahne ve final seçimi */
 #cutscene-overlay{position:fixed;inset:0;z-index:120;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between}
 .letterbox-bar{width:100%;height:13vh;background:rgba(4,6,14,.95);display:flex;align-items:center;justify-content:space-between;padding:0 22px;color:#fff;pointer-events:auto}
 .cutscene-chapter{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:2px;color:var(--vc-cyan)}
@@ -85,6 +98,8 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 .ending-choice-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
 .choice-la-btn{background:linear-gradient(90deg,#2563eb,#00e5ff);color:#fff;border:2.5px solid #fff;border-radius:30px;padding:12px 22px;font-family:'Bebas Neue',cursive;font-size:1.45rem;letter-spacing:1.5px;cursor:pointer;touch-action:manipulation}
 .choice-ist-btn{background:linear-gradient(90deg,#dc2626,#ff2a85);color:#fff;border:2.5px solid #fff;border-radius:30px;padding:12px 22px;font-family:'Bebas Neue',cursive;font-size:1.45rem;letter-spacing:1.5px;cursor:pointer;touch-action:manipulation}
+
+/* Tam harita, nezarethane ve bildirimler */
 #full-map-modal{position:fixed;inset:0;z-index:200;background:rgba(8,14,30,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);pointer-events:auto}
 .map-legend{display:flex;gap:12px;margin-bottom:10px;color:#fff;font-size:.76rem;font-weight:700;flex-wrap:wrap;justify-content:center}
 #full-map-canvas{width:min(86vw,450px);height:min(86vw,450px);border:3px solid var(--vc-cyan);border-radius:16px;background:#0284c7;box-shadow:0 0 30px rgba(0,229,255,.45)}
@@ -98,6 +113,8 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 #wasted-overlay span{font-family:'Bebas Neue',cursive;font-size:clamp(4rem,18vw,10rem);letter-spacing:6px;text-shadow:4px 4px 0 #000}
 #toast-message{position:absolute;top:22%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:30;font-family:'Bebas Neue',cursive;font-size:clamp(1.7rem,5vw,2.8rem);color:var(--vc-yellow);text-shadow:3px 3px 0 #000,0 0 18px rgba(255,208,0,.85);letter-spacing:2px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;text-align:center;width:92%}
 #toast-message.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+/* Dokunmatik mobil kontroller */
 #mobile-controls{position:absolute;inset:0;z-index:15;pointer-events:none}
 #driving-controls,#onfoot-controls{position:absolute;inset:0;pointer-events:none}
 .touch-pad-left{position:absolute;bottom:18px;left:14px;display:flex;gap:10px;pointer-events:auto}
@@ -121,14 +138,19 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 </head>
 <body>
 <canvas id="game-canvas"></canvas>
+
+<!-- Hata yakalayıcı ekran -->
 <div id="fatal-error-overlay" class="hidden">
   <div class="game-logo" style="font-size:2.6rem">HATA OLUŞTU</div>
   <p style="font-size:.9rem;opacity:.9">Oyun çalışırken bir sorun meydana geldi:</p>
   <div id="fatal-error-box"></div>
   <button class="play-btn" id="btn-reload-error" style="font-size:1.5rem;padding:10px 28px" type="button">YENİDEN YÜKLE</button>
 </div>
+
+<!-- Dinamik nişangah -->
 <div id="crosshair"><div class="ch-dot"></div><div class="ch-line ch-top"></div><div class="ch-line ch-bottom"></div><div class="ch-line ch-left"></div><div class="ch-line ch-right"></div></div>
 
+<!-- Başlangıç menüsü -->
 <div id="start-screen">
   <div class="game-logo">SUÇ ŞEHRİ 1</div>
   <div class="game-subtitle">LOS ANGELES • FATİH &amp; LEROY • 10 GÖREV</div>
@@ -138,7 +160,7 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
   </div>
   <div class="mobile-orientation-notice" id="mobile-orientation-warning">📱 Mobildeysen ekranı yan tutarak daha rahat oynayabilirsin. Dokunmatik ve klavye kontrolleri kesintisiz çalışır.</div>
   <div class="pre-play-info">
-    <strong>Suç Şehri 1:</strong> Üniversite mezuniyetine bir hafta kala babası kazada ölen <strong>Leroy</strong>, annesiyle anneannenin evine taşınır; dostu <strong>Fatih</strong> <strong>Los Angeles</strong>’a gelir. <strong>Marcus "Bay Kuru" Webb</strong> ile 10 görev, <strong>C4</strong>, <strong>LA Casino</strong>, <strong>Pink Hat Pavyon</strong> ve finalde <strong>Leroy (LA)</strong> veya <strong>Fatih (İstanbul)</strong> seçimi!
+    <strong>Suç Şehri 1:</strong> Üniversite mezuniyetine bir hafta kala babası kazada ölen <strong>Leroy</strong>, annesiyle anneannenin evine taşınır; dostu <strong>Fatih</strong> <strong>Los Angeles</strong>’a gelir. <strong>Marcus "Bay Kuru" Webb</strong> ile 10 görev, <strong>C4</strong>, <strong>LA Casino</strong>, <strong>Pink Hat Pavyon</strong> ve finalde kız arkadaşıyla <strong>Türkiye/İstanbul</strong> sahnesinin ardından <strong>Leroy (LA)</strong> veya <strong>Fatih (İstanbul)</strong> seçimi!
   </div>
   <div class="start-cta-row">
     <button class="story-start-btn" id="btn-start-story" type="button">🎬 HİKAYE MODU</button>
@@ -149,6 +171,7 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
   </div>
 </div>
 
+<!-- Sinematik ara sahne katmanı -->
 <div id="cutscene-overlay" class="hidden">
   <div class="letterbox-bar">
     <div class="cutscene-chapter" id="cutscene-chapter-title">SAHNE 1</div>
@@ -160,12 +183,13 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
   </div>
 </div>
 
+<!-- Final seçim penceresi -->
 <div id="ending-modal" class="hidden">
   <div class="ending-card">
     <div class="game-logo" style="font-size:2.9rem">10 GÖREV TAMAMLANDI</div>
     <div class="game-subtitle" style="margin-bottom:8px">FİNAL SEÇİMİ: LOS ANGELES Mİ, İSTANBUL MU?</div>
     <p style="font-size:.88rem;line-height:1.52;color:#e2e8f0;margin-bottom:10px">
-      Pink Hat Pavyon basıldı, çete lideri indirildi ve her şeye el konuldu! Fatih milyoner oldu ve çanta dolusu para ile kız arkadaşıyla İstanbul yolunda; Leroy ise Los Angeles’ta kalabilir.
+      Pink Hat Pavyon basıldı, çete lideri indirildi ve her şeye el konuldu! Fatih milyoner oldu ve çanta dolusu para ile kız arkadaşıyla Türkiye/İstanbul yolunda; Leroy ise Los Angeles’ta kalabilir.
     </p>
     <div style="font-family:'Bebas Neue',cursive;font-size:2.1rem;color:#4ade80;margin-bottom:10px" id="ending-money-text">TOPLAM SERVET: $00000000</div>
     <div class="ending-choice-row">
@@ -175,6 +199,7 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
   </div>
 </div>
 
+<!-- Nezarethane ekranı -->
 <div id="jail-modal" class="hidden">
   <div class="jail-card">
     <div style="font-family:'Bebas Neue',cursive;font-size:2.2rem;color:#ff2a85;letter-spacing:2px">⛓️ NEZARETHANE</div>
@@ -184,12 +209,14 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
   </div>
 </div>
 
+<!-- Tam ekran harita penceresi -->
 <div id="full-map-modal" class="hidden">
   <div class="map-legend"><span>🔵 Sen</span><span>🩷 Hedef</span><span>🏢 Binalar</span><span>✚ Hastane</span><span>🪩 Pavyon</span><span>🎰 Casino</span><span>🏡 Evler</span><span>🔴 Polis / Tank</span></div>
   <canvas id="full-map-canvas" width="450" height="450"></canvas>
   <button class="close-map-btn" id="btn-close-map" type="button">X HARİTAYI KAPAT</button>
 </div>
 
+<!-- Sol üst minimap ve mod butonları -->
 <div id="hud-top-left" class="hidden">
   <div id="minimap-container" title="Haritayı Büyüt"><canvas id="minimap-canvas" width="120" height="120"></canvas><div class="map-click-tag">📍 HARİTA</div></div>
   <div class="left-side-buttons">
@@ -198,11 +225,13 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
   </div>
 </div>
 
+<!-- Üst orta görev ve konum göstergesi -->
 <div id="top-center-mission" class="hidden">
   <div id="mission-banner">🌴 SUÇ ŞEHRİ 1 • LOS ANGELES (FATİH &amp; LEROY)</div>
   <div id="location-badge">🌴 LOS ANGELES - GÜNDÜZ</div>
 </div>
 
+<!-- Sağ üst para, can, zırh, aranma ve silah göstergeleri -->
 <div id="hud-top-right" class="hidden">
   <div class="money-display" id="hud-money">$00000500</div>
   <div class="bars-group">
@@ -219,9 +248,11 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
   </div>
 </div>
 
+<!-- Benzin ve hız göstergeleri -->
 <div id="fuel-gauge-box" class="hidden"><div class="fuel-label"><span>⛽ BENZİN</span><span id="fuel-percent">100%</span></div><div class="fuel-track"><div id="fuel-fill"></div></div></div>
 <div id="speedometer-box" class="hidden"><div id="speed-value">0</div><div id="speed-unit">KM/H</div></div>
 
+<!-- Etkileşim butonları -->
 <div id="context-actions" class="hidden">
   <button class="context-btn hidden" id="btn-door-action" type="button">🚪 KAPIYI AÇ</button>
   <button class="context-btn car-btn" id="btn-car-action" type="button">🚶 ARABADAN İN</button>
@@ -230,6 +261,7 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 <div id="wasted-overlay"><span>WASTED</span></div>
 <div id="toast-message">GÖREV TAMAMLANDI! +$250</div>
 
+<!-- Mobil dokunmatik kontroller -->
 <div id="mobile-controls" class="hidden">
   <div id="driving-controls">
     <div class="touch-pad-left">
@@ -259,7 +291,7 @@ body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-f
 <script>
 const WATER_LEVEL_Y = -2.2, ISLAND_SURFACE_Y = 0.7, ROAD_SURFACE_Y = 0.72;
 
-// Genişletilmiş Los Angeles haritası + Orta Ada (cx:0, cz:20, r:26) + Sağlam bağlantı yolları
+// Genişletilmiş Los Angeles haritası + Orta Ada + Bağlantı yolları
 const LA_LAYOUT = {
   eastIsland: { minX: 32, maxX: 185, minZ: -195, maxZ: 195 },
   beachStrip: { minX: 152, maxX: 185, minZ: -195, maxZ: 195 },
@@ -274,7 +306,7 @@ const LA_LAYOUT = {
   roadZ: [-120, -20, 20, 80, 140]
 };
 
-// İstanbul haritası (Boğaz hattı, sağlam Boğaz Köprüsü, Avrupa & Anadolu yakası, oteller, marketler, lokanta, camiler ve evler)
+// İstanbul haritası (Boğaz hattı, sağlam Boğaz Köprüsü, Avrupa & Anadolu yakası)
 const IST_LAYOUT = {
   eastIsland: { minX: 30, maxX: 185, minZ: -195, maxZ: 195 },
   beachStrip: { minX: 30, maxX: 52, minZ: -195, maxZ: 195 },
@@ -370,6 +402,7 @@ const charPhysics = { velocityY: 0, isGrounded: true, heading: 0, walkCycle: 0, 
 const $ = id => document.getElementById(id);
 
 let audioCtx;
+// Web Audio API ile ses efektleri oluşturur
 function initAudio() {
   if (audioCtx) return;
   try {
@@ -513,7 +546,7 @@ function box(w, h, d, mat, x = 0, y = 0, z = 0, parent) {
   return m;
 }
 
-// Yol, köprü ve orta ada bağlantı hatları üzerinde hiçbir yapı, ağaç veya lamba bulunmaması için kontrol
+// Yol, köprü ve orta ada bağlantı hatları üzerinde çakışmayı önler
 function isOnRoadOrBridge(x, z, pad = 9.5) {
   const lay = ACTIVE_LAYOUT;
   if (lay.roadX.some(rx => Math.abs(x - rx) < pad)) return true;
@@ -531,6 +564,7 @@ function isOnRoadOrBridge(x, z, pad = 9.5) {
   return false;
 }
 
+// Three.js sahne, ışık ve kamera kurulumu
 function initScene() {
   if (!window.THREE) throw new Error('Three.js kütüphanesi yüklenemedi.');
   const canvas = $('game-canvas');
@@ -633,6 +667,7 @@ function createMosqueLandmark(x, z, parent = worldGroup) {
   parent.add(g);
 }
 
+// Seçilen şehre göre (LA veya IST) adaları, köprüleri, yolları ve binaları kurar
 function buildCityWorld(cityCode) {
   while (worldGroup.children.length > 0) worldGroup.remove(worldGroup.children[0]);
   buildings = [];
@@ -668,7 +703,7 @@ function buildCityWorld(cityCode) {
   plaza.position.set(st.cx, ISLAND_SURFACE_Y + 0.08, st.cz);
   worldGroup.add(plaza);
 
-  // Tam kesintisiz ve sağlam köprüler (Boğaz Köprüsü dahil suya düşürmeyecek geniş tabliye ve korkuluklar)
+  // Tam kesintisiz ve sağlam köprüler
   const pillarMat = lam(0x475569), pillarH = (ISLAND_SURFACE_Y - 0.1) - (WATER_LEVEL_Y - 3.5);
   ACTIVE_LAYOUT.bridges.forEach(br => {
     const spanX = (e.minX + w.maxX) / 2;
@@ -688,7 +723,7 @@ function buildCityWorld(cityCode) {
     }
   });
 
-  // Orta adaya uzanan bağlantı yolları (tamamen asfalt, ağaçsız ve lambasız)
+  // Orta adaya uzanan bağlantı yolları
   ACTIVE_LAYOUT.islandLinks.forEach(lk => {
     const dx = lk.x2 - lk.x1, dz = lk.z2 - lk.z1;
     const len = Math.hypot(dx, dz);
@@ -720,7 +755,6 @@ function buildCityWorld(cityCode) {
     worldGroup.add(r);
   });
 
-  // Ağaç ve sokak lambaları (yalnızca yol ve bağlantı yolları dışındaki güvenli noktalarda)
   for (let z = -175; z <= 175; z += 26) {
     if (!isIst) createPalmTree(166, z, worldGroup);
     createStreetLamp(53, z, worldGroup);
@@ -903,7 +937,7 @@ function buildInteriorFurniture(g, spec, floorH, totalH) {
   }
 }
 
-// Tek katlı (1-floor) binalara ASLA merdiven eklenmez; yalnızca çok katlı (floors > 1) binalara merdiven eklenir
+// Tek katlı (1-floor) binalara merdiven eklenmez; yalnızca çok katlı (floors > 1) binalara merdiven eklenir
 function createEnterableBuilding(spec, parent = worldGroup) {
   const floorH = 4.2, totalH = spec.floors * floorH;
   const minX = spec.x - spec.w / 2, maxX = spec.x + spec.w / 2, minZ = spec.z - spec.d / 2, maxZ = spec.z + spec.d / 2;
@@ -1103,7 +1137,7 @@ function createStoryCharacters() {
   scene.add(marcusNpc);
 
   girlfriendNpc = createHumanoidRig({ role: 'npc', shirtColor: 0xff2a85, pantsColor: 0xf8fafc });
-  girlfriendNpc.position.set(102, ISLAND_SURFACE_Y, -46);
+  girlfriendNpc.position.set(95, ISLAND_SURFACE_Y, -54);
   girlfriendNpc.visible = false;
   scene.add(girlfriendNpc);
 
@@ -1151,7 +1185,13 @@ function createCheckpoint() {
   checkpointRing.position.y = 0.4;
   checkpointMesh.add(checkpointRing);
   checkpointMesh.position.copy(checkpointPos);
+  checkpointMesh.visible = false;
   scene.add(checkpointMesh);
+}
+
+function syncCheckpointVisibility() {
+  if (!checkpointMesh) return;
+  checkpointMesh.visible = Boolean(state.storyEnabled || state.courierActive || state.taxiActive);
 }
 
 function spawnTraffic(count) {
@@ -1276,10 +1316,12 @@ function finishCutscene() {
   if (typeof cb === 'function') cb();
 }
 
+// 10 görevlik Fatih & Leroy hikaye kampanyasını başlatır
 function startStoryCampaign() {
   if (state.city !== 'LA') switchCity('LA', false);
   state.activeCharacter = 'Fatih';
   state.storyEnabled = true;
+  syncCheckpointVisibility();
   state.casinoRobbed = false;
   $('btn-toggle-story').textContent = '📖 HİKAYE: AÇIK';
   $('btn-toggle-story').classList.add('active-mode');
@@ -1299,7 +1341,7 @@ function startStoryCampaign() {
     {
       chapter: 'SAHNE 2 • ANNEANNENİN EVİ (LOS ANGELES)',
       speaker: 'ANLATICI',
-      text: 'Leroy ve annesi anneannenin evine yerleşti. Üniversite bitince Fatih, arkadaşına destek olmak için Amerika’ya gitti ve orada 4 ay kalmaya karar verdi.',
+      text: 'Leroy ve annesi anneannenin evine yerleşti. Üniversite bitince dostu Fatih, yanında olmak ve omuz vermek için Los Angeles’a geldi.',
       duration: 4.5,
       camStart: new THREE.Vector3(-88, 5.2, 62),
       camEnd: new THREE.Vector3(-92, 3.8, 56),
@@ -1340,6 +1382,7 @@ function startStoryCampaign() {
 function startStoryChapter(ch) {
   state.storyChapter = ch;
   clearStoryWaves();
+  syncCheckpointVisibility();
   const banner = $('mission-banner');
 
   if (ch === 1) {
@@ -1416,6 +1459,7 @@ function startStoryChapter(ch) {
   }
 }
 
+// 10. görev sonunda Fatih'in kız arkadaşıyla Türkiye/İstanbul'a gidiş sahnesini oynatır
 function checkStoryProgress() {
   if (!state.storyEnabled) return;
   if (state.storyChapter === 1 && storyEnemies.every(e => e.hp <= 0)) {
@@ -1443,13 +1487,36 @@ function checkStoryProgress() {
       {
         chapter: 'FİNAL SAHNESİ • HER ŞEYE EL KOYMA',
         speaker: 'FATİH & LEROY',
-        text: 'Pink Hat lideri indirildi, pavyon ve tüm servet ele geçirildi! Fatih milyoner oldu ve çanta dolusu para ile kız arkadaşıyla İstanbul’a gitmeye hazırlanıyor; Leroy ise Los Angeles’ta kalabilir.',
+        text: 'Pink Hat lideri indirildi, pavyon ve tüm servet ele geçirildi! Fatih milyoner oldu ve kız arkadaşıyla birlikte Türkiye’nin yolunu tutuyor.',
         duration: 4.5,
         camStart: new THREE.Vector3(86, 5.2, -52),
         camEnd: new THREE.Vector3(90, 4.0, -58),
-        lookAt: new THREE.Vector3(92, 1.6, -68)
+        lookAt: new THREE.Vector3(92, 1.6, -68),
+        setup: () => {
+          if (girlfriendNpc) {
+            girlfriendNpc.visible = true;
+            girlfriendNpc.position.set(94, ISLAND_SURFACE_Y, -56);
+          }
+        }
+      },
+      {
+        chapter: 'TÜRKİYE YOLCULUĞU • İSTANBUL’A DÖNÜŞ',
+        speaker: 'FATİH & KIZ ARKADAŞI',
+        text: 'Çanta dolusu parayla uçağa binen Fatih ve kız arkadaşı Türkiye’ye doğru havalanıyor! Şimdi istersen Leroy olarak Los Angeles’ta kalabilir veya Fatih olarak İstanbul’a geçebilirsin.',
+        duration: 5.0,
+        camStart: new THREE.Vector3(24, 18, -20),
+        camEnd: new THREE.Vector3(72, 17, -64),
+        lookAt: new THREE.Vector3(52, 15, -44),
+        setup: () => {
+          if (airlinerMesh) {
+            airlinerMesh.visible = true;
+            airlinerMesh.position.set(28, ROAD_SURFACE_Y + 15, -20);
+            airlinerMesh.rotation.y = Math.atan2(36, -35);
+          }
+        }
       }
     ], () => {
+      if (airlinerMesh) airlinerMesh.visible = false;
       $('ending-money-text').textContent = 'TOPLAM SERVET: $' + String(Math.floor(state.money)).padStart(8, '0');
       $('ending-modal').classList.remove('hidden');
     });
@@ -1460,6 +1527,7 @@ function switchCity(cityCode, notify = true) {
   state.city = cityCode;
   buildCityWorld(cityCode);
   populateCityEntities(cityCode);
+  syncCheckpointVisibility();
   if (cityCode === 'IST') {
     state.activeCharacter = 'Fatih';
     $('mission-banner').textContent = '🇹🇷 İSTANBUL • FATİH & KIZ ARKADAŞI (BOĞAZ, OTELLER & MARKETLER)';
@@ -1476,7 +1544,7 @@ function switchCity(cityCode, notify = true) {
     if (notify) showToast('🇹🇷 FATİH OLARAK İSTANBUL’DASIN! OTELLER, MARKETLER & BOĞAZ');
   } else {
     state.activeCharacter = 'Leroy';
-    if (!state.storyEnabled) $('mission-banner').textContent = '🇺🇸 LOS ANGELES • LEROY OLARAK SERBEST GEZİ';
+    if (!state.storyEnabled) $('mission-banner').textContent = '🌴 SUÇ ŞEHRİ 1 • LOS ANGELES (SERBEST GEZİ)';
     if (state.inCar || state.inMotorcycle) {
       const v = state.inMotorcycle ? playerMoto : playerCar;
       v.position.set(65, ROAD_SURFACE_Y, 20);
@@ -1567,6 +1635,7 @@ function updateCrosshairVisuals() {
   el.classList.toggle('hit', state.hitMarkerTimer > 0);
 }
 
+// Aktif kameranın yatay bakış yönünü döndürür
 function getAimDirectionXZ() {
   if (camera) {
     const camDir = new THREE.Vector3();
@@ -1602,7 +1671,6 @@ function stunPose(rig, t) {
   rig.rotation.x = t <= 0 ? 0 : rig.rotation.x + (target - rig.rotation.x) * 0.25;
 }
 
-// 10 öldürme başına 1 yıldız
 function registerKill() {
   state.killCount += 1;
   const starFromKills = Math.min(5, Math.floor(state.killCount / 10));
@@ -1848,11 +1916,12 @@ function currentPos() {
   return state.inCar ? playerCar.position : (state.inMotorcycle ? playerMoto.position : playerRig.position);
 }
 
+// Kapı, casino kasası, kuryelik ve taksi yan işlerini tetikler
 function toggleNearestDoor() {
   if (!state.started || state.inCutscene || state.inJail) return;
   const p = currentPos();
 
-  if (p.distanceTo(state.casinoVaultPos) < 8.5 && !state.casinoRobbed) {
+  if (state.city === 'LA' && p.distanceTo(state.casinoVaultPos) < 8.5 && !state.casinoRobbed) {
     state.casinoRobbed = true;
     state.money += 4500;
     updateHUD(); playSfx('pickup');
@@ -1862,6 +1931,7 @@ function toggleNearestDoor() {
   }
   if (p.distanceTo(state.restaurantCounterPos) < 5.5 && !state.courierActive) {
     state.courierActive = true;
+    syncCheckpointVisibility();
     checkpointPos.set(125, ROAD_SURFACE_Y, 80);
     checkpointMesh.position.copy(checkpointPos);
     playSfx('door');
@@ -1870,6 +1940,7 @@ function toggleNearestDoor() {
   }
   if (p.distanceTo(state.taxiStandPos) < 6.0 && !state.taxiActive) {
     state.taxiActive = true;
+    syncCheckpointVisibility();
     checkpointPos.set(65, ROAD_SURFACE_Y, 80);
     checkpointMesh.position.copy(checkpointPos);
     playSfx('door');
@@ -1915,9 +1986,12 @@ function toggleStoryMode() {
     state.storyEnabled = false;
     state.storyChapter = 0;
     clearStoryWaves();
+    syncCheckpointVisibility();
     $('btn-toggle-story').textContent = '📖 HİKAYE: KAPALI';
     $('btn-toggle-story').classList.remove('active-mode');
-    $('mission-banner').textContent = '🌴 SUÇ ŞEHRİ 1 • LOS ANGELES (FATİH & LEROY)';
+    $('mission-banner').textContent = state.city === 'IST'
+      ? '🇹🇷 İSTANBUL • FATİH & KIZ ARKADAŞI (BOĞAZ, OTELLER & MARKETLER)'
+      : '🌴 SUÇ ŞEHRİ 1 • LOS ANGELES (SERBEST GEZİ)';
     showToast('SERBEST GEZİ MODUNA DÖNÜLDÜ');
   }
 }
@@ -1940,6 +2014,7 @@ function enterActiveGameUI() {
     setOnFootUI(!state.inCar && !state.inMotorcycle);
   }
   state.started = true;
+  syncCheckpointVisibility();
   initAudio();
   updateCrosshairVisuals();
 }
@@ -1982,11 +2057,13 @@ function setupControls() {
   bindInstantTap($('btn-stay-leroy-la'), () => {
     $('ending-modal').classList.add('hidden');
     state.storyEnabled = false;
+    syncCheckpointVisibility();
     switchCity('LA', true);
   });
   bindInstantTap($('btn-go-fatih-ist'), () => {
     $('ending-modal').classList.add('hidden');
     state.storyEnabled = false;
+    syncCheckpointVisibility();
     switchCity('IST', true);
   });
 
@@ -2415,7 +2492,6 @@ function drawMapBase(ctx, ox, oy, s) {
   });
 }
 
-// Minimap: karakterin baktığı/gittiği ileri yön yukarı (0, -1) olacak şekilde harita oyuncunun baktığı yöne çevrilir
 function drawMinimap() {
   const c = $('minimap-canvas'); if (!c || !playerCar || !playerRig) return;
   const ctx = c.getContext('2d'), cx = c.width / 2, cy = c.height / 2, s = 0.34;
@@ -2432,10 +2508,12 @@ function drawMinimap() {
     ctx.fillStyle = b.type === 'hospital' ? '#ffffff' : (b.type === 'pavyon' ? '#ff2a85' : (b.type === 'casino' ? '#ffd000' : '#ff6b9d'));
     ctx.fillRect((b.minX - t.x) * s, (b.minZ - t.z) * s, b.w * s, b.d * s);
   });
-  ctx.fillStyle = '#ff2a85';
-  ctx.beginPath();
-  ctx.arc((checkpointPos.x - t.x) * s, (checkpointPos.z - t.z) * s, 4.5, 0, 6.283);
-  ctx.fill();
+  if (state.storyEnabled || state.courierActive || state.taxiActive) {
+    ctx.fillStyle = '#ff2a85';
+    ctx.beginPath();
+    ctx.arc((checkpointPos.x - t.x) * s, (checkpointPos.z - t.z) * s, 4.5, 0, 6.283);
+    ctx.fill();
+  }
   targetBossCars.forEach(tc => {
     if (!tc.destroyed && tc.mesh) {
       ctx.fillStyle = '#ffd000';
@@ -2444,7 +2522,6 @@ function drawMinimap() {
   });
   ctx.restore();
 
-  // İleri yön oku (yukarı bakar)
   ctx.fillStyle = '#00e5ff';
   ctx.beginPath();
   ctx.moveTo(cx, cy - 7);
@@ -2455,7 +2532,6 @@ function drawMinimap() {
   ctx.fill();
 }
 
-// Büyük harita: world +Z aşağı, +X sağa; heading=0 (+Z) için ok aşağı (0, +1) bakar
 function drawFullMap() {
   const c = $('full-map-canvas'); if (!c || !playerCar || !playerRig) return;
   const ctx = c.getContext('2d'), cx = c.width / 2, cy = c.height / 2, s = 0.96;
@@ -2498,13 +2574,14 @@ function drawFullMap() {
       ctx.strokeRect(cx + tc.mesh.position.x * s - 4.5, cy + tc.mesh.position.z * s - 4.5, 9, 9);
     }
   });
-  ctx.fillStyle = '#ff2a85'; ctx.beginPath();
-  ctx.arc(cx + checkpointPos.x * s, cy + checkpointPos.z * s, 7, 0, 6.283); ctx.fill();
+  if (state.storyEnabled || state.courierActive || state.taxiActive) {
+    ctx.fillStyle = '#ff2a85'; ctx.beginPath();
+    ctx.arc(cx + checkpointPos.x * s, cy + checkpointPos.z * s, 7, 0, 6.283); ctx.fill();
+  }
 
   const p = currentPos();
   const px = cx + p.x * s, py = cy + p.z * s;
   const heading = (state.inCar || state.inMotorcycle) ? carPhysics.heading : charPhysics.heading;
-  // Dünyada ileri yön: dx = sin(heading), dz = cos(heading)
   const fx = Math.sin(heading), fz = Math.cos(heading);
   const rx = Math.cos(heading), rz = -Math.sin(heading);
   ctx.save();
@@ -2537,7 +2614,7 @@ function updateCutscene(dt) {
     camera.position.lerpVectors(sc.camStart, sc.camEnd, p);
   }
   if (sc.lookAt) camera.lookAt(sc.lookAt);
-  if (state.cutsceneIdx === 3 && airlinerMesh && airlinerMesh.visible) {
+  if (airlinerMesh && airlinerMesh.visible) {
     airlinerMesh.position.x += 12 * dt;
     airlinerMesh.position.z -= 10.5 * dt;
     airlinerMesh.position.y -= 2.0 * dt;
@@ -2548,6 +2625,7 @@ function updateCutscene(dt) {
   }
 }
 
+// Ana fizik, araç/yaya etkileşimi ve görev kontrol döngüsü
 function updatePhysics(dt) {
   if (!playerCar || !playerRig || !scene) return;
   if (state.inCutscene) { updateCutscene(dt); return; }
@@ -2832,8 +2910,9 @@ function updatePhysics(dt) {
     else $('oxygen-fill').style.width = state.oxygen + '%';
   }
 
+  // Serbest modda rastgele görev tetiklenmez; yalnızca hikaye modunda veya aktif taksi/kurye işinde çalışır
   checkpointRing.rotation.z += dt * 2.5;
-  if (playerPos.distanceTo(checkpointPos) < 4.5) {
+  if ((state.storyEnabled || state.courierActive || state.taxiActive) && playerPos.distanceTo(checkpointPos) < 4.5) {
     if (state.storyEnabled && state.storyChapter === 2) {
       state.money += 1200; updateHUD(); playSfx('pickup');
       showToast('💼 BAY KURU İLE BULUŞULDU (+$1.200)! GÖREV 3 BAŞLIYOR');
@@ -2848,18 +2927,12 @@ function updatePhysics(dt) {
       startStoryChapter(9);
     } else if (state.courierActive) {
       state.courierActive = false; state.money += 350; updateHUD(); playSfx('pickup');
+      syncCheckpointVisibility();
       showToast('🛵 KURYE SİPARİŞİ TESLİM EDİLDİ! +$350');
     } else if (state.taxiActive) {
       state.taxiActive = false; state.money += 300; updateHUD(); playSfx('pickup');
+      syncCheckpointVisibility();
       showToast('🚕 TAKSİ YOLCUSU BIRAKILDI! +$300');
-    } else if (!state.storyEnabled) {
-      state.money += 250; updateHUD(); playSfx('pickup');
-      showToast('GÖREV TAMAMLANDI! +$250');
-    }
-    if (!state.storyEnabled || ![2, 5, 8].includes(state.storyChapter)) {
-      const spots = [[65, ROAD_SURFACE_Y, -20], [125, ROAD_SURFACE_Y, 80], [-65, ROAD_SURFACE_Y, -20], [-135, ROAD_SURFACE_Y, 80], [0, ISLAND_SURFACE_Y, 20]];
-      const s = spots[Math.floor(Math.random() * spots.length)];
-      checkpointPos.set(...s); checkpointMesh.position.copy(checkpointPos);
     }
   }
 
