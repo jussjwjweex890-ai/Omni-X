@@ -1,28 +1,3578 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>GLB Görüntüleyici</title>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-  <style>
-    body { margin: 0; background: #1e1e1e; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
-    header { padding: 12px 20px; background: #2a2a2a; display: flex; align-items: center; gap: 12px; }
-    model-viewer { flex: 1; width: 100%; background: #1e1e1e; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Suç Şehri 1</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;margin:0;padding:0}
+body,html{width:100%;height:100%;overflow:hidden;background-color:#38bdf8;font-family:'Inter',sans-serif;touch-action:none}
+#game-canvas{display:block;width:100%;height:100%;position:absolute;top:0;left:0;z-index:1}
+#game-canvas.wasted{filter:grayscale(1) contrast(1.1)}
+:root{--vc-pink:#ff2a85;--vc-cyan:#00e5ff;--vc-yellow:#ffd000;--vc-dark:rgba(12,20,38,.86)}
+
+#start-screen{position:fixed;inset:0;z-index:200;background:linear-gradient(135deg,rgba(14,78,158,.94),rgba(2,132,199,.88),rgba(234,88,12,.82));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center;backdrop-filter:blur(8px);overflow-y:auto;pointer-events:auto}
+.game-logo{font-family:'Bebas Neue',cursive;font-size:clamp(3.4rem,10.5vw,6.4rem);line-height:.9;color:#fff;text-shadow:0 0 24px rgba(0,229,255,.65),4px 4px 0 #090d16;letter-spacing:4px;margin-bottom:4px}
+.game-subtitle{font-family:'Bebas Neue',cursive;font-size:clamp(1.05rem,3.1vw,1.75rem);color:#fef08a;text-shadow:2px 2px 0 #090d16;letter-spacing:2.5px;margin-bottom:12px}
+.platform-select-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+.platform-btn{background:rgba(12,20,38,.9);color:#fff;border:2.5px solid rgba(255,255,255,.45);border-radius:22px;padding:9px 22px;font-family:'Bebas Neue',cursive;font-size:1.45rem;letter-spacing:2px;cursor:pointer;transition:all .15s ease;touch-action:manipulation;pointer-events:auto}
+.platform-btn.active{border-color:var(--vc-cyan);background:linear-gradient(135deg,rgba(2,132,199,.95),rgba(255,42,133,.88));box-shadow:0 0 20px rgba(0,229,255,.6);transform:scale(1.03)}
+.mobile-orientation-notice{background:rgba(254,240,138,.2);border:1.5px solid var(--vc-yellow);color:#fef9c3;border-radius:14px;padding:7px 14px;max-width:600px;font-size:.8rem;font-weight:700;margin-bottom:10px}
+.pre-play-info{font-size:.8rem;color:rgba(255,255,255,.96);max-width:620px;background:rgba(10,18,38,.74);border:1px solid rgba(125,211,252,.45);border-radius:14px;padding:10px 15px;margin-bottom:14px;line-height:1.48}
+.start-cta-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;align-items:center}
+.play-btn{background:linear-gradient(90deg,#ff2a85,#ff6b35);color:#fff;border:3px solid #fff;border-radius:50px;padding:12px 46px;font-family:'Bebas Neue',cursive;font-size:2.2rem;letter-spacing:3px;cursor:pointer;box-shadow:0 10px 28px rgba(255,42,133,.7);transition:transform .14s ease;touch-action:manipulation;pointer-events:auto}
+.story-start-btn{background:linear-gradient(90deg,#0284c7,#00e5ff);color:#061326;border:3px solid #fff;border-radius:50px;padding:12px 34px;font-family:'Bebas Neue',cursive;font-size:2rem;letter-spacing:2.5px;cursor:pointer;box-shadow:0 10px 26px rgba(0,229,255,.6);transition:transform .14s ease;touch-action:manipulation;pointer-events:auto}
+.play-btn:active,.story-start-btn:active{transform:scale(.94)}
+.controls-hint{margin-top:14px;color:rgba(255,255,255,.95);font-size:.78rem;max-width:640px;background:rgba(8,14,28,.68);padding:10px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.25);line-height:1.55}
+
+#crosshair{position:fixed;top:50%;left:50%;width:26px;height:26px;transform:translate(-50%,-50%) scale(1);z-index:35;pointer-events:none;display:none;transition:transform .07s ease-out}
+#crosshair .ch-dot{position:absolute;top:50%;left:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--vc-yellow);box-shadow:0 0 6px var(--vc-yellow)}
+#crosshair .ch-line{position:absolute;background:var(--vc-cyan);box-shadow:0 0 6px rgba(0,229,255,.85);transition:transform .07s ease-out,background-color .12s ease}
+#crosshair .ch-top{top:0;left:12px;width:2px;height:7px}#crosshair .ch-bottom{bottom:0;left:12px;width:2px;height:7px}
+#crosshair .ch-left{left:0;top:12px;width:7px;height:2px}#crosshair .ch-right{right:0;top:12px;width:7px;height:2px}
+#crosshair.recoil .ch-top{transform:translateY(-5px)}#crosshair.recoil .ch-bottom{transform:translateY(5px)}
+#crosshair.recoil .ch-left{transform:translateX(-5px)}#crosshair.recoil .ch-right{transform:translateX(5px)}
+#crosshair.hit .ch-line{background:#ff2a85;box-shadow:0 0 10px #ff2a85}
+
+#hud-top-left{position:absolute;top:12px;left:12px;z-index:20;display:flex;align-items:flex-start;gap:10px;pointer-events:none}
+#minimap-container{position:relative;width:106px;height:106px;border-radius:50%;border:3px solid #fff;background:#0284c7;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.6),0 0 12px rgba(0,229,255,.5);cursor:pointer;pointer-events:auto;flex-shrink:0}
+#minimap-canvas{width:100%;height:100%;display:block}
+.map-click-tag{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-size:.55rem;font-weight:800;background:rgba(0,0,0,.78);color:var(--vc-yellow);padding:1px 6px;border-radius:8px;pointer-events:none}
+.left-side-buttons{display:flex;flex-direction:column;gap:6px;pointer-events:auto;margin-top:4px}
+#top-center-mission{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:18;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px;max-width:56vw}
+#mission-banner{background:var(--vc-dark);border:1.5px solid var(--vc-cyan);color:#fff;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.45);text-align:center;backdrop-filter:blur(4px)}
+#location-badge{background:rgba(2,132,199,.92);color:#fff;padding:2px 10px;border-radius:12px;font-size:.65rem;font-weight:800;letter-spacing:.5px;white-space:nowrap}
+#hud-top-right{position:absolute;top:12px;right:12px;z-index:20;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+.money-display{font-family:'Bebas Neue',cursive;font-size:clamp(1.7rem,4.2vw,2.4rem);color:#4ade80;text-shadow:2px 2px 0 #000,0 0 10px rgba(74,222,128,.5);letter-spacing:1px;line-height:1}
+.bars-group{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.health-bar-wrap{width:124px;height:11px;background:rgba(0,0,0,.85);border:1.5px solid #fff;border-radius:6px;overflow:hidden}
+#health-fill{width:100%;height:100%;background:linear-gradient(90deg,#ff2a85,#ff5e7e);transition:width .2s ease}
+.armor-bar-wrap{width:124px;height:9px;background:rgba(0,0,0,.85);border:1.5px solid #38bdf8;border-radius:5px;overflow:hidden}
+#armor-fill{width:100%;height:100%;background:linear-gradient(90deg,#0284c7,#38bdf8);transition:width .2s ease}
+.wanted-stars{display:flex;gap:3px;font-size:1.15rem;filter:drop-shadow(1px 2px 0 #000)}
+.star{color:rgba(255,255,255,.25);transition:color .2s,transform .2s}.star.active{color:var(--vc-yellow);transform:scale(1.15)}
+.kill-counter-tag{font-size:.66rem;font-weight:800;color:#fef08a;background:rgba(12,18,36,.82);padding:2px 8px;border-radius:10px;border:1px solid rgba(250,204,21,.4)}
+.right-hud-actions{display:flex;align-items:center;gap:6px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end}
+.weapon-hud-box{display:flex;align-items:center;gap:7px;background:var(--vc-dark);border:1.5px solid var(--vc-cyan);border-radius:12px;padding:5px 10px;color:#fff;cursor:pointer;box-shadow:0 4px 12px rgba(0,229,255,.25)}
+.weapon-hud-box:active{transform:scale(.93)}
+#weapon-name{font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--vc-cyan);line-height:1}
+#weapon-ammo{font-size:.66rem;font-weight:700;color:#e2e8f0}
+.mini-pill-btn{background:rgba(12,18,36,.88);color:#fff;border:1.5px solid rgba(255,255,255,.75);border-radius:14px;padding:6px 10px;font-size:.69rem;font-weight:800;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.45);backdrop-filter:blur(4px);white-space:nowrap;touch-action:manipulation}
+.mini-pill-btn:active{transform:scale(.92);border-color:var(--vc-cyan)}
+.mini-pill-btn.active-mode{border-color:var(--vc-yellow);color:var(--vc-yellow);background:rgba(2,132,199,.45)}
+
+#speedometer-box{position:absolute;bottom:112px;right:18px;z-index:18;background:var(--vc-dark);border:1.5px solid var(--vc-pink);border-radius:14px;padding:6px 14px;text-align:right;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+#speed-value{font-family:'Bebas Neue',cursive;font-size:1.85rem;color:var(--vc-cyan);line-height:1;letter-spacing:1px}
+#speed-unit{font-size:.62rem;font-weight:800;color:#cbd5e1}
+#fuel-gauge-box{position:absolute;bottom:112px;left:18px;z-index:18;background:var(--vc-dark);border:1.5px solid var(--vc-yellow);border-radius:14px;padding:7px 12px;min-width:122px;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+.fuel-label{display:flex;justify-content:space-between;font-size:.65rem;font-weight:800;color:var(--vc-yellow);margin-bottom:4px}
+.fuel-track{width:100%;height:8px;background:rgba(255,255,255,.16);border-radius:6px;overflow:hidden}
+#fuel-fill{width:100%;height:100%;background:linear-gradient(90deg,#f97316,#ffd000);transition:width .15s ease}
+
+#context-actions{position:absolute;inset:0;z-index:25;pointer-events:none}
+.context-btn{position:fixed;bottom:125px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff2a85,#ff7b00);color:#fff;border:2.5px solid #fff;border-radius:28px;padding:10px 20px;font-size:.84rem;font-weight:800;letter-spacing:.5px;cursor:pointer;box-shadow:0 6px 20px rgba(255,42,133,.65);animation:pulsePop 1.2s infinite alternate;white-space:nowrap;pointer-events:auto;touch-action:manipulation}
+.context-btn.car-btn{bottom:18px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00b4d8,#3a86ff);box-shadow:0 6px 20px rgba(0,180,216,.65);animation:none}
+.context-btn.car-btn.steal-btn{background:linear-gradient(135deg,#ef4444,#f97316);box-shadow:0 6px 20px rgba(239,68,68,.75);animation:pulsePop 1s infinite alternate}
+.context-btn.car-btn:active{transform:translateX(-50%) scale(.95)}
+@keyframes pulsePop{from{transform:translateX(-50%) scale(1)}to{transform:translateX(-50%) scale(1.05)}}
+
+#cutscene-overlay{position:fixed;inset:0;z-index:120;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between}
+.letterbox-bar{width:100%;height:13vh;background:rgba(4,6,14,.95);display:flex;align-items:center;justify-content:space-between;padding:0 22px;color:#fff;pointer-events:auto}
+.cutscene-chapter{font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:2px;color:var(--vc-cyan)}
+.cutscene-skip-btn{background:rgba(255,42,133,.88);color:#fff;border:1.5px solid #fff;border-radius:16px;padding:6px 14px;font-size:.76rem;font-weight:800;cursor:pointer;touch-action:manipulation}
+.subtitle-box{margin:0 auto 14vh;max-width:800px;width:92%;background:rgba(10,14,28,.9);border:1.5px solid rgba(0,229,255,.6);border-radius:16px;padding:12px 18px;text-align:center;color:#fff;box-shadow:0 10px 28px rgba(0,0,0,.7)}
+.subtitle-speaker{font-family:'Bebas Neue',cursive;font-size:1.25rem;letter-spacing:1.5px;color:var(--vc-yellow);margin-bottom:3px}
+.subtitle-text{font-size:.92rem;line-height:1.45;font-weight:600}
+#ending-modal{position:fixed;inset:0;z-index:210;background:rgba(8,14,32,.95);display:flex;align-items:center;justify-content:center;padding:18px;text-align:center;color:#fff;backdrop-filter:blur(8px)}
+.ending-card{max-width:580px;width:100%;background:rgba(14,24,48,.96);border:2.5px solid var(--vc-yellow);border-radius:22px;padding:22px;box-shadow:0 16px 40px rgba(0,0,0,.75)}
+.ending-choice-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.choice-la-btn{background:linear-gradient(90deg,#2563eb,#00e5ff);color:#fff;border:2.5px solid #fff;border-radius:30px;padding:12px 22px;font-family:'Bebas Neue',cursive;font-size:1.45rem;letter-spacing:1.5px;cursor:pointer;touch-action:manipulation}
+.choice-ist-btn{background:linear-gradient(90deg,#dc2626,#ff2a85);color:#fff;border:2.5px solid #fff;border-radius:30px;padding:12px 22px;font-family:'Bebas Neue',cursive;font-size:1.45rem;letter-spacing:1.5px;cursor:pointer;touch-action:manipulation}
+
+#full-map-modal{position:fixed;inset:0;z-index:200;background:rgba(8,14,30,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);pointer-events:auto}
+.map-legend{display:flex;gap:12px;margin-bottom:10px;color:#fff;font-size:.76rem;font-weight:700;flex-wrap:wrap;justify-content:center}
+#full-map-canvas{width:min(86vw,450px);height:min(86vw,450px);border:3px solid var(--vc-cyan);border-radius:16px;background:#0284c7;box-shadow:0 0 30px rgba(0,229,255,.45)}
+.close-map-btn{margin-top:14px;background:var(--vc-pink);color:#fff;border:2px solid #fff;border-radius:30px;padding:10px 36px;font-family:'Bebas Neue',cursive;font-size:1.7rem;cursor:pointer;pointer-events:auto}
+#jail-modal{position:fixed;inset:0;z-index:190;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:12vh 20px 20px;text-align:center;color:#fff;pointer-events:none}
+.jail-card{background:rgba(20,26,48,.93);border:2px solid var(--vc-cyan);border-radius:20px;padding:14px 18px;max-width:340px;width:100%;box-shadow:0 12px 35px rgba(0,0,0,.65);pointer-events:auto}
+.jail-timer{font-family:'Bebas Neue',cursive;font-size:3rem;color:var(--vc-yellow);margin:6px 0}
+.bail-btn{background:linear-gradient(90deg,#10b981,#059669);color:#fff;border:2px solid #fff;border-radius:26px;padding:10px 24px;font-size:.95rem;font-weight:800;cursor:pointer;margin-top:8px}
+#wasted-overlay{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .5s;background:rgba(0,0,0,.35)}
+#wasted-overlay.show{opacity:1}
+#wasted-overlay span{font-family:'Bebas Neue',cursive;font-size:clamp(4rem,18vw,10rem);letter-spacing:6px;text-shadow:4px 4px 0 #000}
+#toast-message{position:absolute;top:22%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:30;font-family:'Bebas Neue',cursive;font-size:clamp(1.7rem,5vw,2.8rem);color:var(--vc-yellow);text-shadow:3px 3px 0 #000,0 0 18px rgba(255,208,0,.85);letter-spacing:2px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;text-align:center;width:92%}
+#toast-message.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+#mobile-controls{position:absolute;inset:0;z-index:15;pointer-events:none}
+#driving-controls,#onfoot-controls{position:absolute;inset:0;pointer-events:none}
+.touch-pad-left{position:absolute;bottom:18px;left:14px;display:flex;gap:10px;pointer-events:auto}
+.touch-pad-right{position:absolute;bottom:18px;right:14px;display:flex;align-items:flex-end;gap:8px;pointer-events:auto;flex-wrap:wrap;max-width:68vw;justify-content:flex-end}
+.ctrl-btn{width:58px;height:58px;border-radius:50%;background:rgba(12,18,36,.78);border:2.5px solid rgba(255,255,255,.85);color:#fff;font-size:1.25rem;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.45);backdrop-filter:blur(4px);touch-action:manipulation;pointer-events:auto}
+.ctrl-btn span{font-size:.55rem;margin-top:2px;opacity:.92}
+.ctrl-btn:active,.ctrl-btn.pressed{background:rgba(255,42,133,.92);border-color:var(--vc-cyan);transform:scale(.92)}
+.pedal-gas{height:78px;width:56px;border-radius:20px;background:rgba(16,185,129,.48);border-color:#34d399}
+.pedal-brake{height:66px;width:52px;border-radius:18px;background:rgba(239,68,68,.48);border-color:#f87171}
+.btn-drift{width:50px;height:50px;border-color:var(--vc-yellow);color:var(--vc-yellow)}
+.btn-nitro{width:50px;height:50px;border-color:#00e5ff;color:#00e5ff}
+.btn-c4{width:50px;height:50px;border-color:#f97316;color:#fdba74}
+.btn-fire{width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,rgba(255,42,133,.92),rgba(185,28,28,.95));border:3px solid #ffd000}
+.btn-weapon-switch{width:50px;height:50px;border-color:var(--vc-cyan);color:var(--vc-cyan)}
+#joystick-zone{position:absolute;bottom:20px;left:20px;width:116px;height:116px;border-radius:50%;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.55);pointer-events:auto;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);touch-action:none}
+#joystick-knob{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--vc-pink),var(--vc-cyan));border:2px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.5);transform:translate(0,0);pointer-events:none}
+.hidden{display:none!important}
+#fatal-error-overlay{position:fixed;inset:0;z-index:999;background:rgba(12,18,36,.96);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;gap:12px}
+#fatal-error-box{max-width:560px;width:100%;background:rgba(0,0,0,.65);border:1.5px solid var(--vc-pink);border-radius:12px;padding:14px;font-family:monospace;font-size:.85rem;color:#fda4af;word-break:break-word}
+</style>
 </head>
 <body>
-  <header>
-    <input type="file" id="fileInput" accept=".glb,.gltf" />
-    <span>Dosya seçin veya modeli fareyle döndürün / yakınlaştırın</span>
-  </header>
-  <model-viewer id="viewer" camera-controls auto-rotate shadow-intensity="1"></model-viewer>
-  <script>
-    const input = document.getElementById('fileInput');
-    const viewer = document.getElementById('viewer');
-    input.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) viewer.src = URL.createObjectURL(file);
+<canvas id="game-canvas"></canvas>
+
+<div id="fatal-error-overlay" class="hidden">
+  <div class="game-logo" style="font-size:2.6rem">HATA OLUŞTU</div>
+  <p style="font-size:.9rem;opacity:.9">Oyun çalışırken bir sorun meydana geldi:</p>
+  <div id="fatal-error-box"></div>
+  <button class="play-btn" id="btn-reload-error" style="font-size:1.5rem;padding:10px 28px" type="button">YENİDEN YÜKLE</button>
+</div>
+
+<div id="crosshair"><div class="ch-dot"></div><div class="ch-line ch-top"></div><div class="ch-line ch-bottom"></div><div class="ch-line ch-left"></div><div class="ch-line ch-right"></div></div>
+
+<div id="start-screen">
+  <div class="game-logo">SUÇ ŞEHRİ 1</div>
+  <div class="game-subtitle">LOS ANGELES • FATİH &amp; LEROY • 10 GÖREV</div>
+  <div class="platform-select-row">
+    <button class="platform-btn active" id="btn-mode-desktop" type="button">🖥️ MASAÜSTÜ</button>
+    <button class="platform-btn" id="btn-mode-mobile" type="button">📱 MOBİL</button>
+  </div>
+  <div class="mobile-orientation-notice" id="mobile-orientation-warning">📱 Mobildeysen ekranı yan tutarak daha rahat oynayabilirsin. Dokunmatik ve klavye kontrolleri kesintisiz çalışır.</div>
+  <div class="pre-play-info">
+    <strong>Suç Şehri 1:</strong> Üniversite mezuniyetine bir hafta kala babası kazada ölen <strong>Leroy</strong>, annesiyle anneannenin evine taşınır; dostu <strong>Fatih</strong> <strong>Los Angeles</strong>’a gelir. <strong>Marcus "Bay Kuru" Webb</strong> ile 10 görev, <strong>C4</strong>, <strong>LA Casino</strong>, <strong>Pink Hat Pavyon</strong> ve finalde kız arkadaşıyla <strong>Türkiye/İstanbul</strong> sahnesinin ardından <strong>Leroy (LA)</strong> veya <strong>Fatih (İstanbul)</strong> seçimi!
+  </div>
+  <div class="start-cta-row">
+    <button class="story-start-btn" id="btn-start-story" type="button">🎬 HİKAYE MODU</button>
+    <button class="play-btn" id="btn-start" type="button">OYNA</button>
+  </div>
+  <div class="controls-hint">
+    <strong>Kontroller:</strong> WASD / Ok Tuşları (Hareket), <strong>Shift</strong> (Nitro / Koş), <strong>Space</strong> (Drift / Zıpla), <strong>E</strong> (Kapı / Kasa / İş), <strong>F</strong> (Bin / İn / Araba Çal), <strong>G</strong> (C4 Koy / Patlat), <strong>Q</strong> (Silah), <strong>R veya Sol Tık</strong> (Ateş/Vur), <strong>V</strong> (Kamera), <strong>M/ESC</strong> (Harita).
+  </div>
+</div>
+
+<div id="cutscene-overlay" class="hidden">
+  <div class="letterbox-bar">
+    <div class="cutscene-chapter" id="cutscene-chapter-title">SAHNE 1</div>
+    <button class="cutscene-skip-btn" id="btn-skip-cutscene" type="button">ATLA &gt;&gt;</button>
+  </div>
+  <div class="subtitle-box">
+    <div class="subtitle-speaker" id="cutscene-speaker">FATİH</div>
+    <div class="subtitle-text" id="cutscene-subtitle-text">...</div>
+  </div>
+</div>
+
+<div id="ending-modal" class="hidden">
+  <div class="ending-card">
+    <div class="game-logo" style="font-size:2.9rem">10 GÖREV TAMAMLANDI</div>
+    <div class="game-subtitle" style="margin-bottom:8px">FİNAL SEÇİMİ: LOS ANGELES Mİ, İSTANBUL MU?</div>
+    <p style="font-size:.88rem;line-height:1.52;color:#e2e8f0;margin-bottom:10px">
+      Pink Hat Pavyon basıldı, çete lideri indirildi ve her şeye el konuldu! Fatih milyoner oldu ve çanta dolusu para ile kız arkadaşıyla Türkiye/İstanbul yolunda; Leroy ise Los Angeles’ta kalabilir.
+    </p>
+    <div style="font-family:'Bebas Neue',cursive;font-size:2.1rem;color:#4ade80;margin-bottom:10px" id="ending-money-text">TOPLAM SERVET: $00000000</div>
+    <div class="ending-choice-row">
+      <button class="choice-la-btn" id="btn-stay-leroy-la" type="button">🇺🇸 LEROY OLARAK LOS ANGELES'TA KAL</button>
+      <button class="choice-ist-btn" id="btn-go-fatih-ist" type="button">🇹🇷 FATİH OLARAK İSTANBUL'A GİT</button>
+    </div>
+  </div>
+</div>
+
+<div id="jail-modal" class="hidden">
+  <div class="jail-card">
+    <div style="font-family:'Bebas Neue',cursive;font-size:2.2rem;color:#ff2a85;letter-spacing:2px">⛓️ NEZARETHANE</div>
+    <p style="font-size:.84rem;color:#e2e8f0;margin-top:4px">Hücre kapalı, çıkış yok. Süre bitene kadar bekle veya kefalet öde.</p>
+    <div class="jail-timer" id="jail-timer-text">03:00</div>
+    <button class="bail-btn" id="btn-pay-bail" type="button">💵 $100 KEFALET ÖDE VE ÇIK</button>
+  </div>
+</div>
+
+<div id="full-map-modal" class="hidden">
+  <div class="map-legend"><span>🔵 Sen</span><span>🩷 Hedef</span><span>🏢 Binalar</span><span>✚ Hastane</span><span>🪩 Pavyon</span><span>🎰 Casino</span><span>🏡 Evler</span><span>🔴 Polis / Tank</span></div>
+  <canvas id="full-map-canvas" width="450" height="450"></canvas>
+  <button class="close-map-btn" id="btn-close-map" type="button">X HARİTAYI KAPAT</button>
+</div>
+
+<div id="hud-top-left" class="hidden">
+  <div id="minimap-container" title="Haritayı Büyüt"><canvas id="minimap-canvas" width="120" height="120"></canvas><div class="map-click-tag">📍 HARİTA</div></div>
+  <div class="left-side-buttons">
+    <button class="mini-pill-btn" id="btn-toggle-cam" type="button">🎥 3. ŞAHIS</button>
+    <button class="mini-pill-btn" id="btn-toggle-story" type="button">📖 HİKAYE: KAPALI</button>
+  </div>
+</div>
+
+<div id="top-center-mission" class="hidden">
+  <div id="mission-banner">🌴 SUÇ ŞEHRİ 1 • LOS ANGELES (FATİH &amp; LEROY)</div>
+  <div id="location-badge">🌴 LOS ANGELES - GÜNDÜZ</div>
+</div>
+
+<div id="hud-top-right" class="hidden">
+  <div class="money-display" id="hud-money">$00000500</div>
+  <div class="bars-group">
+    <div class="health-bar-wrap" title="Can"><div id="health-fill"></div></div>
+    <div class="armor-bar-wrap" title="Çelik Yelek"><div id="armor-fill"></div></div>
+    <div class="armor-bar-wrap" id="oxygen-wrap" title="Oksijen" style="border-color:#67e8f9;display:none"><div id="oxygen-fill" style="width:100%;height:100%;background:linear-gradient(90deg,#06b6d4,#67e8f9)"></div></div>
+  </div>
+  <div class="wanted-stars" id="hud-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+  <div class="kill-counter-tag" id="hud-kills">☠️ LEŞ: 0 (0★)</div>
+  <div class="right-hud-actions">
+    <button class="mini-pill-btn" id="btn-c4-hud" type="button">💣 C4 [G]</button>
+    <button class="mini-pill-btn" id="btn-reset-car" title="Aracı Yola Koy" type="button">🔄 DÜZELT</button>
+    <button class="weapon-hud-box" id="hud-weapon-btn" type="button"><span id="weapon-icon">👊</span><div><div id="weapon-name">YUMRUK</div><div id="weapon-ammo">YAKIN DÖVÜŞ</div></div></button>
+  </div>
+</div>
+
+<div id="fuel-gauge-box" class="hidden"><div class="fuel-label"><span>⛽ BENZİN</span><span id="fuel-percent">100%</span></div><div class="fuel-track"><div id="fuel-fill"></div></div></div>
+<div id="speedometer-box" class="hidden"><div id="speed-value">0</div><div id="speed-unit">KM/H</div></div>
+
+<div id="context-actions" class="hidden">
+  <button class="context-btn hidden" id="btn-door-action" type="button">🚪 KAPIYI AÇ</button>
+  <button class="context-btn car-btn" id="btn-car-action" type="button">🚶 ARABADAN İN</button>
+</div>
+
+<div id="wasted-overlay"><span>WASTED</span></div>
+<div id="toast-message">GÖREV TAMAMLANDI! +$250</div>
+
+<div id="mobile-controls" class="hidden">
+  <div id="driving-controls">
+    <div class="touch-pad-left">
+      <button class="ctrl-btn" id="btn-left" type="button">◀<span>SOL</span></button>
+      <button class="ctrl-btn" id="btn-right" type="button">▶<span>SAĞ</span></button>
+    </div>
+    <div class="touch-pad-right">
+      <button class="ctrl-btn btn-c4" id="btn-mob-c4-car" type="button">💣<span>C4</span></button>
+      <button class="ctrl-btn btn-nitro" id="btn-nitro" type="button">🔥<span>NİTRO</span></button>
+      <button class="ctrl-btn btn-drift" id="btn-drift" type="button">⚡<span>DRİFT</span></button>
+      <button class="ctrl-btn pedal-brake" id="btn-brake" type="button">▼<span>FREN</span></button>
+      <button class="ctrl-btn pedal-gas" id="btn-gas" type="button">▲<span>GAZ</span></button>
+    </div>
+  </div>
+  <div id="onfoot-controls" class="hidden">
+    <div id="joystick-zone"><div id="joystick-knob"></div></div>
+    <div class="touch-pad-right">
+      <button class="ctrl-btn btn-c4" id="btn-mob-c4-foot" type="button">💣<span>C4</span></button>
+      <button class="ctrl-btn btn-weapon-switch" id="btn-switch-weapon" type="button">🔄<span>SİLAH</span></button>
+      <button class="ctrl-btn" id="btn-sprint" type="button">🏃<span>KOŞ</span></button>
+      <button class="ctrl-btn" id="btn-jump" type="button">⬆<span>ZIPLA</span></button>
+      <button class="ctrl-btn btn-fire" id="btn-fire" type="button">👊<span>VUR</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WATER_LEVEL_Y = -2.2, ISLAND_SURFACE_Y = 0.7, ROAD_SURFACE_Y = 0.72;
+const MAX_NPCS = 14;
+const MAX_PER_NPC_MODEL = 2;
+const NPC_MODEL_FILES = [
+  'mesutkomser.glb',
+  'trump.glb',
+  'michealjackson.glb',
+  'patrickjane.glb',
+  'polatalemdar.glb',
+  'tilki.glb'
+];
+const ALLOWED_CAR_FILES = ['araba1.glb', 'araba2.glb', 'araba3.glb'];
+
+const LA_LAYOUT = {
+  eastIsland: { minX: 32, maxX: 185, minZ: -195, maxZ: 195 },
+  beachStrip: { minX: 152, maxX: 185, minZ: -195, maxZ: 195 },
+  westIsland: { minX: -195, maxX: -32, minZ: -195, maxZ: 195 },
+  starfishIsland: { cx: 0, cz: 20, r: 26 },
+  bridges: [{ z: -120, width: 15 }, { z: -20, width: 15 }, { z: 80, width: 15 }],
+  islandLinks: [
+    { x1: -65, z1: 20, x2: 65, z2: 20, width: 13 },
+    { x1: 0, z1: -20, x2: 0, z2: 20, width: 13 }
+  ],
+  roadX: [-135, -65, 65, 125],
+  roadZ: [-120, -20, 20, 80, 140]
+};
+
+const IST_LAYOUT = {
+  eastIsland: { minX: 30, maxX: 185, minZ: -195, maxZ: 195 },
+  beachStrip: { minX: 30, maxX: 52, minZ: -195, maxZ: 195 },
+  westIsland: { minX: -195, maxX: -30, minZ: -195, maxZ: 195 },
+  starfishIsland: { cx: 0, cz: 0, r: 18 },
+  bridges: [{ z: -10, width: 20 }, { z: 95, width: 18 }],
+  islandLinks: [],
+  roadX: [-135, -75, 75, 135],
+  roadZ: [-110, -10, 95, 145]
+};
+
+let ACTIVE_LAYOUT = LA_LAYOUT;
+
+const WEAPONS = [
+  { id: 'fist', name: 'YUMRUK', icon: '👊', ammo: Infinity, fireRate: 0.32, damage: 34, range: 3.6 },
+  { id: 'pistol', name: 'TABANCA 9MM', icon: '🔫', ammo: Infinity, fireRate: 0.24, damage: 48, range: 62 },
+  { id: 'uzi', name: 'MAC-10 UZI', icon: '⚡', ammo: 320, fireRate: 0.09, damage: 28, range: 54 },
+  { id: 'shotgun', name: 'POMPALI', icon: '💥', ammo: 90, fireRate: 0.65, damage: 95, range: 32 }
+];
+
+const state = {
+  started: false,
+  city: 'LA',
+  activeCharacter: 'Fatih',
+  platformMode: 'desktop',
+  storyEnabled: false,
+  storyChapter: 0,
+  inCutscene: false,
+  cutsceneQueue: [],
+  cutsceneIdx: 0,
+  cutsceneTimer: 0,
+  cutsceneDoneCb: null,
+  casinoRobbed: false,
+  tankSpawned: false,
+  taxiActive: false,
+  courierActive: false,
+  inCar: true,
+  inMotorcycle: false,
+  inJail: false,
+  jailTimeLeft: 180,
+  cameraMode: 3,
+  money: 500,
+  health: 100,
+  armor: 100,
+  fuel: 100,
+  maxFuel: 100,
+  oxygen: 100,
+  carSunk: false,
+  sinkDepth: 0,
+  isSwimming: false,
+  inRefuelZone: false,
+  killCount: 0,
+  wanted: 0,
+  wantedTimer: 0,
+  weaponIndex: 0,
+  fireCooldown: 0,
+  recoilTimer: 0,
+  hitMarkerTimer: 0,
+  camYaw: 0,
+  camPitch: 0.22,
+  nearestBuilding: null,
+  grandmaHousePos: new THREE.Vector3(-95, ISLAND_SURFACE_Y, 48),
+  marcusPos: new THREE.Vector3(-95, ISLAND_SURFACE_Y, 108),
+  casinoVaultPos: new THREE.Vector3(-95, ISLAND_SURFACE_Y, -68),
+  pavyonPos: new THREE.Vector3(92, ISLAND_SURFACE_Y, -68),
+  taxiStandPos: new THREE.Vector3(96, ISLAND_SURFACE_Y, -94),
+  restaurantCounterPos: new THREE.Vector3(92, ISLAND_SURFACE_Y, 118),
+  jailCellCenter: new THREE.Vector3(-164, ISLAND_SURFACE_Y + 0.15, -36),
+  jailBounds: { minX: -167.2, maxX: -160.8, minZ: -38.8, maxZ: -33.2 },
+  hospitalPos: new THREE.Vector3(160, ISLAND_SURFACE_Y, -68),
+  gasStationPos: new THREE.Vector3(160, ROAD_SURFACE_Y, -94),
+  input: { left: false, right: false, gas: false, brake: false, drift: false, nitro: false, jump: false, sprint: false, fire: false, joyX: 0, joyY: 0 }
+};
+
+let scene, camera, renderer;
+let worldGroup, dynamicGroup;
+let playerCar, playerMoto, policeTank, playerRig, homeCar = null;
+let leroyAlly = null, marcusNpc = null, girlfriendNpc = null, airlinerMesh = null;
+let buildings = [], cityHouses = [], trafficCars = [], parkedCars = [], seaShips = [];
+let policeOfficers = [], pedestrians = [], pickups = [], hitParticles = [], tankShells = [];
+let storyEnemies = [], storyAllies = [], targetBossCars = [], c4Bombs = [], shockwaves = [];
+let pavyonLights = [];
+let checkpointMesh, checkpointRing, overlayTimer, toastTimer;
+let checkpointPos = new THREE.Vector3(0, ISLAND_SURFACE_Y, 20);
+
+const gltfLoader = new THREE.GLTFLoader();
+const gltfCache = new Map();
+const npcModelSpawnCounts = new Map();
+
+const clock = new THREE.Clock();
+const carPhysics = {
+  speed: 0, lateralVel: 0, maxSpeed: 42, nitroMaxSpeed: 64, reverseMax: -16,
+  accel: 26, brakeForce: 48, friction: 9.5, turnSpeed: 2.15, heading: 0,
+  roll: 0, pitch: 0, bounceY: 0, bounceVelY: 0, smoothShake: 0, shakePhase: 0,
+  grip: 12.5, driftGrip: 4.4, suspensionStiffness: 165, suspensionDamping: 18
+};
+const charPhysics = { velocityY: 0, isGrounded: true, heading: 0, walkCycle: 0, swimCycle: 0, punchTimer: 0 };
+const $ = id => document.getElementById(id);
+
+let audioCtx;
+function initAudio() {
+  if (audioCtx) return;
+  try {
+    const C = window.AudioContext || window.webkitAudioContext;
+    if (C) audioCtx = new C();
+  } catch (e) { console.warn(e); }
+}
+
+function playSfx(type) {
+  try {
+    initAudio();
+    if (!audioCtx) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const t = audioCtx.currentTime, osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    if (type === 'punch') {
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(150, t); osc.frequency.exponentialRampToValueAtTime(42, t + 0.14);
+      gain.gain.setValueAtTime(0.22, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+    } else if (type === 'gun') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(320, t); osc.frequency.exponentialRampToValueAtTime(55, t + 0.12);
+      gain.gain.setValueAtTime(0.18, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+    } else if (type === 'explosion') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(110, t); osc.frequency.exponentialRampToValueAtTime(24, t + 0.45);
+      gain.gain.setValueAtTime(0.32, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.46);
+    } else if (type === 'door') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(220, t); osc.frequency.linearRampToValueAtTime(330, t + 0.18);
+      gain.gain.setValueAtTime(0.14, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    } else {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(523.25, t); osc.frequency.setValueAtTime(659.25, t + 0.08);
+      gain.gain.setValueAtTime(0.15, t); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    }
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.48);
+  } catch (e) { console.warn(e); }
+}
+
+function showFatalError(err) {
+  try {
+    const msg = err && err.message ? err.message : String(err);
+    $('fatal-error-box').textContent = msg;
+    $('fatal-error-overlay').classList.remove('hidden');
+  } catch (_) {}
+}
+
+function showToast(text) {
+  const el = $('toast-message');
+  if (!el) return;
+  el.textContent = text;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
+}
+
+function showOverlay(text, color) {
+  const el = $('wasted-overlay');
+  if (!el) return;
+  el.firstElementChild.textContent = text;
+  el.firstElementChild.style.color = color;
+  el.classList.add('show');
+  $('game-canvas').classList.add('wasted');
+  clearTimeout(overlayTimer);
+  overlayTimer = setTimeout(() => {
+    el.classList.remove('show');
+    $('game-canvas').classList.remove('wasted');
+  }, 3000);
+}
+
+function makeCanvas(w, h) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  return c;
+}
+
+function createAsphaltRoadTexture(vertical) {
+  const c = makeCanvas(256, 256), ctx = c.getContext('2d');
+  ctx.fillStyle = '#1b2028';
+  ctx.fillRect(0, 0, 256, 256);
+
+  let seed = vertical ? 1337 : 7331;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  for (let i = 0; i < 4200; i++) {
+    const x = Math.floor(rnd() * 256);
+    const y = Math.floor(rnd() * 256);
+    const v = Math.floor(20 + rnd() * 34);
+    ctx.fillStyle = `rgb(${v},${v + 2},${v + 5})`;
+    ctx.fillRect(x, y, rnd() > 0.75 ? 2 : 1, rnd() > 0.75 ? 2 : 1);
+  }
+  ctx.fillStyle = 'rgba(8, 10, 14, 0.24)';
+  if (vertical) {
+    ctx.fillRect(52, 0, 18, 256); ctx.fillRect(92, 0, 18, 256);
+    ctx.fillRect(146, 0, 18, 256); ctx.fillRect(186, 0, 18, 256);
+  } else {
+    ctx.fillRect(0, 52, 256, 18); ctx.fillRect(0, 92, 256, 18);
+    ctx.fillRect(0, 146, 256, 18); ctx.fillRect(0, 186, 256, 18);
+  }
+
+  ctx.fillStyle = '#eab308';
+  if (vertical) {
+    ctx.fillRect(125, 8, 6, 96);
+    ctx.fillRect(125, 152, 6, 96);
+  } else {
+    ctx.fillRect(8, 125, 96, 6);
+    ctx.fillRect(152, 125, 96, 6);
+  }
+
+  ctx.fillStyle = 'rgba(226, 232, 240, 0.68)';
+  if (vertical) {
+    ctx.fillRect(14, 0, 4, 256);
+    ctx.fillRect(238, 0, 4, 256);
+  } else {
+    ctx.fillRect(0, 14, 256, 4);
+    ctx.fillRect(0, 238, 256, 4);
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(1, 36);
+  tex.encoding = THREE.sRGBEncoding;
+  return tex;
+}
+
+function createConcreteGroundTexture(baseHex = '#94a3b8', grainAmp = 18, gridStep = 32, repeatX = 24, repeatY = 24) {
+  const c = makeCanvas(256, 256), ctx = c.getContext('2d');
+  const col = new THREE.Color(baseHex);
+  const br = Math.round(col.r * 255), bg = Math.round(col.g * 255), bb = Math.round(col.b * 255);
+  ctx.fillStyle = `rgb(${br},${bg},${bb})`;
+  ctx.fillRect(0, 0, 256, 256);
+
+  let seed = br * 97 + bg * 31 + bb * 13 + 42;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+
+  for (let i = 0; i < 3600; i++) {
+    const x = Math.floor(rnd() * 256);
+    const y = Math.floor(rnd() * 256);
+    const d = Math.floor((rnd() - 0.5) * grainAmp * 2);
+    ctx.fillStyle = `rgb(${THREE.MathUtils.clamp(br + d, 0, 255)},${THREE.MathUtils.clamp(bg + d, 0, 255)},${THREE.MathUtils.clamp(bb + d, 0, 255)})`;
+    ctx.fillRect(x, y, 2, 2);
+  }
+
+  if (gridStep > 0) {
+    ctx.strokeStyle = 'rgba(15, 23, 42, 0.16)';
+    ctx.lineWidth = 1;
+    for (let g = 0; g <= 256; g += gridStep) {
+      ctx.beginPath(); ctx.moveTo(g, 0); ctx.lineTo(g, 256); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, g); ctx.lineTo(256, g); ctx.stroke();
+    }
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(repeatX, repeatY);
+  tex.encoding = THREE.sRGBEncoding;
+  return tex;
+}
+
+function createWaterSurfaceTexture(baseHex = '#0284c7') {
+  const c = makeCanvas(256, 256), ctx = c.getContext('2d');
+  const col = new THREE.Color(baseHex);
+  const br = Math.round(col.r * 255), bg = Math.round(col.g * 255), bb = Math.round(col.b * 255);
+  ctx.fillStyle = `rgb(${br},${bg},${bb})`;
+  ctx.fillRect(0, 0, 256, 256);
+
+  for (let y = 0; y < 256; y += 4) {
+    ctx.strokeStyle = y % 8 === 0 ? 'rgba(224, 242, 254, 0.14)' : 'rgba(12, 74, 110, 0.18)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let x = 0; x <= 256; x += 16) {
+      const wy = y + Math.sin((x / 256) * Math.PI * 4 + y * 0.1) * 2.2;
+      if (x === 0) ctx.moveTo(x, wy); else ctx.lineTo(x, wy);
+    }
+    ctx.stroke();
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(28, 28);
+  tex.encoding = THREE.sRGBEncoding;
+  return tex;
+}
+
+function createWindowFacadeTexture(base, accent) {
+  const c = makeCanvas(256, 256), ctx = c.getContext('2d');
+  ctx.fillStyle = base || '#334155';
+  ctx.fillRect(0, 0, 256, 256);
+
+  for (let i = 0; i < 1800; i++) {
+    const x = (i * 53) % 256, y = (i * 97) % 256;
+    ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.08)';
+    ctx.fillRect(x, y, 2, 2);
+  }
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.35)';
+  for (let r = 0; r <= 4; r++) {
+    ctx.fillRect(0, r * 64, 256, 3);
+  }
+
+  for (let r = 0; r < 4; r++) for (let q = 0; q < 4; q++) {
+    const wx = 18 + q * 60, wy = 14 + r * 64;
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(wx - 3, wy - 3, 42, 42);
+    ctx.fillStyle = (r + q) % 2 === 0 ? '#0f172a' : '#172554';
+    ctx.fillRect(wx, wy, 36, 36);
+    ctx.fillStyle = 'rgba(186, 230, 253, 0.18)';
+    ctx.beginPath();
+    ctx.moveTo(wx + 4, wy + 32);
+    ctx.lineTo(wx + 18, wy + 4);
+    ctx.lineTo(wx + 25, wy + 4);
+    ctx.lineTo(wx + 11, wy + 32);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.encoding = THREE.sRGBEncoding;
+  return tex;
+}
+
+function createHawaiianTexture() {
+  const c = makeCanvas(64, 64), ctx = c.getContext('2d');
+  ctx.fillStyle = '#0369a1';
+  ctx.fillRect(0, 0, 64, 64);
+  ctx.fillStyle = '#be185d';
+  ctx.beginPath(); ctx.arc(16, 16, 6, 0, 6.283); ctx.arc(48, 44, 7, 0, 6.283); ctx.fill();
+  ctx.fillStyle = '#ca8a04';
+  ctx.beginPath(); ctx.arc(46, 18, 5, 0, 6.283); ctx.arc(18, 48, 5, 0, 6.283); ctx.fill();
+  const tex = new THREE.CanvasTexture(c);
+  tex.encoding = THREE.sRGBEncoding;
+  return tex;
+}
+
+const matCache = new Map();
+function stdMat(color, roughness = 0.78, metalness = 0.08, extra = {}) {
+  const key = `${color}_${roughness}_${metalness}_${JSON.stringify(extra)}`;
+  if (matCache.has(key)) return matCache.get(key);
+  const m = new THREE.MeshStandardMaterial({
+    color,
+    roughness,
+    metalness,
+    ...extra
+  });
+  matCache.set(key, m);
+  return m;
+}
+const lam = c => stdMat(c, 0.82, 0.05);
+const bas = c => new THREE.MeshBasicMaterial({ color: c });
+
+function box(w, h, d, mat, x = 0, y = 0, z = 0, parent) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z);
+  if (parent) parent.add(m);
+  return m;
+}
+
+function isOnRoadOrBridge(x, z, pad = 9.5) {
+  const lay = ACTIVE_LAYOUT;
+  if (lay.roadX.some(rx => Math.abs(x - rx) < pad)) return true;
+  if (lay.roadZ.some(rz => Math.abs(z - rz) < pad)) return true;
+  if (lay.bridges.some(br => Math.abs(z - br.z) < ((br.width || 15) * 0.5 + pad * 0.6))) return true;
+  for (const lk of lay.islandLinks) {
+    const minX = Math.min(lk.x1, lk.x2) - lk.width * 0.5 - pad * 0.6;
+    const maxX = Math.max(lk.x1, lk.x2) + lk.width * 0.5 + pad * 0.6;
+    const minZ = Math.min(lk.z1, lk.z2) - lk.width * 0.5 - pad * 0.6;
+    const maxZ = Math.max(lk.z1, lk.z2) + lk.width * 0.5 + pad * 0.6;
+    if (x >= minX && x <= maxX && z >= minZ && z <= maxZ) return true;
+  }
+  const st = lay.starfishIsland;
+  if (st && Math.hypot(x - st.cx, z - st.cz) < 12.0) return true;
+  return false;
+}
+
+function initScene() {
+  if (!window.THREE) throw new Error('Three.js kütüphanesi yüklenemedi.');
+  const canvas = $('game-canvas');
+  if (!canvas) throw new Error('Oyun tuvali bulunamadı.');
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.96;
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x38bdf8);
+  scene.fog = new THREE.FogExp2(0x7dd3fc, 0.0014);
+
+  camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.35, 650);
+  scene.add(new THREE.HemisphereLight(0xe0f2fe, 0x1e3a8a, 1.05));
+  const sun = new THREE.DirectionalLight(0xfffbeb, 1.12);
+  sun.position.set(110, 140, 85);
+  scene.add(sun);
+  const fill = new THREE.DirectionalLight(0x38bdf8, 0.42);
+  fill.position.set(-100, 60, -80);
+  scene.add(fill);
+
+  worldGroup = new THREE.Group();
+  dynamicGroup = new THREE.Group();
+  scene.add(worldGroup);
+  scene.add(dynamicGroup);
+
+  buildCityWorld('LA');
+  createPlayerCar();
+  homeCar = playerCar;
+  createPlayerMotorcycle();
+  createPoliceTank();
+  createPlayerCharacter();
+  createStoryCharacters();
+  createCheckpoint();
+  populateCityEntities('LA');
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+function createIslandMesh(minX, maxX, minZ, maxZ, texOrColor, roughness = 0.88, parent = worldGroup) {
+  const th = ISLAND_SURFACE_Y - WATER_LEVEL_Y + 0.6;
+  const mat = (texOrColor && texOrColor.isTexture)
+    ? new THREE.MeshStandardMaterial({ map: texOrColor, roughness, metalness: 0.04 })
+    : stdMat(texOrColor, roughness, 0.05);
+  box(maxX - minX, th, maxZ - minZ, mat, (minX + maxX) / 2, ISLAND_SURFACE_Y - th / 2, (minZ + maxZ) / 2, parent);
+}
+
+function createPalmTree(x, z, parent = worldGroup) {
+  if (isOnRoadOrBridge(x, z, 9.5)) return;
+  const g = new THREE.Group();
+  g.position.set(x, ISLAND_SURFACE_Y, z);
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.4, 6.8, 8), stdMat(0x5c3a21, 0.92, 0.02));
+  trunk.position.y = 3.4;
+  trunk.rotation.z = Math.sin(x + z) * 0.08;
+  g.add(trunk);
+  const lm = stdMat(0x15803d, 0.76, 0.04);
+  for (let i = 0; i < 6; i++) {
+    const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.95, 3.3, 6), lm), a = i / 6 * 6.283;
+    leaf.position.set(Math.cos(a) * 1.15, 6.6, Math.sin(a) * 1.15);
+    leaf.rotation.z = -Math.cos(a) * 1.05;
+    leaf.rotation.x = Math.sin(a) * 1.05;
+    g.add(leaf);
+  }
+  parent.add(g);
+}
+
+function createStreetLamp(x, z, parent = worldGroup) {
+  if (isOnRoadOrBridge(x, z, 9.0)) return;
+  const g = new THREE.Group();
+  g.position.set(x, ISLAND_SURFACE_Y, z);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 5.2, 8), stdMat(0x1e293b, 0.45, 0.75));
+  pole.position.y = 2.6;
+  g.add(pole);
+  const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.24, 8, 8), bas(0xfef08a));
+  bulb.position.y = 5.3;
+  g.add(bulb);
+  parent.add(g);
+}
+
+function createMosqueLandmark(x, z, parent = worldGroup) {
+  if (isOnRoadOrBridge(x, z, 15)) return;
+  const g = new THREE.Group();
+  g.position.set(x, ISLAND_SURFACE_Y, z);
+  const stoneTex = createConcreteGroundTexture('#e2e8f0', 14, 16, 4, 4);
+  const stoneMat = new THREE.MeshStandardMaterial({ map: stoneTex, roughness: 0.86, metalness: 0.04 });
+  box(15, 7.2, 15, stoneMat, 0, 3.6, 0, g);
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(5.4, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2), stdMat(0x0369a1, 0.42, 0.35));
+  dome.position.y = 7.2;
+  g.add(dome);
+  [-7.2, 7.2].forEach(mx => {
+    const min = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 16.5, 12), stoneMat);
+    min.position.set(mx, 8.25, 6.2);
+    g.add(min);
+    const spire = new THREE.Mesh(new THREE.ConeGeometry(0.9, 3.0, 12), stdMat(0x0369a1, 0.42, 0.35));
+    spire.position.set(mx, 18.0, 6.2);
+    g.add(spire);
+  });
+  parent.add(g);
+}
+
+function buildCityWorld(cityCode) {
+  while (worldGroup.children.length > 0) worldGroup.remove(worldGroup.children[0]);
+  buildings = [];
+  cityHouses = [];
+  pavyonLights = [];
+  ACTIVE_LAYOUT = cityCode === 'IST' ? IST_LAYOUT : LA_LAYOUT;
+
+  const isIst = cityCode === 'IST';
+  scene.background = new THREE.Color(isIst ? 0x60a5fa : 0x38bdf8);
+  scene.fog = new THREE.FogExp2(isIst ? 0x93c5fd : 0x7dd3fc, 0.0014);
+
+  const oceanMat = new THREE.MeshStandardMaterial({
+    map: createWaterSurfaceTexture(isIst ? '#0369a1' : '#0284c7'),
+    roughness: 0.25,
+    metalness: 0.2
+  });
+  const ocean = new THREE.Mesh(new THREE.PlaneGeometry(1200, 1200), oceanMat);
+  ocean.rotation.x = -Math.PI / 2;
+  ocean.position.y = WATER_LEVEL_Y;
+  worldGroup.add(ocean);
+
+  const seabed = new THREE.Mesh(new THREE.PlaneGeometry(1200, 1200), stdMat(0x1e3a5f, 0.95, 0.02));
+  seabed.rotation.x = -Math.PI / 2;
+  seabed.position.y = WATER_LEVEL_Y - 3.5;
+  worldGroup.add(seabed);
+
+  const e = ACTIVE_LAYOUT.eastIsland, b = ACTIVE_LAYOUT.beachStrip, w = ACTIVE_LAYOUT.westIsland, st = ACTIVE_LAYOUT.starfishIsland;
+  const eastTex = createConcreteGroundTexture(isIst ? '#94a3b8' : '#9ca3af', 18, 24, 26, 26);
+  const beachTex = createConcreteGroundTexture(isIst ? '#64748b' : '#d6b66d', 20, 0, 8, 36);
+  const westTex = createConcreteGroundTexture(isIst ? '#8e9aaf' : '#8b95a5', 18, 24, 26, 26);
+
+  createIslandMesh(e.minX, e.maxX, e.minZ, e.maxZ, eastTex, 0.9, worldGroup);
+  createIslandMesh(b.minX, b.maxX, b.minZ, b.maxZ, beachTex, 0.94, worldGroup);
+  createIslandMesh(w.minX, w.maxX, w.minZ, w.maxZ, westTex, 0.9, worldGroup);
+
+  const stT = ISLAND_SURFACE_Y - WATER_LEVEL_Y + 0.6;
+  const grassTex = createConcreteGroundTexture(isIst ? '#3f6212' : '#4d7c0f', 22, 0, 8, 8);
+  const stM = new THREE.Mesh(new THREE.CylinderGeometry(st.r, st.r + 1.5, stT, 32), new THREE.MeshStandardMaterial({ map: grassTex, roughness: 0.92, metalness: 0.02 }));
+  stM.position.set(st.cx, ISLAND_SURFACE_Y - stT / 2, st.cz);
+  worldGroup.add(stM);
+
+  const plaza = new THREE.Mesh(new THREE.CylinderGeometry(10.5, 11.0, 0.16, 24), stdMat(0x334155, 0.85, 0.08));
+  plaza.position.set(st.cx, ISLAND_SURFACE_Y + 0.08, st.cz);
+  worldGroup.add(plaza);
+
+  const pillarMat = stdMat(0x475569, 0.86, 0.12), pillarH = (ISLAND_SURFACE_Y - 0.1) - (WATER_LEVEL_Y - 3.5);
+  const bridgeAsphaltMat = new THREE.MeshStandardMaterial({ map: createAsphaltRoadTexture(false), roughness: 0.84, metalness: 0.06 });
+  ACTIVE_LAYOUT.bridges.forEach(br => {
+    const spanX = (e.minX + w.maxX) / 2;
+    const spanW = (e.minX - w.maxX) + 16;
+    box(spanW, 0.75, br.width, bridgeAsphaltMat, spanX, ISLAND_SURFACE_Y - 0.18, br.z, worldGroup);
+    box(spanW, 0.55, 0.6, stdMat(0xca8a04, 0.7, 0.1), spanX, ISLAND_SURFACE_Y + 0.25, br.z - br.width * 0.46, worldGroup);
+    box(spanW, 0.55, 0.6, stdMat(0xca8a04, 0.7, 0.1), spanX, ISLAND_SURFACE_Y + 0.25, br.z + br.width * 0.46, worldGroup);
+    for (let px = w.maxX - 4; px <= e.minX + 4; px += 20) {
+      [-br.width * 0.36, br.width * 0.36].forEach(o => box(1.8, pillarH, 1.8, pillarMat, px, (ISLAND_SURFACE_Y - 0.1) - pillarH / 2, br.z + o, worldGroup));
+    }
+    if (isIst && br.z === -10) {
+      [-22, 22].forEach(tx => {
+        box(2.0, 14, 1.4, stdMat(0xb91c1c, 0.5, 0.55), tx, ISLAND_SURFACE_Y + 7, br.z - br.width * 0.44, worldGroup);
+        box(2.0, 14, 1.4, stdMat(0xb91c1c, 0.5, 0.55), tx, ISLAND_SURFACE_Y + 7, br.z + br.width * 0.44, worldGroup);
+        box(2.4, 0.6, br.width + 1, stdMat(0xe2e8f0, 0.6, 0.3), tx, ISLAND_SURFACE_Y + 13.5, br.z, worldGroup);
+      });
+    }
+  });
+
+  ACTIVE_LAYOUT.islandLinks.forEach(lk => {
+    const dx = lk.x2 - lk.x1, dz = lk.z2 - lk.z1;
+    const len = Math.hypot(dx, dz);
+    const cx = (lk.x1 + lk.x2) * 0.5, cz = (lk.z1 + lk.z2) * 0.5;
+    const ang = Math.atan2(dx, dz);
+    const roadDeck = box(lk.width, 0.65, len + 5, bridgeAsphaltMat, cx, ISLAND_SURFACE_Y - 0.14, cz, worldGroup);
+    roadDeck.rotation.y = ang;
+    const stripe = box(0.35, 0.06, len, stdMat(0xeab308, 0.7, 0.05), cx, ISLAND_SURFACE_Y + 0.2, cz, worldGroup);
+    stripe.rotation.y = ang;
+  });
+
+  const rtV = createAsphaltRoadTexture(true), rtH = createAsphaltRoadTexture(false);
+  const minZSpan = Math.min(e.minZ, w.minZ) + 4, maxZSpan = Math.max(e.maxZ, w.maxZ) - 4;
+  const lenZ = maxZSpan - minZSpan, midZ = (minZSpan + maxZSpan) * 0.5;
+  ACTIVE_LAYOUT.roadX.forEach(rx => {
+    const r = new THREE.Mesh(new THREE.PlaneGeometry(12.5, lenZ), new THREE.MeshStandardMaterial({ map: rtV, roughness: 0.85, metalness: 0.06 }));
+    r.rotation.x = -Math.PI / 2;
+    r.position.set(rx, ROAD_SURFACE_Y, midZ);
+    worldGroup.add(r);
+  });
+
+  const minXSpan = w.minX + 4, maxXSpan = e.maxX - 4;
+  const lenX = maxXSpan - minXSpan, midX = (minXSpan + maxXSpan) * 0.5;
+  ACTIVE_LAYOUT.roadZ.forEach(rz => {
+    const r = new THREE.Mesh(new THREE.PlaneGeometry(lenX, 12.5), new THREE.MeshStandardMaterial({ map: rtH, roughness: 0.85, metalness: 0.06 }));
+    r.rotation.x = -Math.PI / 2;
+    r.position.set(midX, ROAD_SURFACE_Y + 0.01, rz);
+    worldGroup.add(r);
+  });
+
+  for (let z = -175; z <= 175; z += 26) {
+    if (!isIst) createPalmTree(166, z, worldGroup);
+    createStreetLamp(53, z, worldGroup);
+    createStreetLamp(-77, z, worldGroup);
+  }
+
+  if (isIst) {
+    createMosqueLandmark(95, -155, worldGroup);
+    createMosqueLandmark(-105, 120, worldGroup);
+    [
+      { name: 'BOSPHORUS OTEL', type: 'hotel', x: 95, z: -55, w: 18, d: 18, floors: 3, color: '#9f1239', accent: '#ca8a04', neon: 0xff2a85 },
+      { name: 'BOĞAZ MARKET', type: 'market', x: 95, z: 42, w: 18, d: 18, floors: 1, color: '#0369a1', accent: '#15803d', neon: 0x00e5ff },
+      { name: 'İSTANBUL LOKANTASI', type: 'restaurant', x: 95, z: 120, w: 18, d: 18, floors: 1, color: '#9a3412', accent: '#ca8a04', neon: 0xff7b00 },
+      { name: 'İSTANBUL KARAKOLU', type: 'police', x: -105, z: -55, w: 18, d: 18, floors: 1, color: '#1e3a8a', accent: '#cbd5e1', neon: 0x38bdf8 },
+      { name: 'BOĞAZ HASTANESİ', type: 'hospital', x: -105, z: 42, w: 18, d: 18, floors: 1, color: '#cbd5e1', accent: '#b91c1c', neon: 0xef4444 }
+    ].forEach(b => createEnterableBuilding(b, worldGroup));
+    buildGasStation(162, -55, worldGroup);
+    buildTaxiStand(96, -134, worldGroup);
+    buildNeighborhoodHouses(cityCode, worldGroup);
+  } else {
+    [
+      { name: 'PINK HAT PAVYON', type: 'pavyon', x: 92, z: -68, w: 20, d: 18, floors: 1, color: '#881337', accent: '#be185d', neon: 0xff2a85 },
+      { name: 'LA CASİNO', type: 'casino', x: -95, z: -68, w: 20, d: 18, floors: 1, color: '#4c1d95', accent: '#ca8a04', neon: 0xffd000 },
+      { name: 'ANNEANNENİN EVİ', type: 'grandma', x: -95, z: 48, w: 18, d: 18, floors: 1, color: '#9d174d', accent: '#ca8a04', neon: 0xff2a85 },
+      { name: 'SUNSET OTEL', type: 'hotel', x: 92, z: 48, w: 18, d: 18, floors: 3, color: '#0369a1', accent: '#ca8a04', neon: 0x00e5ff },
+      { name: 'LEONİDA MARKET', type: 'market', x: 92, z: 110, w: 18, d: 18, floors: 1, color: '#065f46', accent: '#ca8a04', neon: 0x4ade80 },
+      { name: 'BAY KURU MERKEZİ', type: 'hideout', x: -95, z: 110, w: 18, d: 18, floors: 1, color: '#92400e', accent: '#0369a1', neon: 0xfbbf24 },
+      { name: 'LA HASTANESİ', type: 'hospital', x: 160, z: -68, w: 18, d: 18, floors: 1, color: '#cbd5e1', accent: '#b91c1c', neon: 0xef4444 },
+      { name: 'LA KARAKOLU', type: 'police', x: -164, z: -68, w: 18, d: 18, floors: 1, color: '#1e3a8a', accent: '#cbd5e1', neon: 0x38bdf8 }
+    ].forEach(b => createEnterableBuilding(b, worldGroup));
+    buildGasStation(160, -94, worldGroup);
+    buildTaxiStand(96, -94, worldGroup);
+    buildNeighborhoodHouses(cityCode, worldGroup);
+  }
+}
+
+function buildGasStation(gx, gz, parent = worldGroup) {
+  if (isOnRoadOrBridge(gx, gz, 9.0)) return;
+  const g = new THREE.Group();
+  g.position.set(gx, ISLAND_SURFACE_Y, gz);
+  box(8.5, 0.45, 7.2, stdMat(0x0369a1, 0.5, 0.4), 0, 3.6, 0, g);
+  box(8.6, 0.22, 7.3, stdMat(0x9f1239, 0.5, 0.3), 0, 3.85, 0, g);
+  [-3.2, 3.2].forEach(px => box(0.45, 3.6, 0.45, stdMat(0xcbd5e1, 0.55, 0.5), px, 1.8, 0, g));
+  box(1.2, 1.6, 1.0, stdMat(0xb91c1c, 0.5, 0.4), 0, 0.8, 0, g);
+  parent.add(g);
+}
+
+function buildTaxiStand(tx, tz, parent = worldGroup) {
+  if (isOnRoadOrBridge(tx, tz, 8.5)) return;
+  const g = new THREE.Group();
+  g.position.set(tx, ISLAND_SURFACE_Y, tz);
+  box(6.5, 0.12, 8.5, stdMat(0xca8a04, 0.85, 0.08), 0, 0.06, 0, g);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 3.6, 8), stdMat(0x1e293b, 0.4, 0.8));
+  pole.position.set(3.6, 1.8, 0);
+  g.add(pole);
+  box(1.8, 0.8, 0.25, stdMat(0xd97706, 0.5, 0.2), 3.6, 3.5, 0, g);
+  parent.add(g);
+}
+
+function buildNeighborhoodHouses(cityCode, parent = worldGroup) {
+  const hc = [0x9f1239, 0xd6d3d1, 0xb45309, 0x334155, 0xca8a04, 0x4c1d95, 0x3f6212, 0x7c2d12];
+  const rc = [0x7f1d1d, 0x1e3a8a, 0x450a0a, 0x334155, 0x5c2d0c];
+  const P = Math.PI / 2, coords = [];
+  if (cityCode === 'IST') {
+    [[54, P, [-55, 42, 120]], [162, -P, [-55, 42, 120]], [-54, P, [-55, 42, 120]], [-164, -P, [-55, 42, 120]]].forEach(([x, rot, zs]) => zs.forEach(z => coords.push({ x, z, rot })));
+  } else {
+    [[48, P, [-68, 48, 110]], [162, -P, [-20, 48, 110]], [-48, P, [-68, 48, 110]], [-164, -P, [20, 48, 110]]].forEach(([x, rot, zs]) => zs.forEach(z => coords.push({ x, z, rot })));
+  }
+  const doorW = 1.6, doorH = 2.15, wallT = 0.25, w = 7.6, h = 3.4, d = 8.2;
+  const lawnTex = createConcreteGroundTexture('#3f6212', 20, 0, 3, 3);
+  const lawnMat = new THREE.MeshStandardMaterial({ map: lawnTex, roughness: 0.92, metalness: 0.02 });
+  const tileFloorMat = new THREE.MeshStandardMaterial({ map: createConcreteGroundTexture('#cbd5e1', 12, 16, 4, 4), roughness: 0.78, metalness: 0.08 });
+  const woodMat = stdMat(0x5c2d0c, 0.85, 0.04);
+
+  coords.forEach((c, idx) => {
+    if (isOnRoadOrBridge(c.x, c.z, 8.2)) return;
+    const plasterTex = createConcreteGroundTexture(hc[idx % hc.length], 15, 0, 2, 2);
+    const wallMat = new THREE.MeshStandardMaterial({ map: plasterTex, roughness: 0.88, metalness: 0.04 });
+    const g = new THREE.Group();
+    g.position.set(c.x, ISLAND_SURFACE_Y, c.z);
+    g.rotation.y = c.rot;
+    box(w + 2.2, 0.08, d + 2.2, lawnMat, 0, 0.04, 0, g);
+    box(w - 0.3, 0.12, d - 0.3, tileFloorMat, 0, 0.08, 0, g);
+    box(w, h, wallT, wallMat, 0, h / 2 + 0.1, -d / 2 + wallT / 2, g);
+    box(wallT, h, d, wallMat, -w / 2 + wallT / 2, h / 2 + 0.1, 0, g);
+    box(wallT, h, d, wallMat, w / 2 - wallT / 2, h / 2 + 0.1, 0, g);
+    const sw = (w - doorW) / 2;
+    box(sw, h, wallT, wallMat, -doorW / 2 - sw / 2, h / 2 + 0.1, d / 2 - wallT / 2, g);
+    box(sw, h, wallT, wallMat, doorW / 2 + sw / 2, h / 2 + 0.1, d / 2 - wallT / 2, g);
+    box(doorW, h - doorH, wallT, wallMat, 0, doorH + (h - doorH) / 2 + 0.1, d / 2 - wallT / 2, g);
+    const pivot = new THREE.Group();
+    pivot.position.set(-doorW / 2, 0.1, d / 2);
+    box(doorW, doorH, 0.12, woodMat, doorW / 2, doorH / 2, 0, pivot);
+    g.add(pivot);
+    box(2.2, 0.75, 0.9, stdMat(0x1e3a8a, 0.78, 0.06), -1.6, 0.5, -2.2, g);
+    box(1.4, 0.45, 0.8, woodMat, -1.6, 0.35, -1.0, g);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * 0.76, 2.0, 4), stdMat(rc[idx % rc.length], 0.86, 0.08));
+    roof.position.y = h + 1.1;
+    roof.rotation.y = Math.PI / 4;
+    g.add(roof);
+    [-2.2, 2.2].forEach(wx => box(1.3, 1.1, 0.14, stdMat(0x1e293b, 0.25, 0.65), wx, 1.9, d / 2 + 0.04, g));
+    parent.add(g);
+    cityHouses.push({
+      x: c.x, z: c.z, w, d,
+      minX: c.x - w / 2 - 0.3, maxX: c.x + w / 2 + 0.3,
+      minZ: c.z - d / 2 - 0.3, maxZ: c.z + d / 2 + 0.3,
+      doorOpen: idx % 2 === 0,
+      doorAngle: idx % 2 === 0 ? -Math.PI * 0.45 : 0,
+      doorPivot: pivot
     });
-  </script>
+  });
+}
+
+function buildInteriorFurniture(g, spec, floorH, totalH) {
+  const wood = stdMat(0x5c2d0c, 0.85, 0.05), counter = stdMat(0x475569, 0.72, 0.2), barMat = stdMat(0x1e293b, 0.5, 0.75);
+  if (spec.type === 'hotel') {
+    box(6.4, 1.15, 1.6, stdMat(0x9f1239, 0.86, 0.04), 4.5, 0.6, 4.5, g);
+    box(3.4, 0.04, spec.d - 2, stdMat(0x881337, 0.88, 0.04), 0, 0.02, 0, g);
+    for (let f = 0; f < spec.floors; f++) {
+      const fy = f * floorH;
+      [-6.2, 6.2].forEach(rx => [-5.4, 5.4].forEach(rz => {
+        box(2.2, 0.55, 2.8, stdMat(0x881337, 0.85, 0.04), rx, fy + 0.35, rz, g);
+        box(1.5, 0.16, 0.55, stdMat(0xcbd5e1, 0.85, 0.02), rx, fy + 0.68, rz - 1.0, g);
+        box(0.7, 0.6, 0.7, wood, rx + (rx < 0 ? 1.4 : -1.4), fy + 0.35, rz - 0.8, g);
+      }));
+    }
+  } else if (spec.type === 'market') {
+    [0x0369a1, 0x065f46, 0x92400e, 0x831843].forEach((c, i) => box(1.5, 2.3, 6.8, stdMat(c, 0.76, 0.15), [-6.2, -2.0, 2.0, 6.2][i], 1.18, -2.2, g));
+    box(5.6, 1.05, 1.4, stdMat(0xca8a04, 0.75, 0.15), -4.0, 0.55, 5.0, g);
+  } else if (spec.type === 'pavyon') {
+    box(11.5, 0.12, 1.8, stdMat(0x4c0519, 0.85, 0.08), 0, 0.06, 2.4, g);
+    box(7.8, 0.4, 4.4, stdMat(0x270510, 0.8, 0.15), 0, 0.25, -4.8, g);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3.5, 10), stdMat(0xca8a04, 0.3, 0.85));
+    pole.position.set(0, 1.95, -4.8);
+    g.add(pole);
+    [-5.6, 5.6].forEach(tx => [-4.4, 1.0].forEach(tz => {
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.16, 14), stdMat(0x500724, 0.78, 0.1));
+      t.position.set(tx, 0.85, tz); g.add(t);
+      [-1.15, 1.15].forEach(co => box(0.6, 0.6, 0.6, wood, tx + co, 0.35, tz, g));
+    }));
+    [-6.2, 0, 6.2].forEach((lx, i) => {
+      const nb = box(1.5, 0.35, 0.35, bas(i % 2 === 0 ? 0xff2a85 : 0x00e5ff), lx, 3.65, -4.0, g);
+      pavyonLights.push(nb);
+    });
+  } else if (spec.type === 'casino') {
+    box(11.0, 1.05, 1.6, stdMat(0x3b0764, 0.8, 0.15), 0, 0.55, 2.6, g);
+    [-5.6, 0, 5.6].forEach(tx => box(2.4, 0.9, 1.5, stdMat(0x14532d, 0.85, 0.05), tx, 0.5, -3.2, g));
+    [-6.2, 6.2].forEach(sx => box(1.1, 1.8, 1.2, stdMat(0xca8a04, 0.35, 0.75), sx, 0.95, -6.5, g));
+    for (let i = 0; i < 6; i++) box(0.9, 0.5, 0.6, stdMat(0xca8a04, 0.35, 0.75), -2.0 + i * 0.8, 0.38, -5.6, g);
+  } else if (spec.type === 'grandma') {
+    box(4.2, 0.85, 1.4, stdMat(0x9d174d, 0.86, 0.04), -4.2, 0.45, -4.2, g);
+    box(3.0, 0.78, 1.8, wood, 4.2, 0.42, 4.2, g);
+    box(2.2, 0.55, 2.6, stdMat(0x1e3a8a, 0.85, 0.05), -4.2, 0.35, 4.2, g);
+  } else if (spec.type === 'hideout') {
+    box(4.6, 0.9, 2.2, wood, 0, 0.48, -4.2, g);
+    box(2.2, 1.2, 1.4, stdMat(0x14532d, 0.85, 0.1), 5.0, 0.62, -5.0, g);
+  } else if (spec.type === 'hospital') {
+    box(5.0, 1.15, 1.4, stdMat(0xcbd5e1, 0.75, 0.12), -4.8, 0.6, 5.0, g);
+    [-5.6, 5.6].forEach(bx => [-5.0, -1.2].forEach(bz => {
+      box(2.0, 0.5, 2.4, stdMat(0xdbeafe, 0.82, 0.04), bx, 0.35, bz, g);
+      box(1.4, 0.14, 0.5, stdMat(0x94a3b8, 0.86, 0.04), bx, 0.65, bz - 0.8, g);
+      box(2.1, 0.1, 0.1, stdMat(0xb91c1c, 0.7, 0.1), bx, 0.62, bz + 0.5, g);
+    }));
+    box(0.35, 1.4, 0.12, stdMat(0xdc2626, 0.6, 0.2), 0, 2.1, -spec.d / 2 + 0.55, g);
+    box(1.4, 0.35, 0.12, stdMat(0xdc2626, 0.6, 0.2), 0, 2.1, -spec.d / 2 + 0.55, g);
+  } else if (spec.type === 'restaurant') {
+    [-5.6, 5.6].forEach(tx => [-4.4, 1.0].forEach(tz => {
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(1.25, 1.25, 0.16, 14), stdMat(0x991b1b, 0.72, 0.15));
+      t.position.set(tx, 0.85, tz); g.add(t);
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.85, 8), counter);
+      leg.position.set(tx, 0.42, tz); g.add(leg);
+      [-1.25, 1.25].forEach(co => box(0.65, 0.65, 0.65, wood, tx + co, 0.35, tz, g));
+    }));
+    box(6.2, 1.1, 1.3, stdMat(0x9a3412, 0.75, 0.15), 0, 0.58, -6.5, g);
+  } else if (spec.type === 'police') {
+    const x0 = -6.8, x1 = -1.6, z0 = -7.2, z1 = -2.0, cw = x1 - x0, cd = z1 - z0, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, wm = stdMat(0x1e3a8a, 0.85, 0.08);
+    box(cw, 3.0, 0.25, wm, cx, 1.5, z0, g);
+    box(0.25, 3.0, cd, wm, x0, 1.5, cz, g);
+    box(0.25, 3.0, cd, wm, x1, 1.5, cz, g);
+    box(cw, 0.2, cd, barMat, cx, 3.05, cz, g);
+    for (let bx = x0 + 0.5; bx <= x1 - 0.5; bx += 0.75) {
+      const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.9, 6), barMat);
+      bar.position.set(bx, 1.45, z1); g.add(bar);
+    }
+    box(2.2, 0.5, 0.7, wood, cx, 0.28, z0 + 0.9, g);
+  }
+}
+
+function createEnterableBuilding(spec, parent = worldGroup) {
+  const floorH = 4.2, totalH = spec.floors * floorH;
+  const minX = spec.x - spec.w / 2, maxX = spec.x + spec.w / 2, minZ = spec.z - spec.d / 2, maxZ = spec.z + spec.d / 2;
+  const doorW = 3.4, doorH = 2.8, wallT = 0.4;
+  const facade = new THREE.MeshStandardMaterial({ map: createWindowFacadeTexture(spec.color, spec.accent), roughness: 0.78, metalness: 0.14 });
+  const floorMat = new THREE.MeshStandardMaterial({ map: createConcreteGroundTexture('#94a3b8', 15, 16, 4, 4), roughness: 0.84, metalness: 0.06 });
+  const stepMat = stdMat(0x475569, 0.86, 0.1);
+  const g = new THREE.Group();
+  g.position.set(spec.x, ISLAND_SURFACE_Y, spec.z);
+  parent.add(g);
+
+  box(spec.w, 0.2, spec.d, floorMat, 0, 0.1, 0, g);
+  box(spec.w, totalH, wallT, facade, 0, totalH / 2, -spec.d / 2 + wallT / 2, g);
+  box(wallT, totalH, spec.d, facade, -spec.w / 2 + wallT / 2, totalH / 2, 0, g);
+  box(wallT, totalH, spec.d, facade, spec.w / 2 - wallT / 2, totalH / 2, 0, g);
+  const sideW = (spec.w - doorW) / 2;
+  box(sideW, totalH, wallT, facade, -doorW / 2 - sideW / 2, totalH / 2, spec.d / 2 - wallT / 2, g);
+  box(sideW, totalH, wallT, facade, doorW / 2 + sideW / 2, totalH / 2, spec.d / 2 - wallT / 2, g);
+  box(doorW, totalH - doorH, wallT, facade, 0, doorH + (totalH - doorH) / 2, spec.d / 2 - wallT / 2, g);
+
+  const doorPivot = new THREE.Group();
+  doorPivot.position.set(-doorW / 2, 0, spec.d / 2);
+  box(doorW, doorH, 0.16, stdMat(0x5c2d0c, 0.85, 0.05), doorW / 2, doorH / 2, 0, doorPivot);
+  g.add(doorPivot);
+  box(spec.w + 0.5, 0.3, spec.d + 0.5, bas(spec.neon || 0xff2a85), 0, totalH, 0, g);
+  buildInteriorFurniture(g, spec, floorH, totalH);
+
+  const stairs = [], floorSlabs = [];
+  if (spec.floors > 1) {
+    for (let f = 1; f < spec.floors; f++) {
+      const fy = f * floorH, hW = 4.2, hD = 5.6, boxes = [];
+      const lw = (spec.w - hW) / 2, fd = (spec.d - hD) / 2;
+      box(lw, 0.25, spec.d, floorMat, -hW / 2 - lw / 2, fy, 0, g); boxes.push({ minX: spec.x - spec.w / 2, maxX: spec.x - hW / 2, minZ, maxZ });
+      box(lw, 0.25, spec.d, floorMat, hW / 2 + lw / 2, fy, 0, g); boxes.push({ minX: spec.x + hW / 2, maxX: spec.x + spec.w / 2, minZ, maxZ });
+      box(hW, 0.25, fd, floorMat, 0, fy, hD / 2 + fd / 2, g); boxes.push({ minX: spec.x - hW / 2, maxX: spec.x + hW / 2, minZ: spec.z + hD / 2, maxZ });
+      box(hW, 0.25, fd, floorMat, 0, fy, -hD / 2 - fd / 2, g); boxes.push({ minX: spec.x - hW / 2, maxX: spec.x + hW / 2, minZ, maxZ: spec.z - hD / 2 });
+      floorSlabs.push({ y: ISLAND_SURFACE_Y + fy, boxes });
+      const yS = (f - 1) * floorH, yE = fy, runZ = 5.2, n = 14, rise = (yE - yS) / n, run = runZ / n;
+      for (let i = 0; i < n; i++) {
+        const top = yS + (i + 1) * rise;
+        box(2.4, top - yS, run + 0.06, stepMat, 0, yS + (top - yS) / 2, runZ / 2 - (i + 0.5) * run, g);
+      }
+      stairs.push({ minX: spec.x - 1.2, maxX: spec.x + 1.2, zStart: spec.z + runZ / 2, zEnd: spec.z - runZ / 2, yStart: ISLAND_SURFACE_Y + yS, yEnd: ISLAND_SURFACE_Y + yE, stepCount: n });
+    }
+  }
+
+  const pk = new THREE.Mesh(new THREE.OctahedronGeometry(0.45, 0), bas(0x4ade80));
+  pk.position.set(spec.x - 4.0, ISLAND_SURFACE_Y + 1.1, spec.z - 4.0);
+  parent.add(pk);
+  pickups.push({ type: 'cash', mesh: pk, active: true, respawnTimer: 0 });
+
+  buildings.push({
+    name: spec.name, type: spec.type, x: spec.x, z: spec.z, w: spec.w, d: spec.d,
+    minX, maxX, minZ, maxZ, floors: spec.floors, floorH, doorW, doorH,
+    doorOpen: true, doorAngle: -Math.PI * 0.48,
+    doorPivot, doorPos: new THREE.Vector3(spec.x, ISLAND_SURFACE_Y, maxZ + 0.6),
+    stairs, floorSlabs
+  });
+}
+
+function createWeaponModels() {
+  const gm = stdMat(0x1e293b, 0.35, 0.85), ds = stdMat(0x0f172a, 0.4, 0.8);
+  const pistol = new THREE.Group(); box(0.07, 0.08, 0.30, gm, 0, -0.04, 0.14, pistol);
+  const uzi = new THREE.Group(); box(0.09, 0.12, 0.32, ds, 0, -0.05, 0.14, uzi);
+  const shotgun = new THREE.Group();
+  const sb = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.68, 8), ds);
+  sb.rotation.x = Math.PI / 2; sb.position.set(0, -0.04, 0.32); shotgun.add(sb);
+  return { pistol, uzi, shotgun };
+}
+
+function attachSharedRigParts(root, role = 'npc', pinkHat = false) {
+  const hips = new THREE.Group();
+  hips.position.y = 0.96;
+  root.add(hips);
+
+  const torso = new THREE.Group();
+  torso.position.y = 0.09;
+  hips.add(torso);
+
+  const head = new THREE.Group();
+  head.position.y = 0.60;
+  torso.add(head);
+
+  if (pinkHat) {
+    box(0.38, 0.11, 0.38, stdMat(0xff2a85, 0.55, 0.1), 0, 0.44, 0.02, head);
+    box(0.30, 0.08, 0.30, stdMat(0xff2a85, 0.55, 0.1), 0, 0.50, 0.02, head);
+  }
+
+  const leftLeg = new THREE.Group(); leftLeg.position.set(-0.12, 0, 0); hips.add(leftLeg);
+  const rightLeg = new THREE.Group(); rightLeg.position.set(0.12, 0, 0); hips.add(rightLeg);
+
+  const mkArm = side => {
+    const sPivot = new THREE.Group(); sPivot.position.set(side * 0.33, 0.52, 0); torso.add(sPivot);
+    const ePivot = new THREE.Group(); ePivot.position.set(0, -0.28, 0); sPivot.add(ePivot);
+    return { sPivot, ePivot };
+  };
+  const leftArm = mkArm(-1), rightArm = mkArm(1);
+
+  const weaponMount = new THREE.Group(); weaponMount.position.set(0, -0.26, 0.06); rightArm.ePivot.add(weaponMount);
+  const weaponMeshes = createWeaponModels();
+  Object.values(weaponMeshes).forEach(m => { m.visible = false; weaponMount.add(m); });
+
+  const muzzleFlash = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), bas(0xffd000));
+  muzzleFlash.position.set(0, -0.05, 0.35); muzzleFlash.visible = false; weaponMount.add(muzzleFlash);
+
+  const barGroup = new THREE.Group(); barGroup.position.set(0, 0.62, 0); barGroup.visible = false;
+  barGroup.add(new THREE.Mesh(new THREE.PlaneGeometry(0.84, 0.13), new THREE.MeshBasicMaterial({ color: 0, side: THREE.DoubleSide })));
+  const barFill = new THREE.Mesh(new THREE.PlaneGeometry(0.80, 0.09), new THREE.MeshBasicMaterial({ color: 0xef4444, side: THREE.DoubleSide }));
+  barFill.position.z = 0.01; barGroup.add(barFill); head.add(barGroup);
+
+  root.userData = {
+    hipsPivot: hips, torsoPivot: torso, headPivot: head,
+    leftLeg, rightLeg, leftArm, rightArm,
+    weaponMount, weaponMeshes, muzzleFlash, barGroup, barFill
+  };
+  return root;
+}
+
+function createProceduralHumanoidRig(opts = {}) {
+  const role = opts.role || 'npc';
+  const skin = stdMat(opts.skinColor || 0xd8a47f, 0.72, 0.02);
+  const pants = stdMat(opts.pantsColor || (role === 'police' ? 0x0f172a : 0x1e293b), 0.88, 0.03);
+  const shirt = role === 'player'
+    ? new THREE.MeshStandardMaterial({ map: createHawaiianTexture(), roughness: 0.84, metalness: 0.02 })
+    : stdMat(opts.shirtColor || (role === 'police' ? 0x1e3a8a : 0x9f1239), 0.85, 0.04);
+
+  const root = new THREE.Group();
+  attachSharedRigParts(root, role, Boolean(opts.pinkHat));
+  const u = root.userData;
+
+  box(0.46, 0.18, 0.26, pants, 0, 0, 0, u.hipsPivot);
+  box(0.18, 0.88, 0.2, pants, 0, -0.44, 0, u.leftLeg);
+  box(0.18, 0.88, 0.2, pants, 0, -0.44, 0, u.rightLeg);
+  box(0.52, 0.58, 0.28, shirt, 0, 0.29, 0, u.torsoPivot);
+  box(0.32, 0.34, 0.32, skin, 0, 0.24, 0, u.headPivot);
+
+  if (role === 'player') {
+    box(0.30, 0.07, 0.05, stdMat(0x09090b, 0.2, 0.7), 0, 0.26, 0.16, u.headPivot);
+  } else if (role === 'police') {
+    box(0.34, 0.09, 0.36, stdMat(0x0f172a, 0.65, 0.25), 0, 0.43, 0.02, u.headPivot);
+  }
+
+  const fillArm = (armGroup, sMat) => {
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.065, 0.28, 8), sMat);
+    upper.position.y = -0.14;
+    armGroup.sPivot.add(upper);
+    const fore = new THREE.Mesh(new THREE.CylinderGeometry(0.062, 0.052, 0.26, 8), skin);
+    fore.position.y = -0.13;
+    armGroup.ePivot.add(fore);
+  };
+  fillArm(u.leftArm, shirt);
+  fillArm(u.rightArm, shirt);
+  return root;
+}
+
+function loadExternalModelNormalized(url, targetHeight, onLoaded, onError) {
+  if (gltfCache.has(url)) {
+    const cloned = gltfCache.get(url).clone(true);
+    onLoaded(cloned);
+    return;
+  }
+  gltfLoader.load(
+    url,
+    gltf => {
+      const src = gltf.scene || (gltf.scenes && gltf.scenes[0]);
+      if (!src) { if (onError) onError(new Error('Empty GLTF scene: ' + url)); return; }
+      src.traverse(ch => {
+        if (ch.isMesh) {
+          ch.castShadow = false;
+          ch.receiveShadow = false;
+          if (ch.material) {
+            const mats = Array.isArray(ch.material) ? ch.material : [ch.material];
+            mats.forEach(m => {
+              if (m.map) m.map.encoding = THREE.sRGBEncoding;
+              if (typeof m.roughness === 'number') m.roughness = THREE.MathUtils.clamp(m.roughness, 0.25, 0.95);
+            });
+          }
+        }
+      });
+      const box3 = new THREE.Box3().setFromObject(src);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box3.getSize(size);
+      box3.getCenter(center);
+
+      const wrapper = new THREE.Group();
+      const maxDim = Math.max(size.y, size.x * 0.5, size.z * 0.5, 0.001);
+      const scale = targetHeight / maxDim;
+      src.scale.setScalar(scale);
+      src.position.set(
+        -center.x * scale,
+        -box3.min.y * scale,
+        -center.z * scale
+      );
+      wrapper.add(src);
+      gltfCache.set(url, wrapper);
+      onLoaded(wrapper.clone(true));
+    },
+    undefined,
+    err => { if (onError) onError(err); }
+  );
+}
+
+function pickNpcModelFile(preferredFile = null) {
+  if (preferredFile && NPC_MODEL_FILES.includes(preferredFile)) {
+    const cnt = npcModelSpawnCounts.get(preferredFile) || 0;
+    if (cnt < MAX_PER_NPC_MODEL) {
+      npcModelSpawnCounts.set(preferredFile, cnt + 1);
+      return preferredFile;
+    }
+  }
+  const available = NPC_MODEL_FILES.filter(f => (npcModelSpawnCounts.get(f) || 0) < MAX_PER_NPC_MODEL);
+  if (available.length === 0) return null;
+  const chosen = available[Math.floor(Math.random() * available.length)];
+  npcModelSpawnCounts.set(chosen, (npcModelSpawnCounts.get(chosen) || 0) + 1);
+  return chosen;
+}
+
+function releaseNpcModelFile(modelFile) {
+  if (!modelFile) return;
+  const cur = npcModelSpawnCounts.get(modelFile) || 0;
+  if (cur > 0) npcModelSpawnCounts.set(modelFile, cur - 1);
+}
+
+function createHumanoidRig(opts = {}) {
+  const role = opts.role || 'npc';
+  const isPinkHat = Boolean(opts.pinkHat);
+
+  if (isPinkHat) {
+    return createProceduralHumanoidRig({
+      ...opts,
+      role: 'npc',
+      pinkHat: true,
+      shirtColor: opts.shirtColor || 0xdb2777,
+      pantsColor: opts.pantsColor || 0x111827
+    });
+  }
+
+  const rig = createProceduralHumanoidRig(opts);
+  const chosenFile = pickNpcModelFile(opts.modelFile || null);
+  rig.userData.modelFile = chosenFile;
+
+  if (chosenFile) {
+    loadExternalModelNormalized(chosenFile, 1.82, gltfModel => {
+      rig.userData.hipsPivot.visible = false;
+      const modelHolder = new THREE.Group();
+      modelHolder.add(gltfModel);
+      rig.add(modelHolder);
+      rig.userData.externalModel = modelHolder;
+    }, () => {
+      rig.userData.hipsPivot.visible = true;
+    });
+  }
+  return rig;
+}
+
+function buildFallbackCarBody(color, o = {}) {
+  const car = new THREE.Group();
+  const body = stdMat(color, 0.28, 0.72);
+  box(2.24, 0.62, 4.5, body, 0, 0.62, 0, car);
+  box(1.78, 0.56, 2.05, o.isPolice ? stdMat(0xcbd5e1, 0.35, 0.55) : body, 0, 1.18, -0.18, car);
+  const fg = box(1.66, 0.48, 0.08, stdMat(0x0f172a, 0.15, 0.8), 0, 1.16, 0.86, car);
+  fg.rotation.x = -0.36;
+  [-0.78, 0.78].forEach(lx => box(0.36, 0.16, 0.08, bas(0xfef08a), lx, 0.65, 2.26, car));
+  if (o.isPlayer) {
+    box(2.1, 0.08, 0.35, stdMat(0x111827, 0.4, 0.6), 0, 1.24, -2.05, car);
+    box(2.1, 0.04, 4.1, bas(0xff2a85), 0, 0.28, 0, car);
+    const fm = bas(0x00e5ff), fl = [];
+    [-0.6, 0.6].forEach(x => {
+      const f = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.9, 8), fm);
+      f.rotation.x = -Math.PI / 2; f.position.set(x, 0.48, -2.65); f.visible = false;
+      car.add(f); fl.push(f);
+    });
+    car.userData.nitroFlames = fl;
+  }
+  const tg = new THREE.CylinderGeometry(0.44, 0.44, 0.34, 14), tm = stdMat(0x141414, 0.88, 0.08);
+  car.userData.wheels = [];
+  [[-1.12, 0.44, 1.38], [1.12, 0.44, 1.38], [-1.12, 0.44, -1.38], [1.12, 0.44, -1.38]].forEach(p => {
+    const w = new THREE.Mesh(tg, tm); w.rotation.z = Math.PI / 2; w.position.set(...p);
+    car.add(w); car.userData.wheels.push(w);
+  });
+  return car;
+}
+
+function createCarMesh(color, o = {}) {
+  const carFile = o.carFile && ALLOWED_CAR_FILES.includes(o.carFile)
+    ? o.carFile
+    : ALLOWED_CAR_FILES[Math.floor(Math.random() * ALLOWED_CAR_FILES.length)];
+  const car = buildFallbackCarBody(color, o);
+  car.userData.carFile = carFile;
+
+  if (o.isPlayer) {
+    const fm = bas(0x00e5ff), fl = [];
+    [-0.6, 0.6].forEach(x => {
+      const f = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.9, 8), fm);
+      f.rotation.x = -Math.PI / 2; f.position.set(x, 0.48, -2.55); f.visible = false;
+      car.add(f); fl.push(f);
+    });
+    car.userData.nitroFlames = fl;
+  }
+
+  loadExternalModelNormalized(carFile, 1.45, gltfCar => {
+    const keepNames = new Set(['nitro']);
+    const toRemove = [];
+    car.children.forEach(ch => {
+      if (!keepNames.has(ch.name) && !(car.userData.nitroFlames && car.userData.nitroFlames.includes(ch)) && ch !== car.userData.driverDummy) {
+        toRemove.push(ch);
+      }
+    });
+    toRemove.forEach(ch => car.remove(ch));
+    car.userData.wheels = [];
+    gltfCar.rotation.y = Math.PI / 2;
+    car.add(gltfCar);
+    car.userData.externalCarModel = gltfCar;
+  });
+
+  return car;
+}
+
+function createPlayerCar() {
+  playerCar = createCarMesh(0xf8fafc, { isPlayer: true, carFile: 'araba1.glb' });
+  playerCar.position.set(65, ROAD_SURFACE_Y, 20);
+  scene.add(playerCar);
+}
+
+function createPlayerMotorcycle() {
+  const m = new THREE.Group(), fr = stdMat(0x9d174d, 0.4, 0.6), mt = stdMat(0x1e293b, 0.45, 0.7), tm = stdMat(0x0f172a, 0.88, 0.08);
+  box(0.55, 0.45, 1.95, fr, 0, 0.62, 0, m);
+  box(0.46, 0.16, 0.85, mt, 0, 0.88, -0.22, m);
+  box(0.85, 0.08, 0.1, mt, 0, 1.05, 0.65, m);
+  const wg = new THREE.CylinderGeometry(0.38, 0.38, 0.22, 14), fw = new THREE.Mesh(wg, tm), rw = new THREE.Mesh(wg, tm);
+  fw.rotation.z = rw.rotation.z = Math.PI / 2; fw.position.set(0, 0.38, 0.82); rw.position.set(0, 0.38, -0.82);
+  m.add(fw, rw); m.userData.wheels = [fw, rw]; m.position.set(58, ISLAND_SURFACE_Y, 14);
+  playerMoto = m; scene.add(m);
+}
+
+function createPoliceTank() {
+  const t = new THREE.Group(), camo = stdMat(0x1e3a8a, 0.75, 0.35);
+  box(3.2, 1.1, 5.4, camo, 0, 0.85, 0, t);
+  [-1.55, 1.55].forEach(x => box(0.65, 0.78, 5.6, stdMat(0x0f172a, 0.85, 0.2), x, 0.42, 0, t));
+  box(2.1, 0.75, 2.4, camo, 0, 1.65, -0.2, t);
+  const b = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 3.2, 10), stdMat(0x334155, 0.4, 0.8));
+  b.rotation.x = Math.PI / 2; b.position.set(0, 1.72, 2.2); t.add(b);
+  t.position.set(65, ROAD_SURFACE_Y, -20); t.visible = false;
+  policeTank = t; scene.add(t);
+}
+
+function createPlayerCharacter() {
+  playerRig = createProceduralHumanoidRig({ role: 'player' });
+  playerRig.visible = false;
+  updateRigWeapon(playerRig, WEAPONS[state.weaponIndex].id);
+  scene.add(playerRig);
+}
+
+function createStoryCharacters() {
+  leroyAlly = createHumanoidRig({ role: 'npc', shirtColor: 0x0369a1, pantsColor: 0x1e293b, modelFile: 'patrickjane.glb' });
+  leroyAlly.position.set(-95, ISLAND_SURFACE_Y, 54);
+  updateRigWeapon(leroyAlly, 'pistol');
+  scene.add(leroyAlly);
+
+  marcusNpc = createHumanoidRig({ role: 'npc', shirtColor: 0x92400e, pantsColor: 0x111827, modelFile: 'trump.glb' });
+  marcusNpc.position.copy(state.marcusPos);
+  scene.add(marcusNpc);
+
+  girlfriendNpc = createProceduralHumanoidRig({ role: 'npc', shirtColor: 0x9d174d, pantsColor: 0x334155 });
+  girlfriendNpc.position.set(95, ISLAND_SURFACE_Y, -54);
+  girlfriendNpc.visible = false;
+  scene.add(girlfriendNpc);
+
+  airlinerMesh = new THREE.Group();
+  box(3.4, 3.2, 18.0, stdMat(0xcbd5e1, 0.35, 0.65), 0, 3.2, 0, airlinerMesh);
+  box(19.0, 0.36, 3.6, stdMat(0x0369a1, 0.4, 0.6), 0, 2.8, -0.6, airlinerMesh);
+  box(0.45, 4.2, 3.0, bas(0x00e5ff), 0, 5.4, -7.2, airlinerMesh);
+  box(7.0, 0.32, 1.8, stdMat(0xcbd5e1, 0.35, 0.65), 0, 6.6, -7.4, airlinerMesh);
+  airlinerMesh.position.set(28, ROAD_SURFACE_Y + 15, -20);
+  airlinerMesh.visible = false;
+  scene.add(airlinerMesh);
+}
+
+function clearDynamicEntities() {
+  while (dynamicGroup.children.length > 0) dynamicGroup.remove(dynamicGroup.children[0]);
+  trafficCars = [];
+  parkedCars = [];
+  seaShips = [];
+  pedestrians = [];
+  policeOfficers = [];
+  npcModelSpawnCounts.clear();
+  clearStoryWaves();
+}
+
+function getActiveNpcCount() {
+  const activePeds = pedestrians.filter(p => !p.gone && p.downTimer <= 0).length;
+  const activeCops = policeOfficers.filter(c => c.downTimer <= 0).length;
+  const activeEnemies = storyEnemies.filter(e => e.hp > 0).length;
+  const activeAllies = storyAllies.length;
+  return activePeds + activeCops + activeEnemies + activeAllies;
+}
+
+function populateCityEntities(cityCode) {
+  clearDynamicEntities();
+  spawnTraffic(10);
+  spawnSeaShips(5);
+  spawnPedestrians(8);
+  spawnPolice(2);
+  if (leroyAlly) leroyAlly.visible = cityCode === 'LA';
+  if (marcusNpc) marcusNpc.visible = cityCode === 'LA';
+  if (girlfriendNpc) girlfriendNpc.visible = cityCode === 'IST';
+}
+
+function updateRigWeapon(rig, id) {
+  if (!rig || !rig.userData.weaponMeshes) return;
+  const m = rig.userData.weaponMeshes;
+  Object.keys(m).forEach(k => m[k].visible = k === id);
+}
+
+function createCheckpoint() {
+  checkpointMesh = new THREE.Group();
+  checkpointRing = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.22, 10, 28), bas(0xff2a85));
+  checkpointRing.rotation.x = Math.PI / 2;
+  checkpointRing.position.y = 0.4;
+  checkpointMesh.add(checkpointRing);
+  checkpointMesh.position.copy(checkpointPos);
+  checkpointMesh.visible = false;
+  scene.add(checkpointMesh);
+}
+
+function syncCheckpointVisibility() {
+  if (!checkpointMesh) return;
+  checkpointMesh.visible = Boolean(state.storyEnabled || state.courierActive || state.taxiActive);
+}
+
+function spawnTraffic(count) {
+  const cols = [0xb45309, 0x1e3a8a, 0x4c1d95, 0x065f46, 0x9f1239, 0x9a3412, 0x0369a1];
+  for (let i = 0; i < count; i++) {
+    const col = cols[i % cols.length];
+    const carFile = ALLOWED_CAR_FILES[i % ALLOWED_CAR_FILES.length];
+    const car = createCarMesh(col, { carFile }), heading = i % 2 === 0 ? 0 : Math.PI / 2;
+    car.position.set(ACTIVE_LAYOUT.roadX[i % 4], ROAD_SURFACE_Y, ACTIVE_LAYOUT.roadZ[(i * 2) % ACTIVE_LAYOUT.roadZ.length]);
+    car.rotation.y = heading;
+    const driver = new THREE.Group();
+    const dShirt = stdMat([0x9f1239, 0x1e3a8a, 0x9a3412, 0x065f46, 0x4c1d95][i % 5], 0.85, 0.05);
+    const dSkin = stdMat(0xd8a47f, 0.72, 0.02);
+    box(0.44, 0.34, 0.24, dShirt, -0.34, 1.02, 0.05, driver);
+    box(0.28, 0.28, 0.28, dSkin, -0.34, 1.32, 0.05, driver);
+    car.add(driver);
+    car.userData.driverDummy = driver;
+    car.userData.driverColor = [0x9f1239, 0x1e3a8a, 0x9a3412, 0x065f46, 0x4c1d95][i % 5];
+    dynamicGroup.add(car);
+    trafficCars.push({ mesh: car, speed: 11 + (i % 4) * 2.2, heading, turnCooldown: 2 + (i % 3) });
+  }
+}
+
+function spawnSeaShips(count) {
+  const hc = [0x1e293b, 0x7f1d1d, 0x0f766e, 0x1d4ed8, 0x4338ca];
+  const spots = [{ x: 215, z: -120, h: 0, s: 6.5 }, { x: 220, z: 50, h: Math.PI, s: 5.5 }, { x: -215, z: -85, h: 0, s: 6 }, { x: -220, z: 85, h: Math.PI, s: 5.8 }, { x: 0, z: -220, h: Math.PI / 2, s: 6.2 }];
+  for (let i = 0; i < count; i++) {
+    const sp = spots[i % 5], ship = new THREE.Group();
+    box(4.6, 2.2, 14.5, stdMat(hc[i % 5], 0.55, 0.45), 0, WATER_LEVEL_Y + 0.7, 0, ship);
+    box(3.2, 2.4, 4.2, stdMat(0xcbd5e1, 0.65, 0.25), 0, WATER_LEVEL_Y + 2.7, -1.8, ship);
+    const st = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.55, 2.0, 10), stdMat(0x991b1b, 0.5, 0.5));
+    st.position.set(0, WATER_LEVEL_Y + 4.4, -2.5); ship.add(st);
+    ship.position.set(sp.x, 0, sp.z); ship.rotation.y = sp.h; dynamicGroup.add(ship);
+    seaShips.push({ mesh: ship, speed: sp.s, heading: sp.h, phase: i * 1.4 });
+  }
+}
+
+function newPed(rig, hp) {
+  return {
+    rig, hp, maxHp: hp, angle: 0, isAggressive: false, downTimer: 0, stunTimer: 0,
+    attackCooldown: 0, walkTimer: 999, walkPhase: 0, fleeTimer: 0, returnToCar: false,
+    ownCar: null, gone: false, respawnPending: false
+  };
+}
+
+function findRespawnSpot(avoidPos, minDist = 28) {
+  const lay = ACTIVE_LAYOUT;
+  for (let attempt = 0; attempt < 24; attempt++) {
+    const east = attempt % 2 === 0;
+    const rx = east
+      ? (lay.eastIsland.minX + 14 + Math.random() * (lay.eastIsland.maxX - lay.eastIsland.minX - 48))
+      : (lay.westIsland.minX + 14 + Math.random() * (lay.westIsland.maxX - lay.westIsland.minX - 28));
+    const rz = lay.roadZ[attempt % lay.roadZ.length] + (Math.random() > 0.5 ? 9.5 : -9.5);
+    if (isOnRoadOrBridge(rx, rz, 7.5)) continue;
+    if (avoidPos && Math.hypot(rx - avoidPos.x, rz - avoidPos.z) < minDist) continue;
+    const insideB = buildings.some(b => rx > b.minX - 1 && rx < b.maxX + 1 && rz > b.minZ - 1 && rz < b.maxZ + 1);
+    const insideH = cityHouses.some(h => rx > h.minX - 1 && rx < h.maxX + 1 && rz > h.minZ - 1 && rz < h.maxZ + 1);
+    if (!insideB && !insideH) return new THREE.Vector3(rx, ISLAND_SURFACE_Y, rz);
+  }
+  return new THREE.Vector3(lay.roadX[0] + 10, ISLAND_SURFACE_Y, lay.roadZ[0] + 10);
+}
+
+function respawnNpcElsewhere(npcObj, isPolice = false, preferredModelFile = null) {
+  if (!npcObj || !npcObj.rig) return;
+  if (npcObj.rig.userData && npcObj.rig.userData.modelFile) {
+    releaseNpcModelFile(npcObj.rig.userData.modelFile);
+    npcObj.rig.userData.modelFile = null;
+  }
+  if (npcObj.rig.userData && npcObj.rig.userData.externalModel) {
+    npcObj.rig.remove(npcObj.rig.userData.externalModel);
+    npcObj.rig.userData.externalModel = null;
+  }
+  if (npcObj.rig.userData && npcObj.rig.userData.hipsPivot) {
+    npcObj.rig.userData.hipsPivot.visible = true;
+  }
+
+  if (getActiveNpcCount() >= MAX_NPCS) {
+    npcObj.gone = true;
+    npcObj.rig.visible = false;
+    return;
+  }
+
+  const chosenFile = pickNpcModelFile(preferredModelFile);
+  npcObj.rig.userData.modelFile = chosenFile;
+  if (chosenFile) {
+    loadExternalModelNormalized(chosenFile, 1.82, gltfModel => {
+      npcObj.rig.userData.hipsPivot.visible = false;
+      const modelHolder = new THREE.Group();
+      modelHolder.add(gltfModel);
+      npcObj.rig.add(modelHolder);
+      npcObj.rig.userData.externalModel = modelHolder;
+    }, () => {
+      npcObj.rig.userData.hipsPivot.visible = true;
+    });
+  }
+
+  const spot = findRespawnSpot(currentPos(), 30);
+  npcObj.hp = npcObj.maxHp;
+  npcObj.downTimer = 0;
+  npcObj.stunTimer = 0;
+  npcObj.isAggressive = false;
+  npcObj.fleeTimer = 0;
+  npcObj.gone = false;
+  npcObj.rig.visible = true;
+  npcObj.rig.rotation.set(0, Math.random() * Math.PI * 2, 0);
+  npcObj.rig.position.copy(spot);
+  if (npcObj.rig.userData && npcObj.rig.userData.barGroup) {
+    npcObj.rig.userData.barGroup.visible = false;
+  }
+}
+
+function spawnPedestrians(count) {
+  const shirts = [0x9f1239, 0x1e3a8a, 0x9a3412, 0x065f46, 0x4c1d95];
+  for (let i = 0; i < count; i++) {
+    if (getActiveNpcCount() >= MAX_NPCS) break;
+    const rig = createHumanoidRig({ role: 'npc', shirtColor: shirts[i % 5], modelFile: NPC_MODEL_FILES[i % NPC_MODEL_FILES.length] });
+    const east = i % 2 === 0;
+    const px = east ? 55 + (i * 15) % 90 : -150 + (i * 19) % 90;
+    const pz = -135 + (i * 31) % 260;
+    if (isOnRoadOrBridge(px, pz, 8.0)) {
+      if (rig.userData.modelFile) releaseNpcModelFile(rig.userData.modelFile);
+      continue;
+    }
+    rig.position.set(px, ISLAND_SURFACE_Y, pz);
+    dynamicGroup.add(rig);
+    const p = newPed(rig, 65);
+    p.angle = (i * 1.1) % 6.283; p.walkTimer = 2 + (i % 4); p.walkPhase = i * 0.7;
+    pedestrians.push(p);
+  }
+}
+
+function spawnPolice(count) {
+  for (let i = 0; i < count; i++) {
+    if (getActiveNpcCount() >= MAX_NPCS) break;
+    const rig = createHumanoidRig({ role: 'police', modelFile: 'mesutkomser.glb' });
+    rig.position.set(-158 + (i % 2) * 3, ISLAND_SURFACE_Y, -54 - i * 6);
+    updateRigWeapon(rig, 'pistol');
+    dynamicGroup.add(rig);
+    policeOfficers.push({ rig, hp: 100, maxHp: 100, angle: 0, shootCD: 0, downTimer: 0, stunTimer: 0, walkPhase: i });
+  }
+}
+
+function clearStoryWaves() {
+  storyEnemies.forEach(e => {
+    if (e.rig && e.rig.userData && e.rig.userData.modelFile) releaseNpcModelFile(e.rig.userData.modelFile);
+    if (e.rig) dynamicGroup.remove(e.rig);
+  });
+  storyEnemies = [];
+  storyAllies.forEach(a => {
+    if (a.rig && a.rig.userData && a.rig.userData.modelFile) releaseNpcModelFile(a.rig.userData.modelFile);
+    if (a.rig) dynamicGroup.remove(a.rig);
+  });
+  storyAllies = [];
+  targetBossCars.forEach(tc => { if (tc.mesh) dynamicGroup.remove(tc.mesh); });
+  targetBossCars = [];
+}
+
+function spawnPinkHatGang(coords, includeBoss = false) {
+  coords.forEach(([x, z], idx) => {
+    const isBoss = includeBoss && idx === coords.length - 1;
+    const rig = createHumanoidRig({ role: 'npc', shirtColor: isBoss ? 0x831843 : 0xdb2777, pinkHat: true });
+    if (isBoss) rig.scale.setScalar(1.16);
+    rig.position.set(x, ISLAND_SURFACE_Y, z);
+    updateRigWeapon(rig, isBoss ? 'shotgun' : 'uzi');
+    dynamicGroup.add(rig);
+    storyEnemies.push({ rig, hp: isBoss ? 190 : 80, maxHp: isBoss ? 190 : 80, isBoss, shootCD: 0.9 + idx * 0.25, walkPhase: idx });
+  });
+}
+
+function playCutscene(scenes, onComplete) {
+  state.inCutscene = true;
+  state.cutsceneQueue = scenes;
+  state.cutsceneIdx = 0;
+  state.cutsceneTimer = 0;
+  state.cutsceneDoneCb = onComplete || null;
+  $('cutscene-overlay').classList.remove('hidden');
+  $('mobile-controls').classList.add('hidden');
+  $('context-actions').classList.add('hidden');
+  applyCutsceneSlide(0);
+}
+
+function applyCutsceneSlide(idx) {
+  const sc = state.cutsceneQueue[idx];
+  if (!sc) { finishCutscene(); return; }
+  state.cutsceneIdx = idx;
+  state.cutsceneTimer = 0;
+  $('cutscene-chapter-title').textContent = sc.chapter;
+  $('cutscene-speaker').textContent = sc.speaker;
+  $('cutscene-subtitle-text').textContent = sc.text;
+  if (typeof sc.setup === 'function') sc.setup();
+  if (sc.camStart) camera.position.copy(sc.camStart);
+  if (sc.lookAt) camera.lookAt(sc.lookAt);
+}
+
+function finishCutscene() {
+  state.inCutscene = false;
+  $('cutscene-overlay').classList.add('hidden');
+  $('context-actions').classList.remove('hidden');
+  if (state.platformMode === 'mobile') {
+    $('mobile-controls').classList.remove('hidden');
+    setOnFootUI(!state.inCar && !state.inMotorcycle);
+  }
+  const cb = state.cutsceneDoneCb;
+  state.cutsceneDoneCb = null;
+  if (typeof cb === 'function') cb();
+}
+
+function startStoryCampaign() {
+  if (state.city !== 'LA') switchCity('LA', false);
+  state.activeCharacter = 'Fatih';
+  state.storyEnabled = true;
+  syncCheckpointVisibility();
+  state.casinoRobbed = false;
+  $('btn-toggle-story').textContent = '📖 HİKAYE: AÇIK';
+  $('btn-toggle-story').classList.add('active-mode');
+  if (state.weaponIndex === 0) { state.weaponIndex = 2; updateWeaponHUD(); }
+
+  playCutscene([
+    {
+      chapter: 'SAHNE 1 • OKULDA ACI HABER',
+      speaker: 'LEROY (OKUL BAHÇESİ)',
+      text: 'Diploma törenine bir hafta kala babam trafik kazasında öldü Fatih. Babam zengin bir mafya lideriydi; mal varlığımız gitti ama adamları saygılarından annemle beni yalnız bırakmadı ve anneannenin evine taşındık.',
+      duration: 5.0,
+      camStart: new THREE.Vector3(-58, 4.2, -12),
+      camEnd: new THREE.Vector3(-62, 3.2, -18),
+      lookAt: new THREE.Vector3(-65, 1.5, -20),
+      setup: () => { if (leroyAlly) leroyAlly.position.set(-65, ROAD_SURFACE_Y, -20); }
+    },
+    {
+      chapter: 'SAHNE 2 • ANNEANNENİN EVİ (LOS ANGELES)',
+      speaker: 'ANLATICI',
+      text: 'Leroy ve annesi anneannenin evine yerleşti. Üniversite bitince dostu Fatih, yanında olmak ve omuz vermek için Los Angeles’a geldi.',
+      duration: 4.5,
+      camStart: new THREE.Vector3(-88, 5.2, 62),
+      camEnd: new THREE.Vector3(-92, 3.8, 56),
+      lookAt: new THREE.Vector3(-95, 1.6, 48),
+      setup: () => { if (leroyAlly) leroyAlly.position.set(-95, ISLAND_SURFACE_Y, 58); }
+    },
+    {
+      chapter: 'SAHNE 3 • TELEFON GÖRÜŞMESİ',
+      speaker: 'FATİH & LEROY (TELEFONDA)',
+      text: 'Fatih: "Uçak biletim hazır kardeşim, geliyorum." — Leroy: "Eyvallah Fatih, anneannemin evindeyiz. Gelince Pink Hat çetesine karşı birlikte dururuz."',
+      duration: 4.8,
+      camStart: new THREE.Vector3(58, 3.8, 25),
+      camEnd: new THREE.Vector3(62, 3.0, 22),
+      lookAt: new THREE.Vector3(65, 1.5, 20)
+    },
+    {
+      chapter: 'SAHNE 4 • FATİH UÇAĞA BİNİYOR',
+      speaker: 'ANLATICI',
+      text: 'Fatih uçağa binerek Los Angeles’a uçtu ve dostu Leroy ile birlikte suç mücadelesi başladı.',
+      duration: 4.6,
+      camStart: new THREE.Vector3(24, 18, -20),
+      camEnd: new THREE.Vector3(64, 15, -55),
+      lookAt: new THREE.Vector3(48, 14, -40),
+      setup: () => {
+        if (airlinerMesh) {
+          airlinerMesh.visible = true;
+          airlinerMesh.position.set(28, ROAD_SURFACE_Y + 15, -20);
+          airlinerMesh.rotation.y = Math.atan2(36, -35);
+        }
+      }
+    }
+  ], () => {
+    if (airlinerMesh) airlinerMesh.visible = false;
+    startStoryChapter(1);
+  });
+}
+
+function startStoryChapter(ch) {
+  state.storyChapter = ch;
+  clearStoryWaves();
+  syncCheckpointVisibility();
+  const banner = $('mission-banner');
+
+  if (ch === 1) {
+    banner.textContent = '📖 GÖREV 1/10: Ev Baskını — Anneannenin Evi önündeki Pink Hat baskıncılarını öldür';
+    checkpointPos.set(-95, ISLAND_SURFACE_Y, 58);
+    checkpointMesh.position.copy(checkpointPos);
+    spawnPinkHatGang([[-99, 59], [-91, 59], [-95, 62]]);
+    showToast('🔫 GÖREV 1: ANNEANNENİN EVİNDEKİ PİNK HAT BASKINCILARINI İNDİR!');
+  } else if (ch === 2) {
+    banner.textContent = '📖 GÖREV 2/10: Bay Kuru ile Buluşma — Marcus "Bay Kuru" Webb merkezine git';
+    checkpointPos.set(state.marcusPos.x, ISLAND_SURFACE_Y, state.marcusPos.z + 11);
+    checkpointMesh.position.copy(checkpointPos);
+    showToast('💼 GÖREV 2: MARCUS "BAY KURU" WEBB İLE BULUŞ!');
+  } else if (ch === 3) {
+    banner.textContent = '📖 GÖREV 3/10: Liderlerin Araçları — Pink Hat araçlarına [G] ile C4 yerleştir ve patlat!';
+    const bossCoords = [[125, ROAD_SURFACE_Y, -20], [65, ROAD_SURFACE_Y, -20]];
+    bossCoords.forEach(([x, y, z], i) => {
+      const m = createCarMesh(0x9d174d, { carFile: i === 0 ? 'araba2.glb' : 'araba3.glb' });
+      m.position.set(x, y, z);
+      m.rotation.y = i === 0 ? 0 : Math.PI / 2;
+      dynamicGroup.add(m);
+      targetBossCars.push({ mesh: m, c4Attached: false, destroyed: false });
+    });
+    checkpointPos.set(bossCoords[0][0], bossCoords[0][1], bossCoords[0][2]);
+    checkpointMesh.position.copy(checkpointPos);
+    showToast('💣 GÖREV 3: LİDER ARAÇLARINA [G] İLE C4 KOY VE PATLAT!');
+  } else if (ch === 4) {
+    banner.textContent = '📖 GÖREV 4/10: Casino Baskını — LA Casino muhafızlarını indir ve [E] ile kasayı soy!';
+    checkpointPos.set(state.casinoVaultPos.x, ISLAND_SURFACE_Y, state.casinoVaultPos.z + 11);
+    checkpointMesh.position.copy(checkpointPos);
+    spawnPinkHatGang([[-99, -56], [-91, -56], [-95, -54]]);
+    showToast('🎰 GÖREV 4: CASİNOYU BAS, MUHAFIZLARI İNDİR VE [E] İLE SOY!');
+  } else if (ch === 5) {
+    banner.textContent = '📖 GÖREV 5/10: Yeni Dostlar & Cephane — Orta Ada (0, 20) üzerinden ekibe katıl';
+    checkpointPos.set(0, ISLAND_SURFACE_Y, 20);
+    checkpointMesh.position.copy(checkpointPos);
+    showToast('🤝 GÖREV 5: ORTA ADAYA GİDİP YENİ DOSTLAR VE CEPHANE AL!');
+  } else if (ch === 6) {
+    banner.textContent = '📖 GÖREV 6/10: Liman Sevkiyatı — Doğu hattındaki Pink Hat üyelerini temizle';
+    checkpointPos.set(125, ROAD_SURFACE_Y, 80);
+    checkpointMesh.position.copy(checkpointPos);
+    spawnPinkHatGang([[121, 77], [129, 77], [125, 73]]);
+    showToast('⚓ GÖREV 6: LİMAN SEVKIYATINDAKİ PİNK HAT ÜYELERİNİ İNDİR!');
+  } else if (ch === 7) {
+    banner.textContent = '📖 GÖREV 7/10: Kuzey Hattı Operasyonu — Kuzey yolundaki Pink Hat timini yok et';
+    checkpointPos.set(-65, ROAD_SURFACE_Y, -120);
+    checkpointMesh.position.copy(checkpointPos);
+    spawnPinkHatGang([[-69, -117], [-61, -117], [-65, -113]]);
+    showToast('⚡ GÖREV 7: KUZEY HATTI PİNK HAT TİMİNİ TEMİZLE!');
+  } else if (ch === 8) {
+    banner.textContent = '📖 GÖREV 8/10: Pavyon Hazırlığı — Pink Hat Pavyon kapısına ulaş';
+    checkpointPos.set(state.pavyonPos.x, ISLAND_SURFACE_Y, state.pavyonPos.z + 11);
+    checkpointMesh.position.copy(checkpointPos);
+    showToast('🪩 GÖREV 8: PİNK HAT PAVYON ÖNÜNE İLERLE!');
+  } else if (ch === 9) {
+    banner.textContent = '📖 GÖREV 9/10: İçerideki Kuşatma — Pavyon korumalarını indir';
+    checkpointPos.set(state.pavyonPos.x, ISLAND_SURFACE_Y, state.pavyonPos.z + 11);
+    checkpointMesh.position.copy(checkpointPos);
+    for (let k = 0; k < 2; k++) {
+      const friend = createHumanoidRig({ role: 'npc', shirtColor: 0x0369a1, pantsColor: 0x0f172a, modelFile: k === 0 ? 'polatalemdar.glb' : 'michealjackson.glb' });
+      friend.position.set(89 + k * 5, ISLAND_SURFACE_Y, -56);
+      updateRigWeapon(friend, 'uzi');
+      dynamicGroup.add(friend);
+      storyAllies.push({ rig: friend, shootCD: 0.7, walkPhase: k });
+    }
+    spawnPinkHatGang([[88, -56], [96, -56], [92, -58]]);
+    showToast('🔥 GÖREV 9: PAVYON KORUMALARINI İNDİR!');
+  } else if (ch === 10) {
+    banner.textContent = '📖 GÖREV 10/10 (FİNAL): Pavyon Baskını — Pink Hat Liderini öldür ve her şeye el koy!';
+    checkpointPos.set(state.pavyonPos.x, ISLAND_SURFACE_Y, state.pavyonPos.z + 11);
+    checkpointMesh.position.copy(checkpointPos);
+    spawnPinkHatGang([[88, -56], [96, -56], [92, -57]], true);
+    showToast('👑 FİNAL 10: PİNK HAT LİDERİNİ ÖLDÜR VE SERVETE EL KOY!');
+  }
+}
+
+function checkStoryProgress() {
+  if (!state.storyEnabled) return;
+  if (state.storyChapter === 1 && storyEnemies.every(e => e.hp <= 0)) {
+    state.money += 1000; updateHUD(); startStoryChapter(2);
+  } else if (state.storyChapter === 3 && targetBossCars.length > 0) {
+    const remainingBossCar = targetBossCars.find(tc => !tc.destroyed);
+    if (remainingBossCar) {
+      checkpointPos.copy(remainingBossCar.mesh.position);
+      checkpointMesh.position.copy(checkpointPos);
+    } else if (targetBossCars.every(tc => tc.destroyed)) {
+      state.money += 2500; updateHUD(); startStoryChapter(4);
+    }
+  } else if (state.storyChapter === 4 && state.casinoRobbed) {
+    startStoryChapter(5);
+  } else if (state.storyChapter === 6 && storyEnemies.every(e => e.hp <= 0)) {
+    state.money += 2000; updateHUD(); startStoryChapter(7);
+  } else if (state.storyChapter === 7 && storyEnemies.every(e => e.hp <= 0)) {
+    state.money += 2500; updateHUD(); startStoryChapter(8);
+  } else if (state.storyChapter === 9 && storyEnemies.every(e => e.hp <= 0)) {
+    state.money += 3500; updateHUD(); startStoryChapter(10);
+  } else if (state.storyChapter === 10 && storyEnemies.every(e => e.hp <= 0)) {
+    state.money += 1500000;
+    updateHUD();
+    playCutscene([
+      {
+        chapter: 'FİNAL SAHNESİ • HER ŞEYE EL KOYMA',
+        speaker: 'FATİH & LEROY',
+        text: 'Pink Hat lideri indirildi, pavyon ve tüm servet ele geçirildi! Fatih milyoner oldu ve kız arkadaşıyla birlikte Türkiye’nin yolunu tutuyor.',
+        duration: 4.5,
+        camStart: new THREE.Vector3(86, 5.2, -52),
+        camEnd: new THREE.Vector3(90, 4.0, -58),
+        lookAt: new THREE.Vector3(92, 1.6, -68),
+        setup: () => {
+          if (girlfriendNpc) {
+            girlfriendNpc.visible = true;
+            girlfriendNpc.position.set(94, ISLAND_SURFACE_Y, -56);
+          }
+        }
+      },
+      {
+        chapter: 'TÜRKİYE YOLCULUĞU • İSTANBUL’A DÖNÜŞ',
+        speaker: 'FATİH & KIZ ARKADAŞI',
+        text: 'Çanta dolusu parayla uçağa binen Fatih ve kız arkadaşı Türkiye’ye doğru havalanıyor! Şimdi istersen Leroy olarak Los Angeles’ta kalabilir veya Fatih olarak İstanbul’a geçebilirsin.',
+        duration: 5.0,
+        camStart: new THREE.Vector3(24, 18, -20),
+        camEnd: new THREE.Vector3(72, 17, -64),
+        lookAt: new THREE.Vector3(52, 15, -44),
+        setup: () => {
+          if (airlinerMesh) {
+            airlinerMesh.visible = true;
+            airlinerMesh.position.set(28, ROAD_SURFACE_Y + 15, -20);
+            airlinerMesh.rotation.y = Math.atan2(36, -35);
+          }
+        }
+      }
+    ], () => {
+      if (airlinerMesh) airlinerMesh.visible = false;
+      $('ending-money-text').textContent = 'TOPLAM SERVET: $' + String(Math.floor(state.money)).padStart(8, '0');
+      $('ending-modal').classList.remove('hidden');
+    });
+  }
+}
+
+function switchCity(cityCode, notify = true) {
+  state.city = cityCode;
+  buildCityWorld(cityCode);
+  populateCityEntities(cityCode);
+  syncCheckpointVisibility();
+  if (cityCode === 'IST') {
+    state.activeCharacter = 'Fatih';
+    $('mission-banner').textContent = '🇹🇷 İSTANBUL • FATİH & KIZ ARKADAŞI (BOĞAZ, OTELLER & MARKETLER)';
+    if (state.inCar || state.inMotorcycle) {
+      const v = state.inMotorcycle ? playerMoto : playerCar;
+      v.position.set(135, ROAD_SURFACE_Y, -10);
+      v.rotation.set(0, 0, 0);
+      carPhysics.heading = 0; carPhysics.speed = 0; carPhysics.lateralVel = 0;
+    } else {
+      playerRig.position.set(135, ROAD_SURFACE_Y, -10);
+    }
+    checkpointPos.set(95, ISLAND_SURFACE_Y, -44);
+    checkpointMesh.position.copy(checkpointPos);
+    if (notify) showToast('🇹🇷 FATİH OLARAK İSTANBUL’DASIN! OTELLER, MARKETLER & BOĞAZ');
+  } else {
+    state.activeCharacter = 'Leroy';
+    if (!state.storyEnabled) $('mission-banner').textContent = '🌴 SUÇ ŞEHRİ 1 • LOS ANGELES (SERBEST GEZİ)';
+    if (state.inCar || state.inMotorcycle) {
+      const v = state.inMotorcycle ? playerMoto : playerCar;
+      v.position.set(65, ROAD_SURFACE_Y, 20);
+      v.rotation.set(0, 0, 0);
+      carPhysics.heading = 0; carPhysics.speed = 0; carPhysics.lateralVel = 0;
+    } else {
+      playerRig.position.set(65, ROAD_SURFACE_Y, 20);
+    }
+    checkpointPos.set(0, ISLAND_SURFACE_Y, 20);
+    checkpointMesh.position.copy(checkpointPos);
+    if (notify) showToast('🇺🇸 LEROY OLARAK LOS ANGELES’TASIN!');
+  }
+}
+
+function handleC4Action() {
+  if (!state.started || state.inCutscene || state.inJail) return;
+  const p = currentPos();
+  if (c4Bombs.length > 0) {
+    playSfx('explosion');
+    c4Bombs.forEach(b => {
+      spawnHitSpark(b.mesh.position, 0xff7b00);
+      spawnHitSpark(b.mesh.position, 0xff2a85);
+      const ring = new THREE.Mesh(new THREE.RingGeometry(0.4, 1.3, 24), new THREE.MeshBasicMaterial({ color: 0xffd000, side: THREE.DoubleSide }));
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(b.mesh.position.x, b.mesh.position.y + 0.25, b.mesh.position.z);
+      scene.add(ring);
+      shockwaves.push({ mesh: ring, age: 0 });
+      targetBossCars.forEach(tc => {
+        if (!tc.destroyed && tc.mesh.position.distanceTo(b.mesh.position) < 13) {
+          tc.destroyed = true;
+          tc.mesh.rotation.z = 0.25;
+          tc.mesh.position.y -= 0.15;
+          spawnHitSpark(tc.mesh.position, 0xffd000);
+        }
+      });
+      storyEnemies.forEach(en => {
+        if (en.hp > 0 && en.rig.position.distanceTo(b.mesh.position) < 10) {
+          en.hp = 0; en.rig.rotation.x = -Math.PI / 2; registerKill();
+        }
+      });
+      scene.remove(b.mesh);
+    });
+    c4Bombs = [];
+    showToast('💥 C4 PATLATILDI!');
+    checkStoryProgress();
+    return;
+  }
+  const c4Mesh = box(0.45, 0.22, 0.55, bas(0xff2a85), p.x, p.y + 0.45, p.z, scene);
+  c4Bombs.push({ mesh: c4Mesh });
+  targetBossCars.forEach(tc => {
+    if (!tc.destroyed && tc.mesh.position.distanceTo(p) < 8.5) {
+      tc.c4Attached = true;
+      c4Mesh.position.copy(tc.mesh.position).add(new THREE.Vector3(0, 1.1, 0));
+    }
+  });
+  showToast('💣 C4 YERLEŞTİRİLDİ! PATLATMAK İÇİN [G] BAS');
+}
+
+function spawnHitSpark(pos, color = 0xffd000) {
+  for (let i = 0; i < 6; i++) {
+    const p = box(0.14, 0.14, 0.14, bas(color), 0, 0, 0, scene);
+    p.position.copy(pos).add(new THREE.Vector3(0, 1.1, 0));
+    hitParticles.push({ mesh: p, vel: new THREE.Vector3((Math.random() - 0.5) * 6, 2 + Math.random() * 4, (Math.random() - 0.5) * 6), life: 0.35 });
+  }
+}
+
+function triggerCrosshairFeedback(hit) {
+  state.recoilTimer = 0.14;
+  if (hit) state.hitMarkerTimer = 0.22;
+  updateCrosshairVisuals();
+}
+
+function updateCrosshairVisuals() {
+  const el = $('crosshair');
+  if (!el) return;
+  if (!state.started || state.inCutscene || state.inCar || state.inMotorcycle || state.inJail || state.isSwimming) {
+    el.style.display = 'none';
+    return;
+  }
+  el.style.display = 'block';
+  const w = WEAPONS[state.weaponIndex];
+  const moving = Math.hypot(state.input.joyX || ((state.input.right ? 1 : 0) - (state.input.left ? 1 : 0)), state.input.joyY || ((state.input.brake ? 1 : 0) - (state.input.gas ? 1 : 0))) > 0.1;
+  let s = w.id === 'fist' ? 0.85 : 1.05;
+  if (moving) s += 0.14;
+  if (state.recoilTimer > 0) s += 0.24;
+  el.style.transform = `translate(-50%, -50%) scale(${s.toFixed(2)})`;
+  el.classList.toggle('recoil', state.recoilTimer > 0 || w.id === 'shotgun');
+  el.classList.toggle('hit', state.hitMarkerTimer > 0);
+}
+
+function getAimDirectionXZ() {
+  if (camera) {
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+    camDir.y = 0;
+    if (camDir.lengthSq() > 1e-6) {
+      return camDir.normalize();
+    }
+  }
+  const a = state.cameraMode === 1 ? state.camYaw : charPhysics.heading;
+  return new THREE.Vector3(Math.sin(a), 0, Math.cos(a)).normalize();
+}
+
+function hasLineOfSightWallBlocked(fromPos, toPos) {
+  const dist = Math.hypot(toPos.x - fromPos.x, toPos.z - fromPos.z);
+  const steps = Math.max(2, Math.ceil(dist / 1.5));
+  for (let i = 1; i < steps; i++) {
+    const t = i / steps;
+    const sx = fromPos.x + (toPos.x - fromPos.x) * t;
+    const sz = fromPos.z + (toPos.z - fromPos.z) * t;
+    for (const b of buildings) {
+      if (sx > b.minX + 0.15 && sx < b.maxX - 0.15 && sz > b.minZ + 0.15 && sz < b.maxZ - 0.15) return true;
+    }
+    for (const hs of cityHouses) {
+      if (sx > hs.minX + 0.15 && sx < hs.maxX - 0.15 && sz > hs.minZ + 0.15 && sz < hs.maxZ - 0.15) return true;
+    }
+  }
+  return false;
+}
+
+function stunPose(rig, t) {
+  const target = t > 0.45 ? -Math.PI / 2 : 0;
+  rig.rotation.x = t <= 0 ? 0 : rig.rotation.x + (target - rig.rotation.x) * 0.25;
+}
+
+function registerKill() {
+  state.killCount += 1;
+  const starFromKills = Math.min(5, Math.floor(state.killCount / 10));
+  if (starFromKills > state.wanted) {
+    state.wanted = starFromKills;
+    state.wantedTimer = 30;
+    if (state.wanted >= 5 && !state.tankSpawned && policeTank) {
+      state.tankSpawned = true;
+      const p = currentPos();
+      policeTank.visible = true;
+      policeTank.position.set(p.x > 0 ? ACTIVE_LAYOUT.roadX[2] : ACTIVE_LAYOUT.roadX[1], ROAD_SURFACE_Y, p.z);
+      showToast('🚨 5 YILDIZ! POLİS TANKI GELDİ!');
+    } else if (state.wanted > 0) {
+      showToast(`⭐ ${state.killCount} LEŞ — ARANMA: ${state.wanted} YILDIZ!`);
+    }
+  }
+  updateHUD();
+}
+
+function firePlayerWeapon() {
+  if (!state.started || state.inCutscene || state.inCar || state.inMotorcycle || state.inJail || state.fireCooldown > 0) return;
+  const w = WEAPONS[state.weaponIndex];
+  state.fireCooldown = w.fireRate;
+  const aim = getAimDirectionXZ();
+  charPhysics.heading = Math.atan2(aim.x, aim.z);
+  playerRig.rotation.y = charPhysics.heading;
+
+  if (w.id === 'fist') {
+    charPhysics.punchTimer = 0.32;
+    playSfx('punch');
+    let hitAny = false;
+    storyEnemies.forEach(en => {
+      if (en.hp > 0 && en.rig.position.distanceTo(playerRig.position) <= w.range) {
+        en.hp -= w.damage; hitAny = true; spawnHitSpark(en.rig.position, 0xffd000);
+        if (en.hp <= 0) { en.rig.rotation.x = -Math.PI / 2; state.money += 100; registerKill(); }
+      }
+    });
+    pedestrians.forEach(p => {
+      if (!p.gone && p.downTimer <= 0 && p.rig.position.distanceTo(playerRig.position) <= w.range) {
+        hitAny = true; spawnHitSpark(p.rig.position, 0xffd000); damagePed(p, w.damage);
+      }
+    });
+    policeOfficers.forEach(c => {
+      if (c.downTimer <= 0 && c.rig.position.distanceTo(playerRig.position) <= w.range) {
+        hitAny = true; spawnHitSpark(c.rig.position, 0xffd000); damageCop(c, w.damage);
+      }
+    });
+    triggerCrosshairFeedback(hitAny);
+    checkStoryProgress();
+    return;
+  }
+
+  if (w.ammo !== Infinity) {
+    if (w.ammo <= 0) {
+      showToast('MERMİ BİTTİ! YUMRUĞA GEÇİLDİ');
+      state.weaponIndex = 0; updateWeaponHUD(); return;
+    }
+    w.ammo--; updateWeaponHUD();
+  }
+  playSfx('gun');
+  const mf = playerRig.userData.muzzleFlash;
+  if (mf) { mf.visible = true; setTimeout(() => { mf.visible = false; }, 65); }
+
+  let bestEn = null, bestPed = null, bestCop = null, bestScore = Infinity;
+  const evalTarget = (pos, isAlive) => {
+    if (!isAlive || hasLineOfSightWallBlocked(playerRig.position, pos)) return false;
+    const to = pos.clone().sub(playerRig.position); to.y = 0;
+    const d = to.length();
+    if (d > w.range || d < 0.1) return false;
+    const al = to.clone().divideScalar(d).dot(aim);
+    const minAlign = w.id === 'shotgun' ? 0.84 : 0.93;
+    const maxPerp = w.id === 'shotgun' ? 1.55 : 1.05;
+    if (al >= minAlign) {
+      const perp = Math.sqrt(Math.max(0, 1 - al * al)) * d;
+      const sc = perp * 3.8 + d * 0.12;
+      if (sc < bestScore && perp < maxPerp) { bestScore = sc; return true; }
+    }
+    return false;
+  };
+
+  storyEnemies.forEach(en => { if (evalTarget(en.rig.position, en.hp > 0)) { bestEn = en; bestPed = null; bestCop = null; } });
+  pedestrians.forEach(p => { if (evalTarget(p.rig.position, !p.gone && p.downTimer <= 0)) { bestPed = p; bestEn = null; bestCop = null; } });
+  policeOfficers.forEach(c => { if (evalTarget(c.rig.position, c.downTimer <= 0)) { bestCop = c; bestEn = null; bestPed = null; } });
+
+  if (bestEn) {
+    triggerCrosshairFeedback(true);
+    spawnHitSpark(bestEn.rig.position, 0xff2a85);
+    bestEn.hp -= w.damage;
+    if (bestEn.hp <= 0) {
+      bestEn.rig.rotation.x = -Math.PI / 2;
+      state.money += bestEn.isBoss ? 5000 : 120;
+      registerKill();
+      showToast(bestEn.isBoss ? '👑 PİNK HAT LİDERİ İNDİRİLDİ! +$5.000' : '💥 PİNK HAT ÜYESİ İNDİRİLDİ! +$120');
+    }
+    checkStoryProgress();
+  } else if (bestPed) {
+    triggerCrosshairFeedback(true);
+    spawnHitSpark(bestPed.rig.position, 0xff2a85);
+    damagePed(bestPed, w.damage);
+  } else if (bestCop) {
+    triggerCrosshairFeedback(true);
+    spawnHitSpark(bestCop.rig.position, 0xff2a85);
+    damageCop(bestCop, w.damage);
+  } else {
+    triggerCrosshairFeedback(false);
+    spawnHitSpark(playerRig.position.clone().addScaledVector(aim, Math.min(w.range, 16)), 0xffd000);
+  }
+}
+
+function damagePed(ped, dmg) {
+  ped.hp -= dmg;
+  if (ped.fleeTimer <= 0) ped.isAggressive = true;
+  ped.rig.userData.barGroup.visible = true;
+  ped.rig.userData.barFill.scale.x = Math.max(0.01, ped.hp / ped.maxHp);
+  if (ped.hp <= 0) {
+    const diedModel = ped.rig.userData ? ped.rig.userData.modelFile : null;
+    ped.downTimer = 3.5;
+    ped.respawnPending = true;
+    ped.stunTimer = 0;
+    ped.isAggressive = false;
+    ped.rig.userData.barGroup.visible = false;
+    ped.rig.rotation.x = -Math.PI / 2;
+    ped.rig.position.y += 0.2;
+    state.money += 50;
+    registerKill();
+    showToast(diedModel === 'tilki.glb' ? '🦊 TİLKİ ÖLDÜ! BAŞKA YERDE DOĞACAK (+$50)' : 'YAYA YERE SERİLDİ! +$50');
+  }
+}
+
+function damageCop(cop, dmg) {
+  cop.hp -= dmg;
+  cop.rig.userData.barGroup.visible = true;
+  cop.rig.userData.barFill.scale.x = Math.max(0.01, cop.hp / cop.maxHp);
+  if (cop.hp <= 0) {
+    cop.downTimer = 4.0;
+    cop.respawnPending = true;
+    cop.stunTimer = 0;
+    cop.rig.userData.barGroup.visible = false;
+    cop.rig.rotation.x = -Math.PI / 2;
+    cop.rig.position.y += 0.2;
+    state.money += 120;
+    registerKill();
+    showToast('POLİS İNDİRİLDİ! +$120');
+  }
+}
+
+function setOnFootUI(on) {
+  $('driving-controls')?.classList.toggle('hidden', on);
+  $('onfoot-controls')?.classList.toggle('hidden', !on);
+  $('speedometer-box')?.classList.toggle('hidden', on);
+  $('fuel-gauge-box')?.classList.toggle('hidden', on);
+}
+
+function resetPlayerCar() {
+  if (playerCar) {
+    playerCar.position.set(ACTIVE_LAYOUT.roadX[2], ROAD_SURFACE_Y, 20);
+    playerCar.rotation.set(0, 0, 0);
+  }
+  state.carSunk = false; state.sinkDepth = 0;
+  carPhysics.speed = 0; carPhysics.lateralVel = 0; carPhysics.heading = 0;
+  carPhysics.roll = 0; carPhysics.pitch = 0; carPhysics.smoothShake = 0;
+}
+
+function respawnAtHospital(cause) {
+  state.health = 100; state.armor = 100; state.wanted = 0; state.wantedTimer = 0; state.oxygen = 100;
+  state.tankSpawned = false; if (policeTank) policeTank.visible = false;
+  const fee = Math.min(state.money, 100); state.money -= fee;
+  state.inCar = false; state.inMotorcycle = false; state.isSwimming = false; state.input.nitro = false;
+  if (state.carSunk) resetPlayerCar();
+  playerRig.visible = true; playerRig.rotation.order = 'XYZ'; playerRig.rotation.set(0, 0, 0);
+  playerRig.userData.torsoPivot.rotation.x = 0;
+  playerRig.position.copy(state.hospitalPos);
+  charPhysics.velocityY = 0; charPhysics.heading = 0; state.camYaw = 0; state.camPitch = 0.22;
+  setOnFootUI(true); $('oxygen-wrap').style.display = 'none';
+  updateContextButtons(); updateCrosshairVisuals(); updateHUD();
+  showOverlay('WASTED', '#ef4444');
+  showToast(cause === 'drown' ? `BOĞULDUN! HASTANEDE UYANDIN (-$${fee})` : `HASTANEDE UYANDIN (-$${fee})`);
+}
+
+function sendPlayerToJail() {
+  if (state.inJail) return;
+  state.inJail = true; state.jailTimeLeft = 180; state.wanted = 0;
+  state.tankSpawned = false; if (policeTank) policeTank.visible = false;
+  state.inCar = false; state.inMotorcycle = false; state.isSwimming = false;
+  playerRig.visible = true; playerRig.rotation.order = 'XYZ'; playerRig.rotation.set(0, 0, 0);
+  playerRig.userData.torsoPivot.rotation.x = 0;
+  playerRig.position.copy(state.jailCellCenter);
+  state.camYaw = 0; state.camPitch = 0.1; charPhysics.heading = 0;
+  $('driving-controls')?.classList.add('hidden');
+  $('speedometer-box')?.classList.add('hidden');
+  $('fuel-gauge-box')?.classList.add('hidden');
+  $('onfoot-controls')?.classList.toggle('hidden', state.platformMode !== 'mobile');
+  $('jail-modal')?.classList.remove('hidden');
+  updateJailTimerText(); updateHUD(); updateCrosshairVisuals();
+  showToast('⛓️ NEZARETHANEYE ATILDIN!');
+}
+
+function releaseFromJail(paid) {
+  state.inJail = false; state.wanted = 0;
+  $('jail-modal')?.classList.add('hidden');
+  playerRig.position.set(-164, ISLAND_SURFACE_Y, -54);
+  playerRig.rotation.set(0, 0, 0); playerRig.visible = true;
+  setOnFootUI(true); updateHUD(); updateCrosshairVisuals();
+  showToast(paid ? '💵 $100 KEFALET ÖDENDİ, SERBESTSİN!' : '🔓 CEZA SÜRESİ DOLDU, SERBESTSİN!');
+}
+
+function updateJailTimerText() {
+  const el = $('jail-timer-text');
+  if (!el) return;
+  const t = Math.max(0, Math.ceil(state.jailTimeLeft));
+  el.textContent = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+}
+
+function jailWalk(dt) {
+  const jb = state.jailBounds, u = playerRig.userData;
+  let mx = state.input.joyX, mz = state.input.joyY;
+  if (state.input.left) mx = -1; if (state.input.right) mx = 1; if (state.input.gas) mz = -1; if (state.input.brake) mz = 1;
+  if (Math.hypot(mx, mz) > 0.1) {
+    charPhysics.heading = state.camYaw + Math.atan2(-mx, -mz);
+    playerRig.rotation.y = charPhysics.heading;
+    playerRig.position.x += Math.sin(charPhysics.heading) * 3.2 * dt;
+    playerRig.position.z += Math.cos(charPhysics.heading) * 3.2 * dt;
+    charPhysics.walkCycle += dt * 5;
+    u.leftLeg.rotation.x = Math.sin(charPhysics.walkCycle) * 0.6;
+    u.rightLeg.rotation.x = -u.leftLeg.rotation.x;
+  }
+  playerRig.position.x = THREE.MathUtils.clamp(playerRig.position.x, jb.minX, jb.maxX);
+  playerRig.position.z = THREE.MathUtils.clamp(playerRig.position.z, jb.minZ, jb.maxZ);
+  playerRig.position.y = state.jailCellCenter.y;
+}
+
+function damagePlayer(amount) {
+  if (state.inJail || state.inCutscene) return;
+  if (state.armor > 0) {
+    const a = Math.min(state.armor, amount);
+    state.armor -= a; amount -= a;
+  }
+  state.health = Math.max(0, state.health - amount);
+  if (state.health <= 0) {
+    if (state.wanted >= 3) {
+      state.health = 100; state.armor = 100;
+      showOverlay('BUSTED', '#3b82f6');
+      sendPlayerToJail();
+      return;
+    }
+    respawnAtHospital('bot');
+    return;
+  }
+  updateHUD();
+}
+
+function currentPos() {
+  return state.inCar ? playerCar.position : (state.inMotorcycle ? playerMoto.position : playerRig.position);
+}
+
+function toggleNearestDoor() {
+  if (!state.started || state.inCutscene || state.inJail) return;
+  const p = currentPos();
+
+  if (state.city === 'LA' && p.distanceTo(state.casinoVaultPos) < 8.5 && !state.casinoRobbed) {
+    state.casinoRobbed = true;
+    state.money += 4500;
+    updateHUD(); playSfx('pickup');
+    showToast('🎰 CASİNO KASASI SOYULDU! +$4.500');
+    checkStoryProgress();
+    return;
+  }
+  if (p.distanceTo(state.restaurantCounterPos) < 5.5 && !state.courierActive) {
+    state.courierActive = true;
+    syncCheckpointVisibility();
+    checkpointPos.set(125, ROAD_SURFACE_Y, 80);
+    checkpointMesh.position.copy(checkpointPos);
+    playSfx('door');
+    showToast('🛵 KURYELİK İŞİ ALINDI! HEDEFE GÖTÜRÜNCE +$350');
+    return;
+  }
+  if (p.distanceTo(state.taxiStandPos) < 6.0 && !state.taxiActive) {
+    state.taxiActive = true;
+    syncCheckpointVisibility();
+    checkpointPos.set(65, ROAD_SURFACE_Y, 80);
+    checkpointMesh.position.copy(checkpointPos);
+    playSfx('door');
+    showToast('🚕 TAKSİ İŞİ BAŞLADI! MÜŞTERİYİ HEDEFE BIRAK (+$300)');
+    return;
+  }
+  if (state.nearestBuilding) {
+    const b = state.nearestBuilding;
+    b.doorOpen = !b.doorOpen;
+    playSfx('door');
+    showToast(b.doorOpen ? `🚪 ${b.name} KAPISI AÇILDI` : `🚪 ${b.name} KAPISI KAPATILDI`);
+    updateContextButtons();
+    return;
+  }
+  for (const hs of cityHouses) {
+    if (Math.hypot(p.x - hs.x, p.z - hs.z) < 5.8) {
+      hs.doorOpen = !hs.doorOpen;
+      playSfx('door');
+      showToast(hs.doorOpen ? '🏡 EV KAPISI AÇILDI' : '🏡 EV KAPISI KAPATILDI');
+      return;
+    }
+  }
+}
+
+function setPlatformMode(mode) {
+  state.platformMode = mode;
+  $('btn-mode-desktop')?.classList.toggle('active', mode === 'desktop');
+  $('btn-mode-mobile')?.classList.toggle('active', mode === 'mobile');
+  const w = $('mobile-orientation-warning');
+  if (w) {
+    w.style.borderColor = mode === 'mobile' ? '#ff2a85' : '#ffd000';
+    w.textContent = mode === 'mobile'
+      ? '📱 MOBİL MOD SEÇİLDİ: Ekranı yan tutarak oynayabilirsin. Dokunmatik kontroller aktif olacak.'
+      : '📱 Mobildeysen ekranı yan tutarak daha rahat oynayabilirsin. Dokunmatik ve klavye kontrolleri kesintisiz çalışır.';
+  }
+}
+
+function toggleStoryMode() {
+  if (state.inCutscene) return;
+  if (!state.storyEnabled) {
+    startStoryCampaign();
+  } else {
+    state.storyEnabled = false;
+    state.storyChapter = 0;
+    clearStoryWaves();
+    syncCheckpointVisibility();
+    $('btn-toggle-story').textContent = '📖 HİKAYE: KAPALI';
+    $('btn-toggle-story').classList.remove('active-mode');
+    $('mission-banner').textContent = state.city === 'IST'
+      ? '🇹🇷 İSTANBUL • FATİH & KIZ ARKADAŞI (BOĞAZ, OTELLER & MARKETLER)'
+      : '🌴 SUÇ ŞEHRİ 1 • LOS ANGELES (SERBEST GEZİ)';
+    showToast('SERBEST GEZİ MODUNA DÖNÜLDÜ');
+  }
+}
+
+function openFullMap() {
+  if (!state.started) return;
+  $('full-map-modal').classList.remove('hidden');
+  drawFullMap();
+}
+
+function closeFullMap() {
+  $('full-map-modal').classList.add('hidden');
+}
+
+function enterActiveGameUI() {
+  $('start-screen').classList.add('hidden');
+  ['hud-top-left', 'top-center-mission', 'hud-top-right', 'speedometer-box', 'fuel-gauge-box', 'context-actions'].forEach(id => $(id)?.classList.remove('hidden'));
+  if (state.platformMode === 'mobile') {
+    $('mobile-controls').classList.remove('hidden');
+    setOnFootUI(!state.inCar && !state.inMotorcycle);
+  }
+  state.started = true;
+  syncCheckpointVisibility();
+  initAudio();
+  updateCrosshairVisuals();
+}
+
+function startFreeRoam() {
+  if (state.started) return;
+  enterActiveGameUI();
+  showToast('SUÇ ŞEHRİ 1’E HOŞ GELDİN!');
+}
+
+function startStoryFromMenu() {
+  if (state.started) return;
+  enterActiveGameUI();
+  startStoryCampaign();
+}
+
+function bindInstantTap(el, fn) {
+  if (!el) return;
+  let firedAt = 0;
+  const run = e => {
+    const now = Date.now();
+    if (now - firedAt < 180) return;
+    firedAt = now;
+    if (e && e.cancelable && e.type === 'pointerdown') e.preventDefault();
+    if (e) e.stopPropagation();
+    fn(e);
+  };
+  el.addEventListener('click', run);
+  el.addEventListener('pointerdown', run);
+  el.addEventListener('touchend', run, { passive: true });
+}
+
+function setupControls() {
+  $('btn-reload-error')?.addEventListener('click', () => location.reload());
+  bindInstantTap($('btn-mode-desktop'), () => setPlatformMode('desktop'));
+  bindInstantTap($('btn-mode-mobile'), () => setPlatformMode('mobile'));
+  bindInstantTap($('btn-start'), startFreeRoam);
+  bindInstantTap($('btn-start-story'), startStoryFromMenu);
+  bindInstantTap($('btn-skip-cutscene'), finishCutscene);
+  bindInstantTap($('btn-stay-leroy-la'), () => {
+    $('ending-modal').classList.add('hidden');
+    state.storyEnabled = false;
+    syncCheckpointVisibility();
+    switchCity('LA', true);
+  });
+  bindInstantTap($('btn-go-fatih-ist'), () => {
+    $('ending-modal').classList.add('hidden');
+    state.storyEnabled = false;
+    syncCheckpointVisibility();
+    switchCity('IST', true);
+  });
+
+  $('btn-toggle-story')?.addEventListener('click', toggleStoryMode);
+  $('minimap-container')?.addEventListener('click', e => { e.stopPropagation(); openFullMap(); });
+  const cm = $('btn-close-map');
+  cm?.addEventListener('click', e => { e.stopPropagation(); closeFullMap(); });
+  cm?.addEventListener('touchend', e => { e.stopPropagation(); closeFullMap(); }, { passive: true });
+  $('full-map-modal')?.addEventListener('click', e => { if (e.target.id === 'full-map-modal') closeFullMap(); });
+
+  $('btn-pay-bail')?.addEventListener('click', () => {
+    if (state.money >= 100) { state.money -= 100; releaseFromJail(true); }
+    else showToast('YETERLİ PARAN YOK ($100 GEREKLİ)');
+  });
+  $('btn-car-action')?.addEventListener('click', toggleVehicle);
+  $('btn-door-action')?.addEventListener('click', toggleNearestDoor);
+  $('btn-toggle-cam')?.addEventListener('click', toggleCameraMode);
+  $('hud-weapon-btn')?.addEventListener('click', cycleWeapon);
+  $('btn-switch-weapon')?.addEventListener('click', cycleWeapon);
+  $('btn-c4-hud')?.addEventListener('click', handleC4Action);
+  $('btn-mob-c4-car')?.addEventListener('click', handleC4Action);
+  $('btn-mob-c4-foot')?.addEventListener('click', handleC4Action);
+  $('btn-reset-car')?.addEventListener('click', () => { resetPlayerCar(); showToast('ARAÇ YOLA KONULDU'); });
+
+  const hold = (id, key) => {
+    const el = $(id); if (!el) return;
+    const on = e => { e.stopPropagation(); state.input[key] = true; el.classList.add('pressed'); };
+    const off = e => { e.stopPropagation(); state.input[key] = false; el.classList.remove('pressed'); };
+    el.addEventListener('touchstart', on, { passive: true });
+    el.addEventListener('touchend', off, { passive: true });
+    el.addEventListener('touchcancel', off, { passive: true });
+    el.addEventListener('pointerdown', on);
+    el.addEventListener('pointerup', off);
+    el.addEventListener('pointercancel', off);
+    el.addEventListener('mousedown', on);
+    el.addEventListener('mouseup', off);
+    el.addEventListener('mouseleave', off);
+  };
+  [['btn-left', 'left'], ['btn-right', 'right'], ['btn-gas', 'gas'], ['btn-brake', 'brake'], ['btn-drift', 'drift'], ['btn-nitro', 'nitro'], ['btn-jump', 'jump'], ['btn-sprint', 'sprint'], ['btn-fire', 'fire']].forEach(a => hold(...a));
+
+  const jz = $('joystick-zone'), jk = $('joystick-knob');
+  let jid = null;
+  const updateJoy = (x, y) => {
+    const r = jz.getBoundingClientRect();
+    let dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
+    const d = Math.hypot(dx, dy), m = r.width * 0.36;
+    if (d > m) { dx = dx / d * m; dy = dy / d * m; }
+    jk.style.transform = `translate(${dx}px, ${dy}px)`;
+    state.input.joyX = dx / m;
+    state.input.joyY = dy / m;
+  };
+  jz?.addEventListener('touchstart', e => {
+    e.stopPropagation();
+    const t = e.changedTouches[0]; jid = t.identifier; updateJoy(t.clientX, t.clientY);
+  }, { passive: true });
+  jz?.addEventListener('touchmove', e => {
+    e.stopPropagation();
+    for (const t of e.changedTouches) if (t.identifier === jid) updateJoy(t.clientX, t.clientY);
+  }, { passive: true });
+  const rj = () => { jid = null; jk.style.transform = 'translate(0px, 0px)'; state.input.joyX = 0; state.input.joyY = 0; };
+  jz?.addEventListener('touchend', rj);
+  jz?.addEventListener('touchcancel', rj);
+
+  const gc = $('game-canvas');
+  let lid = null, lx = 0, ly = 0, drag = false;
+  const look = (dx, dy, k) => {
+    state.camYaw -= dx * k;
+    state.camPitch = THREE.MathUtils.clamp(state.camPitch + dy * k * 0.7, -0.35, 0.75);
+    if (!state.inCar && !state.inMotorcycle && !state.inJail) charPhysics.heading = state.camYaw;
+  };
+  gc.addEventListener('touchstart', e => {
+    if (lid === null && e.changedTouches.length) {
+      const t = e.changedTouches[0]; lid = t.identifier; lx = t.clientX; ly = t.clientY;
+    }
+  }, { passive: true });
+  gc.addEventListener('touchmove', e => {
+    for (const t of e.changedTouches) if (t.identifier === lid) {
+      look(t.clientX - lx, t.clientY - ly, 0.007); lx = t.clientX; ly = t.clientY;
+    }
+  }, { passive: true });
+  gc.addEventListener('touchend', e => {
+    for (const t of e.changedTouches) if (t.identifier === lid) lid = null;
+  });
+
+  gc.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    drag = true; lx = e.clientX; ly = e.clientY;
+    if (state.started && !state.inCutscene && !state.inCar && !state.inMotorcycle) {
+      firePlayerWeapon();
+    }
+  });
+  window.addEventListener('mousemove', e => {
+    if (!drag) return;
+    look(e.clientX - lx, e.clientY - ly, 0.006);
+    lx = e.clientX; ly = e.clientY;
+  });
+  window.addEventListener('mouseup', () => { drag = false; });
+
+  window.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    if (e.key === 'Escape' || k === 'm') {
+      const modal = $('full-map-modal');
+      if (!modal.classList.contains('hidden')) { closeFullMap(); return; }
+      if (k === 'm' && state.started) { openFullMap(); return; }
+    }
+    if (k === 'w' || e.key === 'ArrowUp') state.input.gas = true;
+    if (k === 's' || e.key === 'ArrowDown') state.input.brake = true;
+    if (k === 'a' || e.key === 'ArrowLeft') state.input.left = true;
+    if (k === 'd' || e.key === 'ArrowRight') state.input.right = true;
+    if (k === 'shift') { state.input.sprint = true; state.input.nitro = true; }
+    if (!state.started || state.inCutscene) return;
+    if (k === 'f') toggleVehicle();
+    if (k === 'e') toggleNearestDoor();
+    if (k === 'g') handleC4Action();
+    if (k === 'v') toggleCameraMode();
+    if (k === 'q') cycleWeapon();
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (state.inCar || state.inMotorcycle) state.input.drift = true;
+      else state.input.jump = true;
+    }
+    if (k === 'r') firePlayerWeapon();
+  });
+
+  window.addEventListener('keyup', e => {
+    const k = e.key.toLowerCase();
+    if (k === 'w' || e.key === 'ArrowUp') state.input.gas = false;
+    if (k === 's' || e.key === 'ArrowDown') state.input.brake = false;
+    if (k === 'a' || e.key === 'ArrowLeft') state.input.left = false;
+    if (k === 'd' || e.key === 'ArrowRight') state.input.right = false;
+    if (k === 'shift') { state.input.sprint = false; state.input.nitro = false; }
+    if (e.code === 'Space') { state.input.drift = false; state.input.jump = false; }
+  });
+}
+
+function toggleCameraMode() {
+  state.cameraMode = state.cameraMode === 3 ? 1 : 3;
+  $('btn-toggle-cam').textContent = `🎥 ${state.cameraMode}. ŞAHIS`;
+  showToast(`${state.cameraMode}. ŞAHIS KAMERA`);
+}
+
+function findNearbyCar(pos, maxD) {
+  let best = null, bd = maxD;
+  const c = [...parkedCars, ...trafficCars.map(t => t.mesh)];
+  if (!state.carSunk) c.push(playerCar);
+  c.forEach(m => {
+    const d = pos.distanceTo(m.position);
+    if (d < bd) { bd = d; best = m; }
+  });
+  return best;
+}
+
+function isTrafficCar(car) {
+  return trafficCars.some(t => t.mesh === car);
+}
+
+function enterCar(car) {
+  if (car === playerCar) return;
+  const old = playerCar, pi = parkedCars.indexOf(car);
+  if (pi >= 0) parkedCars.splice(pi, 1);
+  if (state.carSunk) { old.position.set(65, ROAD_SURFACE_Y, 20); old.rotation.set(0, 0, 0); }
+  if (!parkedCars.includes(old)) parkedCars.push(old);
+  const ti = trafficCars.findIndex(t => t.mesh === car);
+  if (ti >= 0) {
+    trafficCars.splice(ti, 1);
+    const h = car.rotation.y;
+    if (car.userData.driverDummy) car.userData.driverDummy.visible = false;
+    if (getActiveNpcCount() < MAX_NPCS) {
+      const driverCol = car.userData.driverColor || [0x9f1239, 0x1e3a8a, 0x9a3412, 0x065f46][ti % 4];
+      const rig = createHumanoidRig({ role: 'npc', shirtColor: driverCol });
+      rig.position.set(car.position.x - Math.cos(h) * 2.1, ISLAND_SURFACE_Y, car.position.z + Math.sin(h) * 2.1);
+      const fleeAngle = Math.atan2(rig.position.x - playerRig.position.x, rig.position.z - playerRig.position.z);
+      rig.rotation.y = fleeAngle;
+      dynamicGroup.add(rig);
+      const p = newPed(rig, 65);
+      p.fleeTimer = 18; p.angle = fleeAngle; p.walkTimer = 18; p.ownCar = car;
+      pedestrians.push(p);
+    }
+    playSfx('door');
+    showToast('🚨 ARABA ÇALINDI! SÜRÜCÜ KAÇIYOR!');
+  }
+  playerCar = car;
+  carPhysics.heading = car.rotation.y;
+  carPhysics.speed = 0; carPhysics.lateralVel = 0; carPhysics.roll = 0; carPhysics.pitch = 0;
+  state.carSunk = false; state.sinkDepth = 0;
+}
+
+function placeMotoRider() {
+  const m = playerMoto, r = playerRig, u = r.userData;
+  r.visible = state.cameraMode === 3;
+  r.rotation.order = 'YXZ';
+  r.rotation.set(0, carPhysics.heading, carPhysics.roll);
+  r.position.set(m.position.x - Math.sin(carPhysics.heading) * 0.25, m.position.y + 0.02, m.position.z - Math.cos(carPhysics.heading) * 0.25);
+  u.leftLeg.rotation.x = u.rightLeg.rotation.x = -1.15;
+  u.leftArm.sPivot.rotation.x = u.rightArm.sPivot.rotation.x = -1.2;
+  u.torsoPivot.rotation.x = 0.2;
+}
+
+function toggleVehicle() {
+  if (!state.started || state.inCutscene || !playerRig || !playerCar || state.inJail) return;
+  if (state.inCar || state.inMotorcycle) {
+    const veh = state.inMotorcycle ? playerMoto : playerCar;
+    state.inCar = false; state.inMotorcycle = false; state.input.nitro = false;
+    playerRig.position.copy(veh.position).add(new THREE.Vector3(-2.1, 0, 0));
+    const g = getGroundHeightAt(playerRig.position.x, playerRig.position.y, playerRig.position.z);
+    if (g <= WATER_LEVEL_Y + 0.25) {
+      playerRig.position.y = WATER_LEVEL_Y - 0.15; state.isSwimming = true;
+    } else {
+      playerRig.position.y = g; state.isSwimming = false;
+    }
+    playerRig.visible = true; playerRig.rotation.order = 'XYZ'; playerRig.rotation.set(0, 0, 0);
+    playerRig.userData.torsoPivot.rotation.x = 0;
+    charPhysics.heading = carPhysics.heading; state.camYaw = carPhysics.heading;
+    setOnFootUI(true); updateContextButtons(); updateCrosshairVisuals();
+    showToast(state.isSwimming ? '🏊 SUYA ATLADIN! YÜZÜYORSUN' : 'YAYA MODU');
+    return;
+  }
+  if (playerMoto && playerRig.position.distanceTo(playerMoto.position) < 5.5) {
+    state.inMotorcycle = true; state.inCar = false; state.isSwimming = false;
+    carPhysics.heading = playerMoto.rotation.y; carPhysics.speed = 0; carPhysics.lateralVel = 0;
+    setOnFootUI(false); updateContextButtons(); updateCrosshairVisuals();
+    showToast('🏍️ MOTOSİKLETE BİNDİN!');
+    return;
+  }
+  const near = findNearbyCar(playerRig.position, 7.2);
+  if (!near) {
+    showToast(state.carSunk ? '⚓ ARAÇ DENİZE BATTI, DÜZELT’E BAS' : 'ARACA VEYA MOTOSİKLETE YAKLAŞ!');
+    return;
+  }
+  const stolen = isTrafficCar(near);
+  enterCar(near);
+  state.inCar = true; state.inMotorcycle = false; state.isSwimming = false;
+  playerRig.rotation.set(0, 0, 0); playerRig.visible = false;
+  setOnFootUI(false); updateFuelHUD(); updateContextButtons(); updateCrosshairVisuals();
+  if (!stolen) showToast('ARACA BİNDİN');
+}
+
+function cycleWeapon() {
+  state.weaponIndex = (state.weaponIndex + 1) % WEAPONS.length;
+  updateWeaponHUD();
+  const w = WEAPONS[state.weaponIndex];
+  showToast(`${w.icon} ${w.name}`);
+}
+
+function updateWeaponHUD() {
+  const w = WEAPONS[state.weaponIndex];
+  updateRigWeapon(playerRig, w.id);
+  $('weapon-icon').textContent = w.icon;
+  $('weapon-name').textContent = w.name;
+  $('weapon-ammo').textContent = w.id === 'fist' ? 'YAKIN DÖVÜŞ' : (w.ammo === Infinity ? '∞ MERMİ' : `${w.ammo} MERMİ`);
+  $('btn-fire').innerHTML = w.id === 'fist' ? '👊<span>VUR</span>' : '🔥<span>ATEŞ</span>';
+}
+
+function updateFuelHUD() {
+  const p = Math.max(0, Math.min(100, Math.round(state.fuel / state.maxFuel * 100)));
+  $('fuel-fill').style.width = p + '%';
+  $('fuel-percent').textContent = p + '%';
+}
+
+function updateContextButtons() {
+  const door = $('btn-door-action'), car = $('btn-car-action'), onFoot = !state.inCar && !state.inMotorcycle;
+  if (door) {
+    const p = currentPos();
+    const nearVault = state.city === 'LA' && p.distanceTo(state.casinoVaultPos) < 8.5 && !state.casinoRobbed;
+    const nearRest = p.distanceTo(state.restaurantCounterPos) < 5.5 && !state.courierActive;
+    const nearTaxi = p.distanceTo(state.taxiStandPos) < 6.0 && !state.taxiActive;
+    const nearHouse = onFoot && cityHouses.some(h => Math.hypot(p.x - h.x, p.z - h.z) < 5.8);
+    if (!state.inJail && (nearVault || nearRest || nearTaxi || nearHouse || (onFoot && state.nearestBuilding))) {
+      door.classList.remove('hidden');
+      door.textContent = nearVault ? '🎰 CASİNO KASASINI SOY (+$4.500)' : nearRest ? '🛵 KURYELİK İŞİ AL' : nearTaxi ? '🚕 TAKSİ İŞİ AL' : nearHouse ? '🏡 EV KAPISINI AÇ/KAPAT' : (state.nearestBuilding.doorOpen ? '🚪 KAPIYI KAPAT' : `🚪 KAPIYI AÇ (${state.nearestBuilding.name})`);
+    } else {
+      door.classList.add('hidden');
+    }
+  }
+  if (car) {
+    car.classList.remove('steal-btn');
+    if (state.inJail || state.inCutscene) {
+      car.classList.add('hidden');
+    } else if (!onFoot) {
+      car.classList.remove('hidden');
+      car.textContent = state.inMotorcycle ? '🚶 MOTOSİKLETTEN İN' : '🚶 ARABADAN İN';
+    } else if (playerMoto && playerRig.position.distanceTo(playerMoto.position) < 5.5) {
+      car.classList.remove('hidden');
+      car.textContent = '🏍️ MOTOSİKLETE BİN';
+    } else {
+      const nearCar = findNearbyCar(playerRig.position, 7.2);
+      if (nearCar) {
+        car.classList.remove('hidden');
+        if (isTrafficCar(nearCar)) {
+          car.classList.add('steal-btn');
+          car.textContent = '🚨 ARABAYI ÇAL [F]';
+        } else {
+          car.textContent = '🚗 ARACA BİN';
+        }
+      } else {
+        car.classList.add('hidden');
+      }
+    }
+  }
+}
+
+function updateHUD() {
+  $('hud-money').textContent = '$' + String(Math.floor(state.money)).padStart(8, '0');
+  $('health-fill').style.width = state.health + '%';
+  $('armor-fill').style.width = state.armor + '%';
+  document.querySelectorAll('#hud-stars .star').forEach((s, i) => s.classList.toggle('active', i < state.wanted));
+  const kc = $('hud-kills');
+  if (kc) kc.textContent = `☠️ LEŞ: ${state.killCount} (${state.wanted}★)`;
+}
+
+function stairTopAt(st, x, z) {
+  if (x < st.minX || x > st.maxX) return null;
+  const hi = Math.max(st.zStart, st.zEnd), lo = Math.min(st.zStart, st.zEnd);
+  if (z < lo - 0.3 || z > hi + 0.3) return null;
+  const t = THREE.MathUtils.clamp((st.zStart - z) / (st.zStart - st.zEnd), 0, 0.999);
+  return st.yStart + (Math.floor(t * st.stepCount) + 1) * (st.yEnd - st.yStart) / st.stepCount;
+}
+
+function stairBlocked(x, y, z) {
+  for (const b of buildings) {
+    if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) continue;
+    for (const st of b.stairs) {
+      const top = stairTopAt(st, x, z);
+      if (top !== null && y + 1.8 > st.yStart && y < top - 0.65) return true;
+    }
+  }
+  return false;
+}
+
+function isOnAnyBridge(x, z) {
+  const lay = ACTIVE_LAYOUT;
+  const e = lay.eastIsland, w = lay.westIsland;
+  const spanMinX = Math.min(w.minX, e.minX) - 10;
+  const spanMaxX = Math.max(w.maxX, e.maxX) + 10;
+  if (x >= spanMinX && x <= spanMaxX && lay.bridges.some(br => Math.abs(z - br.z) <= ((br.width || 16) * 0.5 + 3.0))) {
+    return true;
+  }
+  return lay.islandLinks.some(lk => {
+    const minX = Math.min(lk.x1, lk.x2) - lk.width * 0.5 - 2.0;
+    const maxX = Math.max(lk.x1, lk.x2) + lk.width * 0.5 + 2.0;
+    const minZ = Math.min(lk.z1, lk.z2) - lk.width * 0.5 - 2.0;
+    const maxZ = Math.max(lk.z1, lk.z2) + lk.width * 0.5 + 2.0;
+    return x >= minX && x <= maxX && z >= minZ && z <= maxZ;
+  });
+}
+
+function getGroundHeightAt(x, cy, z) {
+  for (const b of buildings) {
+    if (x < b.minX - 0.5 || x > b.maxX + 0.5 || z < b.minZ - 0.5 || z > b.maxZ + 0.5) continue;
+    let best = null;
+    for (const st of b.stairs) {
+      const top = stairTopAt(st, x, z);
+      if (top !== null && top - cy <= 0.65 && cy - top <= 2.0 && (best === null || top > best)) best = top;
+    }
+    if (best !== null) return best;
+    for (let f = b.floorSlabs.length - 1; f >= 0; f--) {
+      const s = b.floorSlabs[f];
+      if (cy >= s.y - 0.65) for (const q of s.boxes) if (x >= q.minX && x <= q.maxX && z >= q.minZ && z <= q.maxZ) return s.y;
+    }
+  }
+  const lay = ACTIVE_LAYOUT;
+  const e = lay.eastIsland, w = lay.westIsland, st = lay.starfishIsland;
+  const land =
+    (x >= e.minX - 2 && x <= e.maxX + 2 && z >= e.minZ - 2 && z <= e.maxZ + 2) ||
+    (x >= w.minX - 2 && x <= w.maxX + 2 && z >= w.minZ - 2 && z <= w.maxZ + 2) ||
+    Math.hypot(x - st.cx, z - st.cz) <= st.r + 2.0 ||
+    isOnAnyBridge(x, z);
+  return land ? ISLAND_SURFACE_Y : WATER_LEVEL_Y;
+}
+
+function resolveBuildingWallCollision(pos, radius, isCar) {
+  for (const b of buildings) {
+    const pad = radius;
+    if (!(pos.x > b.minX - pad && pos.x < b.maxX + pad && pos.z > b.minZ - pad && pos.z < b.maxZ + pad)) continue;
+    if (isCar) {
+      const d = [Math.abs(pos.x - (b.minX - pad)), Math.abs(pos.x - (b.maxX + pad)), Math.abs(pos.z - (b.minZ - pad)), Math.abs(pos.z - (b.maxZ + pad))];
+      const m = Math.min(...d);
+      if (m === d[0]) pos.x = b.minX - pad;
+      else if (m === d[1]) pos.x = b.maxX + pad;
+      else if (m === d[2]) pos.z = b.minZ - pad;
+      else pos.z = b.maxZ + pad;
+      carPhysics.speed = -carPhysics.speed * 0.28;
+      carPhysics.lateralVel *= -0.35;
+      carPhysics.bounceVelY = Math.max(carPhysics.bounceVelY, 1.8);
+      continue;
+    }
+    const inDoor = Math.abs(pos.x - b.x) < (b.doorW / 2 - 0.35), nearFront = Math.abs(pos.z - b.maxZ) < 0.85;
+    if (nearFront && inDoor && b.doorOpen && pos.y < ISLAND_SURFACE_Y + b.doorH) continue;
+    const wt = 0.45;
+    if (Math.abs(pos.x - b.minX) < wt) pos.x = pos.x < b.x ? b.minX - wt : b.minX + wt;
+    if (Math.abs(pos.x - b.maxX) < wt) pos.x = pos.x > b.x ? b.maxX + wt : b.maxX - wt;
+    if (Math.abs(pos.z - b.minZ) < wt) pos.z = pos.z < b.z ? b.minZ - wt : b.minZ + wt;
+    if (nearFront && (!inDoor || !b.doorOpen)) pos.z = pos.z > b.z ? b.maxZ + 0.85 : b.maxZ - 0.85;
+  }
+  if (!isCar) for (const hs of cityHouses) {
+    if (pos.x > hs.minX && pos.x < hs.maxX && pos.z > hs.minZ && pos.z < hs.maxZ) {
+      const dx = pos.x - hs.x, dz = pos.z - hs.z, hw = hs.w / 2, hd = hs.d / 2;
+      if (Math.abs(dz) > hd - 0.35 && Math.abs(dx) < hw) {
+        if (hs.doorOpen && Math.abs(dx) < 0.85) continue;
+        pos.z = dz > 0 ? hs.z + hd + 0.45 : hs.z - hd - 0.45;
+      } else if (Math.abs(dx) > hw - 0.35 && Math.abs(dz) < hd) {
+        pos.x = dx > 0 ? hs.x + hw + 0.45 : hs.x - hw - 0.45;
+      }
+    }
+  }
+}
+
+function drawMapBase(ctx, ox, oy, s) {
+  const lay = ACTIVE_LAYOUT;
+  const rect = (r, c) => { ctx.fillStyle = c; ctx.fillRect(ox + r.minX * s, oy + r.minZ * s, (r.maxX - r.minX) * s, (r.maxZ - r.minZ) * s); };
+  rect(lay.eastIsland, '#94a3b8');
+  rect(lay.beachStrip, state.city === 'IST' ? '#64748b' : '#d6b66d');
+  rect(lay.westIsland, '#8b95a5');
+  ctx.fillStyle = '#334155';
+  lay.roadX.forEach(rx => ctx.fillRect(ox + (rx - 6) * s, oy - 195 * s, 12 * s, 390 * s));
+  lay.roadZ.forEach(rz => ctx.fillRect(ox - 195 * s, oy + (rz - 6) * s, 390 * s, 12 * s));
+  ctx.strokeStyle = '#eab308';
+  ctx.lineWidth = Math.max(2, 6 * s);
+  lay.bridges.forEach(br => {
+    ctx.beginPath();
+    ctx.moveTo(ox + lay.westIsland.maxX * s, oy + br.z * s);
+    ctx.lineTo(ox + lay.eastIsland.minX * s, oy + br.z * s);
+    ctx.stroke();
+  });
+  lay.islandLinks.forEach(lk => {
+    ctx.beginPath();
+    ctx.moveTo(ox + lk.x1 * s, oy + lk.z1 * s);
+    ctx.lineTo(ox + lk.x2 * s, oy + lk.z2 * s);
+    ctx.stroke();
+  });
+}
+
+function drawMinimap() {
+  const c = $('minimap-canvas'); if (!c || !playerCar || !playerRig) return;
+  const ctx = c.getContext('2d'), cx = c.width / 2, cy = c.height / 2, s = 0.34;
+  ctx.clearRect(0, 0, c.width, c.height);
+  const t = currentPos();
+  const heading = (state.inCar || state.inMotorcycle) ? carPhysics.heading : charPhysics.heading;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(heading);
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(-220, -220, 440, 440);
+  drawMapBase(ctx, -t.x * s, -t.z * s, s);
+  buildings.forEach(b => {
+    ctx.fillStyle = b.type === 'hospital' ? '#ffffff' : (b.type === 'pavyon' ? '#ff2a85' : (b.type === 'casino' ? '#ffd000' : '#ff6b9d'));
+    ctx.fillRect((b.minX - t.x) * s, (b.minZ - t.z) * s, b.w * s, b.d * s);
+  });
+  if (state.storyEnabled || state.courierActive || state.taxiActive) {
+    ctx.fillStyle = '#ff2a85';
+    ctx.beginPath();
+    ctx.arc((checkpointPos.x - t.x) * s, (checkpointPos.z - t.z) * s, 4.5, 0, 6.283);
+    ctx.fill();
+  }
+  targetBossCars.forEach(tc => {
+    if (!tc.destroyed && tc.mesh) {
+      ctx.fillStyle = '#ffd000';
+      ctx.fillRect((tc.mesh.position.x - t.x) * s - 3, (tc.mesh.position.z - t.z) * s - 3, 6, 6);
+    }
+  });
+  ctx.restore();
+
+  ctx.fillStyle = '#00e5ff';
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 7);
+  ctx.lineTo(cx + 5.5, cy + 5);
+  ctx.lineTo(cx, cy + 2);
+  ctx.lineTo(cx - 5.5, cy + 5);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawFullMap() {
+  const c = $('full-map-canvas'); if (!c || !playerCar || !playerRig) return;
+  const ctx = c.getContext('2d'), cx = c.width / 2, cy = c.height / 2, s = 0.96;
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(0, 0, c.width, c.height);
+  drawMapBase(ctx, cx, cy, s);
+  const st = ACTIVE_LAYOUT.starfishIsland;
+  ctx.fillStyle = '#4d7c0f'; ctx.beginPath();
+  ctx.arc(cx + st.cx * s, cy + st.cz * s, st.r * s, 0, 6.283); ctx.fill();
+  ctx.fillStyle = '#93c5fd';
+  cityHouses.forEach(h => ctx.fillRect(cx + (h.x - h.w / 2) * s, cy + (h.z - h.d / 2) * s, h.w * s, h.d * s));
+  buildings.forEach(b => {
+    ctx.fillStyle = b.type === 'hospital' ? '#fff' : (b.type === 'pavyon' ? '#ff2a85' : (b.type === 'casino' ? '#ffd000' : '#ff6b9d'));
+    ctx.fillRect(cx + b.minX * s, cy + b.minZ * s, b.w * s, b.d * s);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1;
+    ctx.strokeRect(cx + b.minX * s, cy + b.minZ * s, b.w * s, b.d * s);
+  });
+  storyEnemies.forEach(e => {
+    if (e.hp > 0) {
+      ctx.fillStyle = e.isBoss ? '#ffd000' : '#ff2a85';
+      ctx.fillRect(cx + e.rig.position.x * s - 3, cy + e.rig.position.z * s - 3, 6, 6);
+    }
+  });
+  policeOfficers.forEach(p => {
+    if (p.downTimer <= 0) {
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(cx + p.rig.position.x * s - 2.5, cy + p.rig.position.z * s - 2.5, 5, 5);
+    }
+  });
+  if (state.tankSpawned && policeTank.visible) {
+    ctx.fillStyle = '#dc2626'; ctx.beginPath();
+    ctx.arc(cx + policeTank.position.x * s, cy + policeTank.position.z * s, 7, 0, 6.283); ctx.fill();
+  }
+  targetBossCars.forEach(tc => {
+    if (!tc.destroyed && tc.mesh) {
+      ctx.fillStyle = '#ffd000';
+      ctx.strokeStyle = '#ff2a85';
+      ctx.lineWidth = 2;
+      ctx.fillRect(cx + tc.mesh.position.x * s - 4.5, cy + tc.mesh.position.z * s - 4.5, 9, 9);
+      ctx.strokeRect(cx + tc.mesh.position.x * s - 4.5, cy + tc.mesh.position.z * s - 4.5, 9, 9);
+    }
+  });
+  if (state.storyEnabled || state.courierActive || state.taxiActive) {
+    ctx.fillStyle = '#ff2a85'; ctx.beginPath();
+    ctx.arc(cx + checkpointPos.x * s, cy + checkpointPos.z * s, 7, 0, 6.283); ctx.fill();
+  }
+
+  const p = currentPos();
+  const px = cx + p.x * s, py = cy + p.z * s;
+  const heading = (state.inCar || state.inMotorcycle) ? carPhysics.heading : charPhysics.heading;
+  const fx = Math.sin(heading), fz = Math.cos(heading);
+  const rx = Math.cos(heading), rz = -Math.sin(heading);
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.fillStyle = '#00e5ff';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(fx * 9, fz * 9);
+  ctx.lineTo(-fx * 4 + rx * 6, -fz * 4 + rz * 6);
+  ctx.lineTo(-fx * 2, -fz * 2);
+  ctx.lineTo(-fx * 4 - rx * 6, -fz * 4 - rz * 6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function legs(rig, phase, amp) {
+  rig.userData.leftLeg.rotation.x = Math.sin(phase) * amp;
+  rig.userData.rightLeg.rotation.x = -Math.sin(phase) * amp;
+}
+
+function updateCutscene(dt) {
+  const sc = state.cutsceneQueue[state.cutsceneIdx];
+  if (!sc) { finishCutscene(); return; }
+  state.cutsceneTimer += dt;
+  const p = THREE.MathUtils.clamp(state.cutsceneTimer / (sc.duration || 4.5), 0, 1);
+  if (sc.camStart && sc.camEnd) {
+    camera.position.lerpVectors(sc.camStart, sc.camEnd, p);
+  }
+  if (sc.lookAt) camera.lookAt(sc.lookAt);
+  if (airlinerMesh && airlinerMesh.visible) {
+    airlinerMesh.position.x += 12 * dt;
+    airlinerMesh.position.z -= 10.5 * dt;
+    airlinerMesh.position.y -= 2.0 * dt;
+  }
+  if (state.cutsceneTimer >= (sc.duration || 4.5)) {
+    if (state.cutsceneIdx + 1 < state.cutsceneQueue.length) applyCutsceneSlide(state.cutsceneIdx + 1);
+    else finishCutscene();
+  }
+}
+
+function updatePhysics(dt) {
+  if (!playerCar || !playerRig || !scene) return;
+  if (state.inCutscene) { updateCutscene(dt); return; }
+
+  if (state.fireCooldown > 0) state.fireCooldown -= dt;
+  state.recoilTimer = Math.max(0, state.recoilTimer - dt);
+  state.hitMarkerTimer = Math.max(0, state.hitMarkerTimer - dt);
+  updateCrosshairVisuals();
+
+  pavyonLights.forEach((m, idx) => {
+    m.material.color.setHex(((Math.floor(clock.elapsedTime * 6) + idx) % 2 === 0) ? 0xff2a85 : 0x00e5ff);
+  });
+
+  if (state.inJail) {
+    state.jailTimeLeft -= dt;
+    jailWalk(dt);
+    updateJailTimerText();
+    if (state.jailTimeLeft <= 0) releaseFromJail(false);
+    return;
+  }
+
+  if (state.wanted > 0) {
+    state.wantedTimer -= dt;
+    if (state.wantedTimer <= 0) {
+      state.wanted = Math.max(0, state.wanted - 1);
+      state.wantedTimer = 20;
+      if (state.wanted < 5 && policeTank) { state.tankSpawned = false; policeTank.visible = false; }
+      updateHUD();
+    }
+  }
+
+  const playerPos = currentPos();
+  let closest = null, cd = 5.5;
+  buildings.forEach(b => {
+    b.doorAngle += ((b.doorOpen ? -Math.PI * 0.48 : 0) - b.doorAngle) * Math.min(1, dt * 8);
+    b.doorPivot.rotation.y = b.doorAngle;
+    const d = playerPos.distanceTo(b.doorPos);
+    if (d < cd) { cd = d; closest = b; }
+  });
+  cityHouses.forEach(h => {
+    h.doorAngle += ((h.doorOpen ? -Math.PI * 0.45 : 0) - h.doorAngle) * Math.min(1, dt * 8);
+    h.doorPivot.rotation.y = h.doorAngle;
+  });
+  if (closest !== state.nearestBuilding) { state.nearestBuilding = closest; updateContextButtons(); }
+  if (!state.inCar && !state.inMotorcycle) updateContextButtons();
+
+  const loc = $('location-badge');
+  const inside = buildings.find(b => playerPos.x >= b.minX && playerPos.x <= b.maxX && playerPos.z >= b.minZ && playerPos.z <= b.maxZ);
+  if (inside) {
+    const f = Math.min(inside.floors, Math.max(0, Math.floor((playerPos.y - ISLAND_SURFACE_Y + 0.5) / inside.floorH)));
+    loc.textContent = `🏢 ${inside.name} - ${f === inside.floors ? 'ÇATI KATI' : (f + 1) + '. KAT'}`;
+  } else if (state.isSwimming) {
+    loc.textContent = state.city === 'IST' ? '🏊 İSTANBUL BOĞAZI - YÜZÜYOR' : '🏊 LOS ANGELES SAHİLİ - YÜZÜYOR';
+  } else if (Math.hypot(playerPos.x - ACTIVE_LAYOUT.starfishIsland.cx, playerPos.z - ACTIVE_LAYOUT.starfishIsland.cz) <= ACTIVE_LAYOUT.starfishIsland.r + 2) {
+    loc.textContent = state.city === 'IST' ? '🕌 BOĞAZ ORTASI - İSTANBUL' : '⭐ ORTA ADA - LOS ANGELES';
+  } else {
+    loc.textContent = state.city === 'IST'
+      ? (playerPos.x > 30 ? '🇹🇷 ANADOLU YAKASI - İSTANBUL' : '🇹🇷 AVRUPA YAKASI - İSTANBUL')
+      : (playerPos.x > 30 ? '🌴 LOS ANGELES DOĞU - GÜNDÜZ' : '🌆 LOS ANGELES BATI - GÜNDÜZ');
+  }
+
+  if (state.inCar || state.inMotorcycle) {
+    const veh = state.inMotorcycle ? playerMoto : playerCar, moto = state.inMotorcycle;
+    const gY = getGroundHeightAt(veh.position.x, veh.position.y, veh.position.z);
+    const inWater = gY <= WATER_LEVEL_Y + 0.25;
+
+    if (inWater && !moto) {
+      state.carSunk = true;
+      state.sinkDepth = Math.min(2.8, state.sinkDepth + dt * 1.1);
+      carPhysics.speed *= Math.exp(-3.5 * dt);
+      carPhysics.lateralVel *= Math.exp(-5.0 * dt);
+      carPhysics.smoothShake *= Math.exp(-5.0 * dt);
+      carPhysics.pitch += (0.14 - carPhysics.pitch) * (1 - Math.exp(-4 * dt));
+      playerCar.position.y = WATER_LEVEL_Y - state.sinkDepth;
+      playerCar.rotation.order = 'YXZ';
+      playerCar.rotation.set(carPhysics.pitch, carPhysics.heading, carPhysics.roll);
+      $('speed-value').textContent = '0';
+      if (state.sinkDepth > 0.6 && Math.random() < 0.04) showToast('⚓ ARAÇ BATIYOR! [F] İLE ÇIK');
+    } else {
+      const hasFuel = moto || state.fuel > 0.05, nitro = hasFuel && state.input.nitro && state.input.gas;
+      const baseA = moto ? carPhysics.accel * 1.28 : carPhysics.accel;
+      const baseM = moto ? carPhysics.maxSpeed * 1.18 : carPhysics.maxSpeed;
+      const acc = nitro ? baseA * 1.75 : baseA;
+      const mx = nitro ? carPhysics.nitroMaxSpeed * (moto ? 1.12 : 1) : baseM;
+
+      if (hasFuel && state.input.gas) {
+        const speedRatio = THREE.MathUtils.clamp(Math.abs(carPhysics.speed) / mx, 0, 1);
+        carPhysics.speed += acc * (1 - speedRatio * 0.52) * dt;
+        if (!moto) {
+          state.fuel = Math.max(0, state.fuel - (nitro ? 2.2 : 0.75) * dt);
+          updateFuelHUD();
+          if (state.fuel <= 0.05) showToast('⛽ BENZİN BİTTİ! BENZİNLİĞE GİT');
+        }
+      } else if (state.input.brake) {
+        carPhysics.speed -= carPhysics.brakeForce * dt;
+      } else if (Math.abs(carPhysics.speed) < 0.25) {
+        carPhysics.speed = 0;
+      } else {
+        const drag = carPhysics.friction + Math.abs(carPhysics.speed) * 0.14;
+        const deltaV = drag * dt;
+        carPhysics.speed = Math.abs(carPhysics.speed) <= deltaV ? 0 : carPhysics.speed - Math.sign(carPhysics.speed) * deltaV;
+      }
+
+      carPhysics.speed = THREE.MathUtils.clamp(carPhysics.speed, carPhysics.reverseMax, mx);
+      if (!moto && playerCar.userData.nitroFlames) {
+        playerCar.userData.nitroFlames.forEach(f => { f.visible = nitro; if (nitro) f.scale.y = 0.8 + Math.random() * 0.6; });
+      }
+
+      const absSpd = Math.abs(carPhysics.speed);
+      $('speed-value').textContent = Math.round(absSpd * 3.85);
+      const targetShake = THREE.MathUtils.clamp((absSpd - 28) / 42, 0, 1) * (nitro ? 0.9 : 0.45);
+      carPhysics.smoothShake += (targetShake - carPhysics.smoothShake) * (1 - Math.exp(-8 * dt));
+      carPhysics.shakePhase += dt * (11 + absSpd * 0.22);
+
+      const steer = (state.input.left ? 1 : 0) - (state.input.right ? 1 : 0);
+      const tm = state.input.drift ? 1.32 : (moto ? 1.2 : 1.0);
+      if (absSpd > 0.35) {
+        const prev = carPhysics.heading;
+        const lowSpeedFactor = THREE.MathUtils.clamp(absSpd / 7.5, 0.25, 1.0);
+        const highSpeedStability = THREE.MathUtils.clamp(1.12 - (absSpd / 95) * 0.36, 0.72, 1.12);
+        carPhysics.heading += steer * carPhysics.turnSpeed * tm * lowSpeedFactor * highSpeedStability * dt * (carPhysics.speed >= 0 ? 1 : -1);
+        const turnDelta = carPhysics.heading - prev;
+
+        const lateralGrip = state.input.drift ? carPhysics.driftGrip : carPhysics.grip;
+        if (state.input.drift && absSpd > 5) {
+          carPhysics.lateralVel += -turnDelta * absSpd * 0.55;
+        }
+        carPhysics.lateralVel *= Math.exp(-lateralGrip * dt);
+
+        const lim = moto ? 0.28 : 0.12;
+        const tr = THREE.MathUtils.clamp(-turnDelta * (moto ? 16 : 9.5) - carPhysics.lateralVel * 0.012, -lim, lim);
+        carPhysics.roll += (tr - carPhysics.roll) * (1 - Math.exp(-12 * dt));
+      } else {
+        carPhysics.lateralVel *= Math.exp(-14 * dt);
+        carPhysics.roll += (0 - carPhysics.roll) * (1 - Math.exp(-10 * dt));
+      }
+
+      const targetPitch = (hasFuel && state.input.gas) ? -0.028 : (state.input.brake ? 0.036 : 0);
+      carPhysics.pitch += (targetPitch - carPhysics.pitch) * (1 - Math.exp(-10 * dt));
+
+      const springForce = -carPhysics.suspensionStiffness * carPhysics.bounceY - carPhysics.suspensionDamping * carPhysics.bounceVelY;
+      carPhysics.bounceVelY += springForce * dt;
+      carPhysics.bounceY += carPhysics.bounceVelY * dt;
+
+      veh.rotation.order = 'YXZ';
+      veh.rotation.set(carPhysics.pitch, carPhysics.heading, carPhysics.roll);
+      const fwdX = Math.sin(carPhysics.heading), fwdZ = Math.cos(carPhysics.heading);
+      const rightX = Math.cos(carPhysics.heading), rightZ = -Math.sin(carPhysics.heading);
+      veh.position.x += (fwdX * carPhysics.speed + rightX * carPhysics.lateralVel) * dt;
+      veh.position.z += (fwdZ * carPhysics.speed + rightZ * carPhysics.lateralVel) * dt;
+
+      resolveBuildingWallCollision(veh.position, moto ? 1.15 : 2.1, true);
+
+      if (absSpd > 3.5) {
+        const runOverDmg = Math.max(120, Math.round(absSpd * 4.2));
+        const knockDist = Math.min(5.5, 2.2 + absSpd * 0.08);
+        pedestrians.forEach(p => {
+          if (!p.gone && p.downTimer <= 0 && p.rig.position.distanceTo(veh.position) < (moto ? 2.15 : 2.55)) {
+            p.rig.position.x += fwdX * knockDist;
+            p.rig.position.z += fwdZ * knockDist;
+            p.rig.position.y += 0.45;
+            carPhysics.bounceVelY = Math.max(carPhysics.bounceVelY, 2.2);
+            damagePed(p, runOverDmg);
+          }
+        });
+        policeOfficers.forEach(c => {
+          if (c.downTimer <= 0 && c.rig.position.distanceTo(veh.position) < (moto ? 2.15 : 2.55)) {
+            c.rig.position.x += fwdX * knockDist;
+            c.rig.position.z += fwdZ * knockDist;
+            c.rig.position.y += 0.45;
+            carPhysics.bounceVelY = Math.max(carPhysics.bounceVelY, 2.2);
+            damageCop(c, runOverDmg);
+          }
+        });
+        storyEnemies.forEach(en => {
+          if (en.hp > 0 && en.rig.position.distanceTo(veh.position) < (moto ? 2.2 : 2.6)) {
+            en.rig.position.x += fwdX * knockDist;
+            en.rig.position.z += fwdZ * knockDist;
+            carPhysics.bounceVelY = Math.max(carPhysics.bounceVelY, 2.2);
+            en.hp -= runOverDmg;
+            spawnHitSpark(en.rig.position, 0xff2a85);
+            if (en.hp <= 0) {
+              en.rig.rotation.x = -Math.PI / 2;
+              state.money += en.isBoss ? 5000 : 120;
+              registerKill();
+              checkStoryProgress();
+            }
+          }
+        });
+      }
+
+      if (veh.userData.wheels) veh.userData.wheels.forEach(w => { w.rotation.x += carPhysics.speed * dt * 1.9; });
+      const desiredVehY = (moto && inWater ? WATER_LEVEL_Y - 0.1 : gY) + carPhysics.bounceY;
+      veh.position.y += (desiredVehY - veh.position.y) * (1 - Math.exp(-16 * dt));
+      if (moto) placeMotoRider(); else playerRig.visible = false;
+
+      const dp = Math.hypot(veh.position.x - state.gasStationPos.x, veh.position.z - state.gasStationPos.z);
+      if (!moto && dp < 10 && state.fuel < state.maxFuel && Math.abs(carPhysics.speed) < 3.5) {
+        state.fuel = Math.min(state.maxFuel, state.fuel + 28 * dt);
+        updateFuelHUD();
+        if (!state.inRefuelZone) { state.inRefuelZone = true; showToast('⛽ BENZİN DOLUYOR...'); }
+      } else {
+        state.inRefuelZone = false;
+      }
+    }
+  } else {
+    carPhysics.smoothShake *= Math.exp(-5.0 * dt);
+    if (state.input.fire && !state.isSwimming) firePlayerWeapon();
+    const prevX = playerRig.position.x, prevZ = playerRig.position.z, u = playerRig.userData;
+    let mx = state.input.joyX, mz = state.input.joyY;
+    if (state.input.left) mx = -1; if (state.input.right) mx = 1; if (state.input.gas) mz = -1; if (state.input.brake) mz = 1;
+
+    if (Math.hypot(mx, mz) > 0.1) {
+      charPhysics.heading = state.camYaw + Math.atan2(-mx, -mz);
+      playerRig.rotation.y = charPhysics.heading;
+      const spd = state.isSwimming ? (state.input.sprint ? 6.2 : 4.2) : (state.input.sprint ? 11.5 : 6.8);
+      playerRig.position.x += Math.sin(charPhysics.heading) * spd * dt;
+      playerRig.position.z += Math.cos(charPhysics.heading) * spd * dt;
+      if (state.isSwimming) {
+        charPhysics.swimCycle += dt * spd * 1.7;
+        playerRig.rotation.x = Math.PI * 0.36;
+        u.leftArm.sPivot.rotation.x = -1.1 + Math.sin(charPhysics.swimCycle) * 0.75;
+        u.rightArm.sPivot.rotation.x = -1.1 - Math.sin(charPhysics.swimCycle) * 0.75;
+        legs(playerRig, charPhysics.swimCycle, 0.55);
+      } else {
+        playerRig.rotation.x = 0;
+        charPhysics.walkCycle += dt * spd * 1.6;
+        legs(playerRig, charPhysics.walkCycle, 0.65);
+        if (charPhysics.punchTimer <= 0) {
+          u.leftArm.sPivot.rotation.x = -Math.sin(charPhysics.walkCycle) * 0.55;
+          u.rightArm.sPivot.rotation.x = Math.sin(charPhysics.walkCycle) * 0.55;
+        }
+      }
+    } else if (state.isSwimming) {
+      charPhysics.swimCycle += dt * 3;
+      playerRig.rotation.x = Math.PI * 0.32;
+      u.leftArm.sPivot.rotation.x = -0.8 + Math.sin(charPhysics.swimCycle) * 0.25;
+      u.rightArm.sPivot.rotation.x = -0.8 - Math.sin(charPhysics.swimCycle) * 0.25;
+      legs(playerRig, charPhysics.swimCycle, 0.2);
+    } else {
+      playerRig.rotation.x = 0; legs(playerRig, 0, 0);
+      if (charPhysics.punchTimer <= 0) {
+        u.leftArm.sPivot.rotation.x = 0;
+        u.rightArm.sPivot.rotation.x = WEAPONS[state.weaponIndex].id === 'fist' ? 0 : -1.2;
+      }
+    }
+
+    if (charPhysics.punchTimer > 0 && !state.isSwimming) {
+      charPhysics.punchTimer -= dt;
+      u.rightArm.sPivot.rotation.x = -1.75;
+      u.torsoPivot.rotation.y = 0.35;
+    } else {
+      u.torsoPivot.rotation.y = 0;
+    }
+
+    const floorY = getGroundHeightAt(playerRig.position.x, playerRig.position.y, playerRig.position.z);
+    if (floorY <= WATER_LEVEL_Y + 0.25) {
+      state.isSwimming = true;
+      playerRig.position.y += (WATER_LEVEL_Y - 0.12 + Math.sin(clock.elapsedTime * 3.5) * 0.08 - playerRig.position.y) * (1 - Math.exp(-8 * dt));
+      charPhysics.velocityY = 0; charPhysics.isGrounded = false;
+    } else {
+      state.isSwimming = false;
+      if (state.input.jump && charPhysics.isGrounded) { charPhysics.velocityY = 8.4; charPhysics.isGrounded = false; }
+      charPhysics.velocityY -= 22.5 * dt;
+      playerRig.position.y += charPhysics.velocityY * dt;
+      if (playerRig.position.y <= floorY) {
+        playerRig.position.y = floorY; charPhysics.velocityY = 0; charPhysics.isGrounded = true;
+      } else {
+        charPhysics.isGrounded = false;
+      }
+    }
+    resolveBuildingWallCollision(playerRig.position, 0.45, false);
+    if (stairBlocked(playerRig.position.x, playerRig.position.y, playerRig.position.z)) {
+      playerRig.position.x = prevX; playerRig.position.z = prevZ;
+    }
+  }
+
+  for (let i = shockwaves.length - 1; i >= 0; i--) {
+    const sw = shockwaves[i];
+    sw.age += dt * 3.5;
+    sw.mesh.scale.setScalar(1 + sw.age * 7);
+    if (sw.age >= 1) { scene.remove(sw.mesh); shockwaves.splice(i, 1); }
+  }
+
+  const under = state.isSwimming || (state.inCar && state.carSunk), ow = $('oxygen-wrap');
+  if (under) {
+    state.oxygen -= dt * 4.5; ow.style.display = 'block';
+    $('oxygen-fill').style.width = Math.max(0, state.oxygen) + '%';
+    if (state.oxygen < 30 && Math.random() < 0.03) showToast('🫧 NEFESİN BİTİYOR! KARAYA ÇIK');
+    if (state.oxygen <= 0) { respawnAtHospital('drown'); return; }
+  } else {
+    state.oxygen = Math.min(100, state.oxygen + dt * 30);
+    if (state.oxygen >= 100) ow.style.display = 'none';
+    else $('oxygen-fill').style.width = state.oxygen + '%';
+  }
+
+  checkpointRing.rotation.z += dt * 2.5;
+  if ((state.storyEnabled || state.courierActive || state.taxiActive) && playerPos.distanceTo(checkpointPos) < 4.5) {
+    if (state.storyEnabled && state.storyChapter === 2) {
+      state.money += 1200; updateHUD(); playSfx('pickup');
+      showToast('💼 BAY KURU İLE BULUŞULDU (+$1.200)! GÖREV 3 BAŞLIYOR');
+      startStoryChapter(3);
+    } else if (state.storyEnabled && state.storyChapter === 5) {
+      state.money += 2500; updateHUD(); playSfx('pickup');
+      showToast('🤝 YENİ DOSTLAR & CEPHANE HAZIR (+$2.500)! GÖREV 6 BAŞLIYOR');
+      startStoryChapter(6);
+    } else if (state.storyEnabled && state.storyChapter === 8) {
+      state.money += 3000; updateHUD(); playSfx('pickup');
+      showToast('🪩 PAVYON ÖNÜNE ULAŞILDI (+$3.000)! GÖREV 9 BAŞLIYOR');
+      startStoryChapter(9);
+    } else if (state.courierActive) {
+      state.courierActive = false; state.money += 350; updateHUD(); playSfx('pickup');
+      syncCheckpointVisibility();
+      showToast('🛵 KURYE SİPARİŞİ TESLİM EDİLDİ! +$350');
+    } else if (state.taxiActive) {
+      state.taxiActive = false; state.money += 300; updateHUD(); playSfx('pickup');
+      syncCheckpointVisibility();
+      showToast('🚕 TAKSİ YOLCUSU BIRAKILDI! +$300');
+    }
+  }
+
+  for (let i = hitParticles.length - 1; i >= 0; i--) {
+    const pt = hitParticles[i]; pt.life -= dt;
+    pt.vel.y -= 12 * dt; pt.mesh.position.addScaledVector(pt.vel, dt);
+    if (pt.life <= 0) { scene.remove(pt.mesh); hitParticles.splice(i, 1); }
+  }
+  pickups.forEach(pk => {
+    if (!pk.active) { pk.respawnTimer -= dt; if (pk.respawnTimer <= 0) { pk.active = true; pk.mesh.visible = true; } return; }
+    pk.mesh.rotation.y += dt * 2.5;
+    if (playerPos.distanceTo(pk.mesh.position) < 2.1) {
+      pk.active = false; pk.mesh.visible = false; pk.respawnTimer = 25;
+      state.money += 150; updateHUD(); playSfx('pickup'); showToast('💵 NAKİT TOPLANDI! +$150');
+    }
+  });
+
+  trafficCars.forEach(t => {
+    t.mesh.position.x += Math.sin(t.heading) * t.speed * dt;
+    t.mesh.position.z += Math.cos(t.heading) * t.speed * dt;
+    t.mesh.rotation.y = t.heading;
+    if (t.mesh.userData.wheels) t.mesh.userData.wheels.forEach(w => { w.rotation.x += t.speed * dt * 1.9; });
+    t.turnCooldown -= dt;
+    const nearX = ACTIVE_LAYOUT.roadX.some(rx => Math.abs(t.mesh.position.x - rx) < 2.2);
+    const nearZ = ACTIVE_LAYOUT.roadZ.some(rz => Math.abs(t.mesh.position.z - rz) < 2.2);
+    if (nearX && nearZ && t.turnCooldown <= 0) {
+      t.heading += [0, Math.PI / 2, -Math.PI / 2][Math.floor(Math.random() * 3)];
+      t.turnCooldown = 2.5 + Math.random() * 2;
+    }
+    if (t.mesh.position.x > 165) { t.mesh.position.x = 165; t.heading = -Math.PI / 2; }
+    if (t.mesh.position.x < -175) { t.mesh.position.x = -175; t.heading = Math.PI / 2; }
+    if (t.mesh.position.z > 175) { t.mesh.position.z = 175; t.heading = Math.PI; }
+    if (t.mesh.position.z < -175) { t.mesh.position.z = -175; t.heading = 0; }
+    resolveBuildingWallCollision(t.mesh.position, 2.0, false);
+  });
+
+  seaShips.forEach(s => {
+    s.mesh.position.x += Math.sin(s.heading) * s.speed * dt;
+    s.mesh.position.z += Math.cos(s.heading) * s.speed * dt;
+    s.mesh.rotation.z = Math.sin(clock.elapsedTime * 1.6 + s.phase) * 0.04;
+    if (Math.abs(s.mesh.position.x) > 250 || Math.abs(s.mesh.position.z) > 250) s.heading += Math.PI;
+    s.mesh.rotation.y = s.heading;
+  });
+
+  pedestrians.forEach(p => {
+    if (p.gone) return;
+    if (p.downTimer > 0) {
+      p.downTimer -= dt;
+      if (p.downTimer <= 0) {
+        if (p.respawnPending) {
+          p.respawnPending = false;
+          respawnNpcElsewhere(p, false);
+        } else {
+          p.hp = p.maxHp; p.rig.rotation.set(0, 0, 0); p.rig.position.y = ISLAND_SURFACE_Y;
+        }
+      }
+      return;
+    }
+    if (p.stunTimer > 0) { p.stunTimer -= dt; stunPose(p.rig, p.stunTimer); return; }
+    p.rig.rotation.x = 0;
+    const d = p.rig.position.distanceTo(playerPos);
+    if (p.fleeTimer > 0) {
+      p.fleeTimer -= dt;
+      const fa = Math.atan2(p.rig.position.x - playerPos.x, p.rig.position.z - playerPos.z);
+      p.rig.rotation.y = fa;
+      p.rig.position.x += Math.sin(fa) * 5.2 * dt;
+      p.rig.position.z += Math.cos(fa) * 5.2 * dt;
+      p.walkPhase += dt * 11;
+      legs(p.rig, p.walkPhase, 0.72);
+      if (p.ownCar && p.rig.position.distanceTo(p.ownCar.position) > 14 && !p.returnToCar) {
+        p.returnToCar = true;
+        const c = createCarMesh(0x4c1d95);
+        c.position.copy(p.ownCar.position); c.rotation.copy(p.ownCar.rotation);
+        dynamicGroup.add(c);
+        trafficCars.push({ mesh: c, speed: 12, heading: c.rotation.y, turnCooldown: 2 });
+      }
+    } else if (p.isAggressive && d < 22) {
+      p.angle = Math.atan2(playerPos.x - p.rig.position.x, playerPos.z - p.rig.position.z);
+      p.rig.rotation.y = p.angle;
+      if (d > 2.2) {
+        p.rig.position.x += Math.sin(p.angle) * 4.5 * dt;
+        p.rig.position.z += Math.cos(p.angle) * 4.5 * dt;
+        p.walkPhase += dt * 9;
+        legs(p.rig, p.walkPhase, 0.65);
+      } else {
+        legs(p.rig, 0, 0);
+        p.attackCooldown -= dt;
+        if (p.attackCooldown <= 0) {
+          p.attackCooldown = 1.25; p.rig.userData.rightArm.sPivot.rotation.x = -1.5;
+          damagePlayer(7);
+        }
+      }
+    } else {
+      p.walkTimer -= dt;
+      if (p.walkTimer <= 0) { p.angle = Math.random() * 6.283; p.walkTimer = 2 + Math.random() * 3.5; }
+      const nx = p.rig.position.x + Math.sin(p.angle) * 2.2 * dt, nz = p.rig.position.z + Math.cos(p.angle) * 2.2 * dt;
+      if (!isOnRoadOrBridge(nx, nz, 7.5)) {
+        p.rig.position.x = nx; p.rig.position.z = nz; p.rig.rotation.y = p.angle;
+        p.walkPhase += dt * 5; legs(p.rig, p.walkPhase, 0.45);
+      } else {
+        p.angle += Math.PI * 0.6; p.walkTimer = 1.5; legs(p.rig, 0, 0);
+      }
+    }
+    p.rig.position.y = getGroundHeightAt(p.rig.position.x, p.rig.position.y, p.rig.position.z);
+    resolveBuildingWallCollision(p.rig.position, 0.5, false);
+  });
+
+  policeOfficers.forEach(c => {
+    if (c.downTimer > 0) {
+      c.downTimer -= dt;
+      if (c.downTimer <= 0) {
+        if (c.respawnPending) {
+          c.respawnPending = false;
+          respawnNpcElsewhere(c, true, 'mesutkomser.glb');
+        } else {
+          c.hp = c.maxHp; c.rig.rotation.set(0, 0, 0); c.rig.position.y = ISLAND_SURFACE_Y;
+        }
+      }
+      return;
+    }
+    if (c.stunTimer > 0) { c.stunTimer -= dt; stunPose(c.rig, c.stunTimer); return; }
+    c.rig.rotation.x = 0;
+    const d = c.rig.position.distanceTo(playerPos);
+    if (state.wanted > 0 && d < 32) {
+      c.angle = Math.atan2(playerPos.x - c.rig.position.x, playerPos.z - c.rig.position.z);
+      c.rig.rotation.y = c.angle;
+      if (d > 11) {
+        c.rig.position.x += Math.sin(c.angle) * 4.8 * dt;
+        c.rig.position.z += Math.cos(c.angle) * 4.8 * dt;
+        c.walkPhase += dt * 10; legs(c.rig, c.walkPhase, 0.65);
+      } else {
+        legs(c.rig, 0, 0); c.shootCD -= dt;
+        if (c.shootCD <= 0) {
+          c.shootCD = 1.3;
+          const mf = c.rig.userData.muzzleFlash;
+          if (mf) { mf.visible = true; setTimeout(() => { mf.visible = false; }, 60); }
+          damagePlayer(5);
+        }
+      }
+    } else {
+      legs(c.rig, 0, 0);
+    }
+    c.rig.position.y = getGroundHeightAt(c.rig.position.x, c.rig.position.y, c.rig.position.z);
+    resolveBuildingWallCollision(c.rig.position, 0.5, false);
+  });
+
+  if (state.tankSpawned && policeTank && policeTank.visible) {
+    const ta = Math.atan2(playerPos.x - policeTank.position.x, playerPos.z - policeTank.position.z), td = policeTank.position.distanceTo(playerPos);
+    policeTank.rotation.y = ta;
+    if (td > 16) {
+      policeTank.position.x += Math.sin(ta) * 5.2 * dt;
+      policeTank.position.z += Math.cos(ta) * 5.2 * dt;
+    }
+    if (Math.random() < 0.015) {
+      const sh = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 8), bas(0xff7b00));
+      sh.position.copy(policeTank.position).add(new THREE.Vector3(Math.sin(ta) * 3.5, 1.8, Math.cos(ta) * 3.5));
+      scene.add(sh);
+      tankShells.push({ mesh: sh, vel: new THREE.Vector3(Math.sin(ta) * 28, 3, Math.cos(ta) * 28), life: 2.2 });
+    }
+  }
+  for (let i = tankShells.length - 1; i >= 0; i--) {
+    const s = tankShells[i]; s.life -= dt; s.mesh.position.addScaledVector(s.vel, dt);
+    if (s.mesh.position.distanceTo(playerPos) < 2.6) {
+      damagePlayer(22); spawnHitSpark(s.mesh.position, 0xff7b00);
+      scene.remove(s.mesh); tankShells.splice(i, 1); continue;
+    }
+    if (s.life <= 0) { scene.remove(s.mesh); tankShells.splice(i, 1); }
+  }
+
+  storyAllies.forEach(al => {
+    const target = storyEnemies.find(e => e.hp > 0);
+    if (!target) return;
+    const a = Math.atan2(target.rig.position.x - al.rig.position.x, target.rig.position.z - al.rig.position.z);
+    al.rig.rotation.y = a;
+    al.shootCD -= dt;
+    if (al.shootCD <= 0) {
+      al.shootCD = 0.85; target.hp -= 24; spawnHitSpark(target.rig.position, 0x00e5ff);
+      if (target.hp <= 0) { target.rig.rotation.x = -Math.PI / 2; state.money += 100; registerKill(); }
+      checkStoryProgress();
+    }
+  });
+
+  storyEnemies.forEach(en => {
+    if (en.hp <= 0) return;
+    const d = en.rig.position.distanceTo(playerPos);
+    if (d < 34) {
+      const a = Math.atan2(playerPos.x - en.rig.position.x, playerPos.z - en.rig.position.z);
+      en.rig.rotation.y = a;
+      if (d > 10) {
+        en.rig.position.x += Math.sin(a) * 3.6 * dt;
+        en.rig.position.z += Math.cos(a) * 3.6 * dt;
+        en.walkPhase += dt * 8; legs(en.rig, en.walkPhase, 0.55);
+      } else {
+        legs(en.rig, 0, 0); en.shootCD -= dt;
+        if (en.shootCD <= 0) {
+          en.shootCD = en.isBoss ? 0.85 : 1.35;
+          const mf = en.rig.userData.muzzleFlash;
+          if (mf) { mf.visible = true; setTimeout(() => { mf.visible = false; }, 60); }
+          damagePlayer(en.isBoss ? 12 : 7);
+        }
+      }
+    }
+  });
+
+  if (state.cameraMode === 1 && !state.inCar && !state.inMotorcycle) {
+    const h = playerRig.position.y + (state.isSwimming ? 0.65 : 1.56);
+    camera.position.set(playerRig.position.x, h, playerRig.position.z);
+    camera.lookAt(playerRig.position.x + Math.sin(state.camYaw) * Math.cos(state.camPitch) * 10, h - Math.sin(state.camPitch) * 10, playerRig.position.z + Math.cos(state.camYaw) * Math.cos(state.camPitch) * 10);
+  } else {
+    const t = currentPos(), baseY = state.inCar ? 1.3 : (state.inMotorcycle ? 1.2 : 1.55);
+    const dist = state.inCar ? 10.5 : (state.inMotorcycle ? 8.2 : 7.0);
+    const yaw = (state.inCar || state.inMotorcycle) ? (carPhysics.heading + (state.camYaw - carPhysics.heading) * 0.35) : state.camYaw;
+    const shakeX = Math.sin(carPhysics.shakePhase * 1.7) * carPhysics.smoothShake * 0.24;
+    const shakeY = Math.cos(carPhysics.shakePhase * 2.3) * carPhysics.smoothShake * 0.16;
+    const desiredCamPos = new THREE.Vector3(
+      t.x - Math.sin(yaw) * Math.cos(state.camPitch) * dist + shakeX,
+      t.y + baseY + Math.sin(state.camPitch) * dist + shakeY,
+      t.z - Math.cos(yaw) * Math.cos(state.camPitch) * dist
+    );
+    camera.position.lerp(desiredCamPos, 1 - Math.exp(-14 * dt));
+    camera.lookAt(t.x, t.y + baseY + 0.25, t.z);
+  }
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  try {
+    const dt = Math.min(clock.getDelta(), 0.05);
+    updatePhysics(dt);
+    if (renderer && scene && camera) renderer.render(scene, camera);
+    if (state.started) drawMinimap();
+  } catch (err) { console.error(err); }
+}
+
+window.addEventListener('error', e => { showFatalError(e.error || e.message || 'Bilinmeyen hata'); });
+window.addEventListener('unhandledrejection', e => { showFatalError(e.reason || 'Asenkron hata'); });
+
+try {
+  initScene();
+  setupControls();
+  updateHUD();
+  updateWeaponHUD();
+  updateFuelHUD();
+  updateContextButtons();
+  updateCrosshairVisuals();
+  animate();
+} catch (err) { showFatalError(err); }
+</script>
 </body>
 </html>
